@@ -1,23 +1,24 @@
 # backend
 
 ## ファイル構成
+
 ```
 .
 ├── README.md
-├── app.js
-├── controllers
-├── helpers
-├── middlewares
-├── models
-├── package.json
-├── public
-│   ├── images
-│   ├── javascripts
-│   └── stylesheets
+├── src
+│   ├── app.js
+│   ├── controllers
+│   ├── helpers
+│   └── middlewares
 ├── tests
 │   ├── controllers
 │   ├── helpers
-│   ├── middlewares
-│   └── models
-└── views
+│   └── middlewares
+├── package.json
+├── package-lock.json
+├── .gitignore
+├── .eslintrc.json
+├── .prrttierrc.json
+
+
 ```
