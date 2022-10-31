@@ -5,8 +5,12 @@
 ```
 .
 ├── README.md
-├── tests
+├── src
 │   ├── app.js
+│   ├── controllers
+│   ├── helpers
+│   └── middlewares
+├── tests
 │   ├── controllers
 │   ├── helpers
 │   └── middlewares
@@ -16,8 +20,5 @@
 ├── .eslintrc.json
 ├── .prettierrc.json
 ├── .prettierignore
-├── tests
-│   ├── controllers
-│   ├── helpers
-│   └── middlewares
+
 ```
