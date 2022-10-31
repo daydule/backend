@@ -3,11 +3,11 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "server": "npm run fix; node app.js;",
-    "lint": "eslint ./; exit 0;",
+    "server": "node src/app.js;",
+    "lint": "eslint src/; exit 0;",
     "fix": "npm run format; npm run lint:fix;",
     "format": "prettier --write './**/*.{js,json,md}'; exit 0;",
-    "lint:fix": "eslint --fix './**/*.js'; exit 0;"
+    "lint:fix": "eslint --fix 'src/**/*.js'; exit 0;"
   },
   "repository": {
     "type": "git",
