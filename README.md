@@ -5,11 +5,10 @@
 ```
 .
 ├── README.md
-├── src
-│   ├── app.js
-│   ├── controllers
-│   ├── helpers
-│   └── middlewares
+├── app.js
+├── controllers
+├── helpers
+│── middlewares
 ├── tests
 │   ├── controllers
 │   ├── helpers
