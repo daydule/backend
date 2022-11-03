@@ -2,7 +2,11 @@
 
 const express = require('express');
 const app = express();
-const port = 3000;
+const auth = require('./routes/auth');
+const preferences = require('./config/preferences');
+const port = preferences.port;
+
+app.use('/', auth);
 
 app.get('/', (req, res) => {
   res.json({
