@@ -2,7 +2,11 @@
 
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 
+/**
+ * サインアップ
+ */
 router.post('/signup', (req, res, next) => {
     // TODO バリデーションチェックを行う
 
@@ -20,7 +24,10 @@ router.post('/signup', (req, res, next) => {
     return next();
 });
 
-router.post('/login', (req, res, next) => {
+/**
+ * ログイン
+ */
+router.post('/login', passport.authenticate('local', { failureRedirect: '/notFound' }), (req, res, next) => {
     // TODO バリデーションチェックを行う
 
     // TODO ログイン処理を行う
