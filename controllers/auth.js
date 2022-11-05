@@ -48,7 +48,9 @@ router.post('/signup', async (req, res) => {
     } catch (e) {
         console.error(e);
         res.json({
-            isError: true
+            isError: true,
+            errorCode: 'errorCode',
+            errorMessage: 'サインアップエラー'
         });
     }
 });
