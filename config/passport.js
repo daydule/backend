@@ -2,39 +2,51 @@
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
-// const crypto = require('crypto');
+const crypto = require('crypto');
+const pool = require('../db/pool');
 
-// TODO ストラテジの本実装を行う
 passport.use(
     new LocalStrategy(
         {
             usernameField: 'email',
             passwordField: 'password'
         },
-        function (email, password, done) {
-            console.log(email);
-            console.log(password);
+        function (email, password, cb) {
+            pool.query('SELECT * FROM users WHERE email = $1', [email], (err, result) => {
+                if (err) {
+                    return cb(err);
+                }
 
-            return done(null, {
-                id: '1',
-                email: 'email',
-                password: 'password'
+                if (result.rows.length === 0) {
+                    return cb(null, false, { message: 'Incorrect username or password.' });
+                }
+
+                const user = result.rows[0];
+                crypto.pbkdf2(password, user.salt, 310000, 32, 'sha256', function (err, hashedPassword) {
+                    if (err) {
+                        return cb(err);
+                    }
+                    if (user.password !== hashedPassword.toString('base64')) {
+                        return cb(null, false, { message: 'Incorrect username or password.' });
+                    }
+                    return cb(null, user);
+                });
             });
         }
     )
 );
 
-// TODO serializeUserの本実装を行う
 passport.serializeUser(function (user, cb) {
-    process.nextTick(function () {
-        cb(null, { id: user.id, username: user.username });
-    });
+    cb(null, user.id);
 });
 
-// TODO deserializeUserの本実装を行う
-passport.deserializeUser(function (user, cb) {
-    process.nextTick(function () {
-        return cb(null, user);
+passport.deserializeUser(function (userId, cb) {
+    pool.query('SELECT * FROM users WHERE id = $1', [userId], (err, result) => {
+        if (err) {
+            return cb(err);
+        } else {
+            return cb(null, result.rows[0]);
+        }
     });
 });
 

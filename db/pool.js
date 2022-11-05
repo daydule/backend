@@ -5,11 +5,11 @@ const { Pool } = require('pg');
 const dbSecret = require('../config/secret').db;
 
 const pool = new Pool({
-  host: dbSecret.host,
-  database: dbSecret.database,
-  port: dbSecret.port,
-  user: dbSecret.user,
-  password: dbSecret.password
+    host: dbSecret.host,
+    database: dbSecret.database,
+    port: dbSecret.port,
+    user: dbSecret.user,
+    password: dbSecret.password
 });
 
 module.exports = pool;
