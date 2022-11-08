@@ -1,0 +1,6 @@
+{
+    "extends": ["plugin:mocha/recommended"],
+    "rules": {
+        "no-unused-vars": "off"
+    }
+}
