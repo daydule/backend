@@ -18,7 +18,13 @@
 ├── tests
 │   ├── helpers
 │   └── middlewares
-├── package-lock.json
 ├── package.json
+├── package-lock.json
+├── .gitignore
+├── .eslintrc.json
+├── .prettierrc.json
+├── .prettierignore
+├── .github
+│   └── pull_request_template.md
 
 ```
