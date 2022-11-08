@@ -21,26 +21,15 @@ describe('guestCheck.js', function () {
             assert.equal(result.isError, true);
         });
 
-        it('should set true to isGuest of request if it is a guest.', function () {
+        it('should set "isGuest message" to isGuest of request if it is a guest.', function () {
             const req = {
                 user: {
-                    is_guest: true
+                    is_guest: 'isGuest message'
                 }
             };
 
             guestCheck(req, {}, function () {});
-            assert.equal(req.isGuest, true);
-        });
-
-        it('should set true to isGuest of request if it is not a guest.', function () {
-            const req = {
-                user: {
-                    is_guest: false
-                }
-            };
-
-            guestCheck(req, {}, function () {});
-            assert.equal(req.isGuest, false);
+            assert.equal(req.isGuest, 'isGuest message');
         });
     });
 });
