@@ -12,6 +12,7 @@ services:
       - ${DB_PORT}:5432
     command: -c 'config_file=/etc/postgresql/postgresql.conf'
     volumes:
+      - ./:/user/src/app
       - ./postgres/config/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./postgres/src:/home/daydule/src
