@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "server": "node src/app.js;",
+    "start": "node app.js;",
     "lint": "eslint src/; exit 0;",
     "fix": "npm run format; npm run lint:fix;",
     "format": "prettier --write './**/*.{js,json,md}'; exit 0;",
@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "chai": "^4.3.6",
+    "dotenv": "^16.0.3",
     "eslint": "^8.26.0",
     "eslint-plugin-jsdoc": "^39.6.2",
     "eslint-plugin-mocha": "^10.1.0",
