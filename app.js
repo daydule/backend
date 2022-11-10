@@ -38,7 +38,14 @@ app.use('/', auth);
 // sample code start ----------
 app.get('/', (req, res) => {
     res.json({
-        message: 'daydule'
+        message: 'daydule',
+        _csrf: req.csrfToken()
+    });
+});
+
+app.post('/', (req, res) => {
+    res.json({
+        message: 'daydulexxxxx'
     });
 });
 
