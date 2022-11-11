@@ -27,7 +27,6 @@ router.post('/create', async (req, res) => {
     try {
         // TODO バリデーションチェックを行う
 
-        // TODO 予定レコード作成処理を実装する
         result = await pool.query(
             'INSERT INTO plans (\
                 user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \
@@ -61,7 +60,6 @@ router.post('/create', async (req, res) => {
         });
     }
 
-    // 予定をレスポンスに含めるように修正する
     return res.status(200).json({
         isError: false,
         plan: result.rows[0]
