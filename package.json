@@ -9,6 +9,7 @@
     "format": "prettier --write './**/*.{js,json,md}'; exit 0;",
     "lint:fix": "eslint --fix 'src/**/*.js'; exit 0;",
     "start:nodemon": "nodemon ./app/app.js",
+    "start:debug": "nodemon -L --inspect-brk=0.0.0.0:9229 ./app/app.js",
     "test": "./node_modules/.bin/mocha"
   },
   "repository": {
