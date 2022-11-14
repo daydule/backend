@@ -6,7 +6,7 @@
 # done
 # >&2 echo "Postgres is up - executing command"
 
-sleep 4
+sleep 3
 
 node_start="$@"
 exec $node_start
