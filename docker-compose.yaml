@@ -1,4 +1,5 @@
 version: '3'
+
 services:
   postgres:
     container_name: postgres
@@ -12,17 +13,17 @@ services:
       - ${DB_PORT}:5432
     command: -c 'config_file=/etc/postgresql/postgresql.conf'
     volumes:
-      - ./:/user/src/app
       - ./postgres/config/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./postgres/src:/home/daydule/src
       - db_data_volume:/var/lib/postgresql/data
-
+  
   node_express:
-    build: ./
     container_name: node_express
+    build: ./
     ports:
       - ${BACKEND_PORT}:3000
+      - "9229:9229"
     environment:
       BACKEND_PORT: ${BACKEND_PORT}
       DB_NAME: ${DB_NAME}
@@ -31,7 +32,14 @@ services:
       DB_PORT: ${DB_PORT}
     depends_on:
       - postgres
-    command: ["./wait-for-db-container.sh", "npm", "start"]
+    volumes:
+      - ./app:/daydule/app/
+    working_dir: /daydule/
+    command: 
+      # nodemon
+      ["./wait-for-db-container.sh", "npm", "run", "start:nodemon"]
+      # nodemon × debug
+      # ["./wait-for-db-container.sh", "npm", "run", "start:debug"]
 
 volumes:
   db_data_volume:
