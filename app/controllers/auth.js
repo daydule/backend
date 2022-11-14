@@ -79,6 +79,32 @@ router.post('/login', passport.authenticate('local', { failureRedirect: '/authEr
 });
 
 /**
+ * ログアウト
+ */
+router.get('/logout', function (req, res) {
+    if (!req.user) {
+        return res.status(400).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: '未ログインエラー'
+        });
+    }
+    req.logout((err) => {
+        if (err) {
+            return res.status(500).json({
+                isError: true,
+                errorId: 'errorId',
+                errorMessage: err
+            });
+        } else {
+            return res.status(200).json({
+                isError: false
+            });
+        }
+    });
+});
+
+/**
  * 認証エラー時のレスポンスを返却する
  */
 router.get('/authError', (req, res) => {
