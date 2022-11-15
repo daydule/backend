@@ -44,15 +44,15 @@ router.post('/update', async function (req, res) {
         // TODO: バリデーションチェックする
 
         const hashedPassword = await promisify(crypto.pbkdf2)(password, salt, 310000, 32, 'sha256');
-        await pool.query('UPDATE users SET user_name = $1, email = $2, password = $3, salt = $4 WHERE id = $5', [
-            userName,
-            email,
-            hashedPassword.toString('base64'),
-            salt,
-            req.user.id
-        ]);
+        const result = await pool.query(
+            'UPDATE users SET user_name = $1, email = $2, password = $3, salt = $4 WHERE id = $5 RETURNING *',
+            [userName, email, hashedPassword.toString('base64'), salt, req.user.id]
+        );
         return res.status(200).json({
-            isError: false
+            isError: false,
+            userName: result.rows[0].user_name,
+            email: result.rows[0].email,
+            isGuest: result.rows[0].is_guest
         });
     } catch (e) {
         console.log(e);
