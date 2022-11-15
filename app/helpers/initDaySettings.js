@@ -19,4 +19,6 @@ async function initDaySettings(pool, userId) {
     }
 }
 
-module.exports = initDaySettings;
+module.exports = {
+    initDaySettings: initDaySettings
+}
