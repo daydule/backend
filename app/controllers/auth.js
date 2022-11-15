@@ -6,6 +6,7 @@ const passport = require('passport');
 const { promisify } = require('util');
 const crypto = require('crypto');
 const pool = require('../db/pool');
+const initDaySettings = require('../helpers/initDaySettings');
 
 /**
  * サインアップ
@@ -25,6 +26,7 @@ router.post('/signup', async (req, res) => {
             throw new Error('そのメールアドレスは既に使用されています。');
         }
 
+        let userId;
         if (req.user && req.user.is_guest) {
             // ゲストのサインアップ処理
             const hashedPassword = await promisify(crypto.pbkdf2)(password, salt, 310000, 32, 'sha256');
@@ -35,6 +37,7 @@ router.post('/signup', async (req, res) => {
                 false,
                 req.user.id
             ]);
+            userId = req.user.id;
         } else {
             // ゲスト以外のサインアップ処理
             const hashedPassword = await promisify(crypto.pbkdf2)(password, salt, 310000, 32, 'sha256');
@@ -44,9 +47,11 @@ router.post('/signup', async (req, res) => {
                 salt,
                 false
             ]);
+            const result = await pool.query('SELECT id from users WHERE email = $1', [email]);
+            userId = result.rows[0].id;
         }
 
-        // TODO 曜日別設定を行う
+        await initDaySettings(pool, userId);
 
         return res.status(200).json({
             isError: false
