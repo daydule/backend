@@ -89,6 +89,7 @@ router.get('/logout', function (req, res) {
             errorMessage: '未ログインエラー'
         });
     }
+router.post('/logout', function (req, res) {
     req.logout((err) => {
         if (err) {
             return res.status(500).json({
