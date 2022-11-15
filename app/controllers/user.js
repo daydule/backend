@@ -20,7 +20,7 @@ router.use(guestCheck);
 /**
  * ユーザー情報参照
  */
-router.get('/current', function (req, res) {
+router.get('/read', function (req, res) {
     return res.status(200).json({
         isError: false,
         user: {
