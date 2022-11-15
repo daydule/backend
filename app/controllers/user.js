@@ -7,13 +7,6 @@ const crypto = require('crypto');
 const pool = require('../db/pool');
 const guestCheck = require('../middlewares/guestCheck');
 
-// TODO: エラーオブジェクトを別ファイルにまとめる
-const SERVER_ERROR = {
-    isError: true,
-    errorId: 'errorId',
-    errorMessage: 'サーバーエラー'
-};
-
 // TODO: ログインチェックにする
 router.use(guestCheck);
 
@@ -56,7 +49,11 @@ router.post('/update', async function (req, res) {
         });
     } catch (e) {
         console.log(e);
-        return res.status(500).json(SERVER_ERROR);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: 'サーバーエラー'
+        });
     }
 });
 
