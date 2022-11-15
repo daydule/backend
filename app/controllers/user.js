@@ -43,9 +43,11 @@ router.post('/update', async function (req, res) {
         );
         return res.status(200).json({
             isError: false,
-            userName: result.rows[0].user_name,
-            email: result.rows[0].email,
-            isGuest: result.rows[0].is_guest
+            user: {
+                userName: result.rows[0].user_name,
+                email: result.rows[0].email,
+                isGuest: result.rows[0].is_guest
+            }
         });
     } catch (e) {
         console.log(e);
