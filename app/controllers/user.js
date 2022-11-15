@@ -50,7 +50,7 @@ router.post('/update', async function (req, res) {
             }
         });
     } catch (e) {
-        console.log(e);
+        console.error(e);
         return res.status(500).json({
             isError: true,
             errorId: 'errorId',
