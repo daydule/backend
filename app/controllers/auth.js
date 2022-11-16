@@ -6,7 +6,7 @@ const passport = require('passport');
 const { promisify } = require('util');
 const crypto = require('crypto');
 const pool = require('../db/pool');
-const guestCheck = require('../middlewares/guestCheck');
+const loginCheck = require('../middlewares/loginCheck');
 
 /**
  * サインアップ
@@ -79,8 +79,18 @@ router.post('/login', passport.authenticate('local', { failureRedirect: '/authEr
     });
 });
 
-// TODO: ログインチェックに書き換える
-router.use(guestCheck);
+/**
+ * ゲストチェック
+ */
+router.get('/guestCheck', function (req, res) {
+    return res.json({
+        isError: false,
+        isLogin: !!req.user,
+        isGuest: !!req.user?.is_guest
+    });
+});
+
+router.use(loginCheck);
 
 /**
  * ログアウト
@@ -98,17 +108,6 @@ router.post('/logout', function (req, res) {
                 isError: false
             });
         }
-    });
-});
-
-/**
- * ゲストチェック
- */
-router.get('/guestCheck', function (req, res) {
-    return res.json({
-        isError: false,
-        isLogin: !!req.user,
-        isGuest: !!req.user?.is_guest
     });
 });
 
