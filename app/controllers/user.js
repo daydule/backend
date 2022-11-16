@@ -5,10 +5,6 @@ const router = express.Router();
 const { promisify } = require('util');
 const crypto = require('crypto');
 const pool = require('../db/pool');
-const guestCheck = require('../middlewares/guestCheck');
-
-// TODO: ログインチェックにする
-router.use(guestCheck);
 
 /**
  * ユーザー情報参照
