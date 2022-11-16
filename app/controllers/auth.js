@@ -79,6 +79,17 @@ router.post('/login', passport.authenticate('local', { failureRedirect: '/authEr
 });
 
 /**
+ * ゲストチェック
+ */
+router.get('/guestCheck', function (req, res) {
+    return res.json({
+        isError: false,
+        isLogin: !!req.user,
+        isGuest: !!req.user?.is_guest
+    });
+});
+
+/**
  * 認証エラー時のレスポンスを返却する
  */
 router.get('/authError', (req, res) => {
