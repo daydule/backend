@@ -90,12 +90,10 @@ router.get('/guestCheck', function (req, res) {
     });
 });
 
-router.use(loginCheck);
-
 /**
  * ログアウト
  */
-router.post('/logout', function (req, res) {
+router.post('/logout', loginCheck, function (req, res) {
     req.logout((err) => {
         if (err) {
             return res.status(500).json({
