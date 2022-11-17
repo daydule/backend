@@ -5,6 +5,7 @@ const app = express();
 
 const expressSession = require('express-session');
 const pgSession = require('connect-pg-simple')(expressSession);
+const csurf = require('csurf');
 
 // eslint-disable-next-line node/no-unpublished-require
 const secret = require('./config/secret');
@@ -12,8 +13,11 @@ const passport = require('./config/passport');
 const pool = require('./db/pool');
 const auth = require('./controllers/auth');
 const plan = require('./controllers/plan');
+const loginCheck = require('./middlewares/loginCheck');
 const port = secret.port;
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(
     expressSession({
         store: new pgSession({
@@ -27,35 +31,33 @@ app.use(
         // Insert express-session options here
     })
 );
+app.use(csurf());
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', auth);
-// TODO 未ログイン時にログイン画面に遷移させるか、jsonを返すだけにするかを検討する
-app.use(function (req, res, next) {
-    if (!req.user) {
-        res.status(500).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: '未ログインエラー'
-        });
-    }
-    next();
-});
+app.use(loginCheck);
 app.use('/plan', plan);
 
 // sample code start ----------
 app.get('/', (req, res) => {
     res.json({
-        message: 'daydule'
+        message: 'daydule',
+        _csrf: req.csrfToken()
+    });
+});
+
+app.post('/', (req, res) => {
+    res.json({
+        message: 'daydulexxxxx'
     });
 });
 
 app.get('/notFound', (req, res) => {
     res.json({
-        message: '404 not found'
+        message: '404 not found',
+        hoge: 'hoge',
+        _csrf: req.csrfToken()
     });
 });
 
