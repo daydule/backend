@@ -7,6 +7,7 @@ const { promisify } = require('util');
 const crypto = require('crypto');
 const pool = require('../db/pool');
 const loginCheck = require('../middlewares/loginCheck');
+const daySettingsHelper = require('../helpers/daySettingsHelper');
 
 /**
  * サインアップ
@@ -20,34 +21,26 @@ router.post('/signup', async (req, res) => {
     try {
         // TODO バリデーションチェックを行う
 
-        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (result.rows.length > 0) {
+        const checkEmailExistanceResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (checkEmailExistanceResult.rows.length > 0) {
             isClientError = true;
             throw new Error('そのメールアドレスは既に使用されています。');
         }
 
-        if (req.user && req.user.is_guest) {
-            // ゲストのサインアップ処理
-            const hashedPassword = await promisify(crypto.pbkdf2)(password, salt, 310000, 32, 'sha256');
-            await pool.query('UPDATE users SET email = $1, password = $2, salt = $3, is_guest = $4 WHERE id = $5', [
-                email,
-                hashedPassword.toString('base64'),
-                salt,
-                false,
-                req.user.id
-            ]);
-        } else {
-            // ゲスト以外のサインアップ処理
-            const hashedPassword = await promisify(crypto.pbkdf2)(password, salt, 310000, 32, 'sha256');
-            await pool.query('INSERT INTO users (email, password, salt, is_guest) VALUES ($1, $2, $3, $4)', [
-                email,
-                hashedPassword.toString('base64'),
-                salt,
-                false
-            ]);
-        }
+        const hashedPassword = await promisify(crypto.pbkdf2)(password, salt, 310000, 32, 'sha256');
 
-        // TODO 曜日別設定を行う
+        const isGuest = req.user && req.user.is_guest;
+        const sql = isGuest
+            ? 'UPDATE users SET email = $1, password = $2, salt = $3, is_guest = $4 WHERE id = $5 RETURNING *'
+            : 'INSERT INTO users (email, password, salt, is_guest) VALUES ($1, $2, $3, $4) RETURNING *';
+        const values = isGuest
+            ? [email, hashedPassword.toString('base64'), salt, false, req.user.id]
+            : [email, hashedPassword.toString('base64'), salt, false];
+
+        const signupUserResult = await pool.query(sql, values);
+
+        const userId = signupUserResult.rows[0].id;
+        await daySettingsHelper.initDaySettings(pool, userId);
 
         return res.status(200).json({
             isError: false
@@ -83,10 +76,13 @@ router.post('/login', passport.authenticate('local', { failureRedirect: '/authEr
  * ゲストチェック
  */
 router.get('/guestCheck', function (req, res) {
+    // ここでcsrfトークンを返しているのは、ここじゃないとログインチェックで弾かれてgetできないから
+    // TODO: どこでcsrfトークンを取得するか決定したら、csrfトークン返さなくする
     return res.json({
         isError: false,
         isLogin: !!req.user,
-        isGuest: !!req.user?.is_guest
+        isGuest: !!req.user && req.user.is_guest,
+        _csrf: req.csrfToken()
     });
 });
 
