@@ -22,12 +22,11 @@ router.post('/create', async (req, res) => {
     const place = req.body.place;
     const isRequiredPlan = req.body.is_required_plan;
     const todoStartTime = req.body.todo_start_time;
-    let result;
 
     try {
         // TODO バリデーションチェックを行う
 
-        result = await pool.query(
+        const result = await pool.query(
             'INSERT INTO plans (\
                 user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \
                 priority, place, is_required_plan, todo_start_time) \
@@ -49,6 +48,11 @@ router.post('/create', async (req, res) => {
                 todoStartTime
             ]
         );
+
+        return res.status(200).json({
+            isError: false,
+            plan: result.rows[0]
+        });
     } catch (e) {
         // TODO バリデーションエラーはHTTPステータスコード400で返却するように実装する
         console.error(e);
@@ -59,11 +63,6 @@ router.post('/create', async (req, res) => {
             errorMessage: 'システムエラー'
         });
     }
-
-    return res.status(200).json({
-        isError: false,
-        plan: result.rows[0]
-    });
 });
 
 module.exports = router;
