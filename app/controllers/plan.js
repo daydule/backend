@@ -55,6 +55,7 @@ router.post('/create', async (req, res) => {
         });
     } catch (e) {
         // TODO バリデーションエラーはHTTPステータスコード400で返却するように実装する
+
         console.error(e);
 
         return res.status(500).json({
