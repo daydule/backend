@@ -12,6 +12,7 @@ const secret = require('./config/secret');
 const passport = require('./config/passport');
 const pool = require('./db/pool');
 const auth = require('./controllers/auth');
+const plan = require('./controllers/plan');
 const loginCheck = require('./middlewares/loginCheck');
 const port = secret.port;
 
@@ -36,6 +37,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', auth);
 app.use(loginCheck);
+app.use('/plan', plan);
 
 // sample code start ----------
 app.get('/', (req, res) => {
