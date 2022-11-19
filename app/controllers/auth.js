@@ -7,7 +7,7 @@ const { promisify } = require('util');
 const crypto = require('crypto');
 const pool = require('../db/pool');
 const loginCheck = require('../middlewares/loginCheck');
-const initDaySettings = require('../helpers/initDaySettings');
+const daySettingsHelper = require('../helpers/daySettingsHelper');
 
 /**
  * サインアップ
@@ -21,41 +21,34 @@ router.post('/signup', async (req, res) => {
     try {
         // TODO バリデーションチェックを行う
 
-        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (result.rows.length > 0) {
+        if ((await pool.query('SELECT * FROM users WHERE email = $1', [email])).rows.length > 0) {
             isClientError = true;
             throw new Error('そのメールアドレスは既に使用されています。');
         }
 
-        let userId;
-        if (req.user && req.user.is_guest) {
-            // ゲストのサインアップ処理
-            const hashedPassword = await promisify(crypto.pbkdf2)(password, salt, 310000, 32, 'sha256');
-            await pool.query('UPDATE users SET email = $1, password = $2, salt = $3, is_guest = $4 WHERE id = $5', [
-                email,
-                hashedPassword.toString('base64'),
-                salt,
-                false,
-                req.user.id
-            ]);
-            userId = req.user.id;
-        } else {
-            // ゲスト以外のサインアップ処理
-            const hashedPassword = await promisify(crypto.pbkdf2)(password, salt, 310000, 32, 'sha256');
-            await pool.query('INSERT INTO users (email, password, salt, is_guest) VALUES ($1, $2, $3, $4)', [
-                email,
-                hashedPassword.toString('base64'),
-                salt,
-                false
-            ]);
-            const result = await pool.query('SELECT id from users WHERE email = $1', [email]);
-            userId = result.rows[0].id;
-        }
+        const hashedPassword = await promisify(crypto.pbkdf2)(password, salt, 310000, 32, 'sha256');
 
-        await initDaySettings(pool, userId);
+        const isGuest = !!req.user?.is_guest;
+        const sql = isGuest
+            ? 'UPDATE users SET email = $1, password = $2, salt = $3, is_guest = $4 WHERE id = $5 RETURNING *'
+            : 'INSERT INTO users (email, password, salt, is_guest) VALUES ($1, $2, $3, $4) RETURNING *';
+        const values = isGuest
+            ? [email, hashedPassword.toString('base64'), salt, false, req.user.id]
+            : [email, hashedPassword.toString('base64'), salt, false];
+
+        const result = await pool.query(sql, values);
+
+        const userId = result.rows[0].id;
+        const daySettingList = await daySettingsHelper.initDaySettings(pool, userId);
 
         return res.status(200).json({
-            isError: false
+            isError: false,
+            user: {
+                userName: result.rows[0].user_name,
+                email: result.rows[0].email,
+                isGuest: result.rows[0].is_guest
+            },
+            daySettingList: daySettingList
         });
     } catch (e) {
         console.error(e);
@@ -91,7 +84,8 @@ router.get('/guestCheck', function (req, res) {
     return res.json({
         isError: false,
         isLogin: !!req.user,
-        isGuest: !!req.user?.is_guest
+        isGuest: !!req.user?.is_guest,
+        _csrf: req.csrfToken()
     });
 });
 
