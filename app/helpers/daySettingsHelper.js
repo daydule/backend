@@ -1,8 +1,8 @@
 'use strict';
 
 const { Pool } = require('pg');
-const DEFAULT = require('../const').DEFAULT;
-const DAY_LIST = require('../const').DAY_LIST;
+const DEFAULT = require('../config/const').DEFAULT;
+const DAY_LIST = require('../config/const').DAY_LIST;
 
 /**
  * 曜日別設定の初期設定をする
