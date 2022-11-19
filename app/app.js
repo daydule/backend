@@ -65,21 +65,6 @@ app.get('/notFound', (req, res) => {
     });
 });
 
-app.get('/memo', function (req, res, next) {
-    // SELECT
-    pool.query('SELECT * FROM memo', function (error, results) {
-        // エラーの場合
-        if (error) {
-            throw error;
-        }
-
-        // 正常なら取得したデータを返却
-        res.status(200).json({
-            data: results.rows
-        });
-        return next();
-    });
-});
 // sample code end ----------
 
 app.listen(port, () => {
