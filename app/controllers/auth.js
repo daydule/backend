@@ -6,6 +6,7 @@ const passport = require('passport');
 const { promisify } = require('util');
 const crypto = require('crypto');
 const pool = require('../db/pool');
+const loginCheck = require('../middlewares/loginCheck');
 
 /**
  * サインアップ
@@ -75,6 +76,36 @@ router.post('/signup', async (req, res) => {
 router.post('/login', passport.authenticate('local', { failureRedirect: '/authError' }), (req, res) => {
     res.status(200).json({
         isError: false
+    });
+});
+
+/**
+ * ゲストチェック
+ */
+router.get('/guestCheck', function (req, res) {
+    return res.json({
+        isError: false,
+        isLogin: !!req.user,
+        isGuest: !!req.user?.is_guest
+    });
+});
+
+/**
+ * ログアウト
+ */
+router.post('/logout', loginCheck, function (req, res) {
+    req.logout((err) => {
+        if (err) {
+            return res.status(500).json({
+                isError: true,
+                errorId: 'errorId',
+                errorMessage: err
+            });
+        } else {
+            return res.status(200).json({
+                isError: false
+            });
+        }
     });
 });
 
