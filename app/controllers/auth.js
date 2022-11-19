@@ -40,16 +40,10 @@ router.post('/signup', async (req, res) => {
         const signupUserResult = await pool.query(sql, values);
 
         const userId = signupUserResult.rows[0].id;
-        const daySettingList = await daySettingsHelper.initDaySettings(pool, userId);
+        await daySettingsHelper.initDaySettings(pool, userId);
 
         return res.status(200).json({
-            isError: false,
-            user: {
-                userName: signupUserResult.rows[0].user_name,
-                email: signupUserResult.rows[0].email,
-                isGuest: signupUserResult.rows[0].is_guest
-            },
-            daySettingList: daySettingList
+            isError: false
         });
     } catch (e) {
         console.error(e);
