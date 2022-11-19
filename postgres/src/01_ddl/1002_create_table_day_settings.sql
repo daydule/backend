@@ -4,7 +4,7 @@ CREATE TABLE "day_settings"
   "user_id"             INT         NOT NULL REFERENCES "users" ("id"),
   "setting_name"        VARCHAR(20) NOT NULL,
   "day"                 INT         NOT NULL,
-  "schedule_start_time" TIME        NOT NULL,
-  "schedule_end_time"   TIME        NOT NULL,
+  "schedule_start_time" VARCHAR(4)  NOT NULL,
+  "schedule_end_time"   VARCHAR(4)  NOT NULL,
   "scheduling_logic"    INT         NOT NULL
 );
