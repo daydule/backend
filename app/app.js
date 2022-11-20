@@ -14,6 +14,7 @@ const pool = require('./db/pool');
 const auth = require('./controllers/auth');
 const plan = require('./controllers/plan');
 const loginCheck = require('./middlewares/loginCheck');
+const user = require('./controllers/user');
 const port = secret.port;
 
 app.use(express.json());
@@ -36,7 +37,10 @@ app.use(csurf());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', auth);
+
 app.use(loginCheck);
+
+app.use('/user', user);
 app.use('/plan', plan);
 
 // sample code start ----------
