@@ -5,6 +5,7 @@ const router = express.Router();
 const pool = require('../db/pool');
 const { promisify } = require('util');
 const crypto = require('crypto');
+const guestCheck = require('../middlewares/guestCheck');
 
 /**
  * ユーザー情報参照
@@ -23,17 +24,7 @@ router.get('/read', function (req, res) {
 /**
  * ユーザー情報更新
  */
-router.post('/update', async function (req, res) {
-    // TODO: ゲストチェックのミドルウェアを更新したらそっちを使う
-    if (req.user.is_guest) {
-        console.error('ゲストユーザーがユーザー情報更新(/user/update)を呼び出しました。');
-        return res.status(400).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: 'ゲストユーザーはユーザー情報を更新できません。'
-        });
-    }
-
+router.post('/update', guestCheck, async function (req, res) {
     const userName = req.body.userName;
     const email = req.body.email;
     const password = req.body.password;
