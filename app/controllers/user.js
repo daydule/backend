@@ -13,7 +13,7 @@ router.get('/read', function (req, res) {
     return res.status(200).json({
         isError: false,
         user: {
-            userName: req.user.user_name,
+            nickname: req.user.nickname,
             email: req.user.email,
             isGuest: req.user.is_guest
         }
@@ -34,7 +34,7 @@ router.post('/update', async function (req, res) {
         });
     }
 
-    const userName = req.body.userName;
+    const nickname = req.body.nickname;
     const email = req.body.email;
     const password = req.body.password;
 
@@ -53,13 +53,13 @@ router.post('/update', async function (req, res) {
             });
         }
 
-        const sql = 'UPDATE users SET user_name = $1, email = $2 WHERE id = $3 RETURNING *';
-        const values = [userName, email, req.user.id];
+        const sql = 'UPDATE users SET nickname = $1, email = $2 WHERE id = $3 RETURNING *';
+        const values = [nickname, email, req.user.id];
         const result = await pool.query(sql, values);
         return res.status(200).json({
             isError: false,
             user: {
-                userName: result.rows[0].user_name,
+                nickname: result.rows[0].nickname,
                 email: result.rows[0].email
             }
         });
