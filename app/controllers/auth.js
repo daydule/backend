@@ -76,13 +76,10 @@ router.post('/login', passport.authenticate('local', { failureRedirect: '/authEr
  * ゲストチェック
  */
 router.get('/guestCheck', function (req, res) {
-    // ここでcsrfトークンを返しているのは、ここじゃないとログインチェックで弾かれてgetできないから
-    // TODO: どこでcsrfトークンを取得するか決定したら、csrfトークン返さなくする
     return res.json({
         isError: false,
         isLogin: !!req.user,
-        isGuest: !!req.user && req.user.is_guest,
-        _csrf: req.csrfToken()
+        isGuest: !!req.user && req.user.is_guest
     });
 });
 
