@@ -44,7 +44,7 @@ router.post('/update', async function (req, res) {
         // TODO: 以下のバリデーションチェック（パスワードが正しいかどうかのチェック）をヘルパーで実装する
         // バリデーションチェック（パスワードが正しいかどうかのチェック）をする
         const hashedPassword = await promisify(crypto.pbkdf2)(password, req.user.salt, 310000, 32, 'sha256');
-        if (hashedPassword.toString('base64') != req.user.password) {
+        if (hashedPassword.toString('base64') != req.user.hashed_password) {
             console.error('パスワードが違います。');
             return res.status(400).json({
                 isError: true,

@@ -18,7 +18,7 @@ passport.use(
                 }
 
                 if (result.rows.length === 0) {
-                    return cb(null, false, { message: 'Incorrect username or password.' });
+                    return cb(null, false, { message: 'Incorrect email or password.' });
                 }
 
                 const user = result.rows[0];
@@ -26,8 +26,8 @@ passport.use(
                     if (err) {
                         return cb(err);
                     }
-                    if (user.password !== hashedPassword.toString('base64')) {
-                        return cb(null, false, { message: 'Incorrect username or password.' });
+                    if (user.hashed_password !== hashedPassword.toString('base64')) {
+                        return cb(null, false, { message: 'Incorrect email or password.' });
                     }
                     return cb(null, user);
                 });

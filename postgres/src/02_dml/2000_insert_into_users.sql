@@ -2,7 +2,7 @@ INSERT INTO "users"
 (
   "nickname",
   "email",
-  "password",
+  "hashed_password",
   "salt",
   "is_guest"
 )
