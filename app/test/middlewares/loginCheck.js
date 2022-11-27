@@ -9,7 +9,8 @@ const loginCheck = require('../../middlewares/loginCheck');
 describe('loginCheck.js', function () {
     describe('loginCheck function', function () {
         it('should return json of error if not logged in.', function () {
-            const next = sinon.stub().callsFake(function () {});
+            const stub = sinon.stub();
+            stub.returns();
             const res = {
                 status: function (code) {
                     return {
@@ -19,9 +20,9 @@ describe('loginCheck.js', function () {
                     };
                 }
             };
-            const result = loginCheck({}, res, next);
+            const result = loginCheck({}, res, stub);
             assert.equal(result.isError, true);
-            assert.equal(next.callCount, 0);
+            assert.equal(stub.callCount, 0);
         });
 
         it('should call next function once if logged in.', function () {
@@ -37,9 +38,10 @@ describe('loginCheck.js', function () {
                     };
                 }
             };
-            const next = sinon.stub().callsFake(function () {});
-            loginCheck(req, res, next);
-            assert.equal(next.callCount, 1);
+            const stub = sinon.stub();
+            stub.returns();
+            loginCheck(req, res, stub);
+            assert.equal(stub.callCount, 1);
         });
     });
 });

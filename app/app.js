@@ -12,9 +12,9 @@ const secret = require('./config/secret');
 const passport = require('./config/passport');
 const pool = require('./db/pool');
 const auth = require('./controllers/auth');
+const user = require('./controllers/user');
 const plan = require('./controllers/plan');
 const loginCheck = require('./middlewares/loginCheck');
-const user = require('./controllers/user');
 const port = secret.port;
 
 app.use(express.json());
