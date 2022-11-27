@@ -5,6 +5,7 @@ const app = express();
 
 const expressSession = require('express-session');
 const pgSession = require('connect-pg-simple')(expressSession);
+// TODO: csrfトークンが必要になったタイミングでコメントアウトを外す
 // const csurf = require('csurf');
 
 // eslint-disable-next-line node/no-unpublished-require
@@ -32,6 +33,7 @@ app.use(
         // Insert express-session options here
     })
 );
+// TODO: csrfトークンが必要になったタイミングでコメントアウトを外す
 // app.use(csurf());
 
 app.use(passport.initialize());
