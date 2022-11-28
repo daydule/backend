@@ -10,15 +10,15 @@ VALUES
 (
   'test01',
   'test01@example.com',
-  'W+Dck5bziMvXzrhzO00lClrtkyzaH8uYzX6fZUMTsu8=',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
   'i7Ri/9DBZL9XXwnpV9PKZQ==',
   false
 ),
 (
   '',
   'guest01@example.com',
-  'vYMN67Y1Mczu4Ywfc9w//voQ1ZenLVK9BDHpwq2cr2c=',
-  'wy1bEc30bXhCLZhIsm+6wQ==',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
   true
 );
 

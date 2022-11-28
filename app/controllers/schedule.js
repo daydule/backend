@@ -18,7 +18,7 @@ router.post('/update', async (req, res) => {
 
         // TODO並び順の取得（履歴用ではなく、ユーザーに一つだけ紐づく並び順を取得）
         const result = await pool.query(
-            'UPDATE schedules SET start_time = $1, end_time = $2 WHERE userId = $3 AND date = $4 RETURNING *',
+            'UPDATE schedules SET start_time = $1, end_time = $2 WHERE user_id = $3 AND date = $4 RETURNING *',
             [startTime, endTime, userId, date]
         );
 
