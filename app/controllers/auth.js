@@ -31,8 +31,8 @@ router.post('/signup', async (req, res) => {
 
         const isGuest = req.user && req.user.is_guest;
         const sql = isGuest
-            ? 'UPDATE users SET email = $1, password = $2, salt = $3, is_guest = $4 WHERE id = $5 RETURNING *'
-            : 'INSERT INTO users (email, password, salt, is_guest) VALUES ($1, $2, $3, $4) RETURNING *';
+            ? 'UPDATE users SET email = $1, hashed_password = $2, salt = $3, is_guest = $4 WHERE id = $5 RETURNING *'
+            : 'INSERT INTO users (email, hashed_password, salt, is_guest) VALUES ($1, $2, $3, $4) RETURNING *';
         const values = isGuest
             ? [email, hashedPassword.toString('base64'), salt, false, req.user.id]
             : [email, hashedPassword.toString('base64'), salt, false];
@@ -76,13 +76,10 @@ router.post('/login', passport.authenticate('local', { failureRedirect: '/authEr
  * ゲストチェック
  */
 router.get('/guestCheck', function (req, res) {
-    // ここでcsrfトークンを返しているのは、ここじゃないとログインチェックで弾かれてgetできないから
-    // TODO: どこでcsrfトークンを取得するか決定したら、csrfトークン返さなくする
     return res.json({
         isError: false,
         isLogin: !!req.user,
-        isGuest: !!req.user && req.user.is_guest,
-        _csrf: req.csrfToken()
+        isGuest: !!req.user && req.user.is_guest
     });
 });
 
@@ -109,10 +106,11 @@ router.post('/logout', loginCheck, function (req, res) {
  * 認証エラー時のレスポンスを返却する
  */
 router.get('/authError', (req, res) => {
+    console.error('ログインに失敗しました。');
     res.status(400).json({
         isError: true,
         errorId: 'errorId',
-        errorMessage: '認証エラー'
+        errorMessage: 'ログインに失敗しました。'
     });
 });
 
