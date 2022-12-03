@@ -76,6 +76,14 @@ router.post('/login', passport.authenticate('local', { failureRedirect: '/authEr
  * ゲストチェック
  */
 router.get('/guestCheck', function (req, res) {
+    // TODO: csrfトークンが必要になったタイミングでコメントアウトを外す
+    // return res.json({
+    //     isError: false,
+    //     isLogin: !!req.user,
+    //     isGuest: !!req.user && req.user.is_guest,
+    //     _csrf: req.csrfToken()
+    // });
+
     return res.json({
         isError: false,
         isLogin: !!req.user,

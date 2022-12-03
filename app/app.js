@@ -48,8 +48,7 @@ app.use('/plan', plan);
 // sample code start ----------
 app.get('/', (req, res) => {
     res.json({
-        message: 'daydule',
-        _csrf: req.csrfToken()
+        message: 'daydule'
     });
 });
 
@@ -62,8 +61,7 @@ app.post('/', (req, res) => {
 app.get('/notFound', (req, res) => {
     res.json({
         message: '404 not found',
-        hoge: 'hoge',
-        _csrf: req.csrfToken()
+        hoge: 'hoge'
     });
 });
 
