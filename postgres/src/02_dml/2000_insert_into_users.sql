@@ -1,8 +1,8 @@
 INSERT INTO "users" 
 (
-  "user_name",
+  "nickname",
   "email",
-  "password",
+  "hashed_password",
   "salt",
   "is_guest"
 )
