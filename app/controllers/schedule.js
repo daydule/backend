@@ -7,10 +7,10 @@ const pool = require('../db/pool');
 /**
  * スケジュールレコード更新
  */
-router.post('/update', async (req, res) => {
+router.post('/:date/update', async (req, res) => {
     const startTime = req.body.startTime;
     const endTime = req.body.endTime;
-    const date = req.body.date;
+    const date = req.params.date;
     const userId = req.user.id;
 
     try {
