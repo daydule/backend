@@ -1,7 +1,14 @@
 'use strict';
 
 const express = require('express');
+const cors = require('cors');
 const app = express();
+app.use(
+    cors({
+        // TODO: '*'で良いのかどうか検討する
+        origin: '*'
+    })
+);
 
 const expressSession = require('express-session');
 const pgSession = require('connect-pg-simple')(expressSession);
