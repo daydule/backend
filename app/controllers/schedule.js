@@ -37,7 +37,6 @@ router.get('/read', async (req, res) => {
                     [userId, day]
                 );
 
-                // TODO なかったらエラー
                 if (getDaySettingResult.rows.length) {
                     startTime = getDaySettingResult.rows[0].schedule_start_time;
                     endTime = getDaySettingResult.rows[0].schedule_end_time;
