@@ -4,7 +4,7 @@ INSERT INTO "schedules"
   "date",
   "start_time",
   "end_time",
-  "is_scheduled"
+  "is_created"
 )
 VALUES
 (
