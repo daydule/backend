@@ -1,0 +1,440 @@
+INSERT INTO "users" 
+(
+  "id",
+  "nickname",
+  "email",
+  "hashed_password",
+  "salt",
+  "is_guest"
+)
+VALUES
+(
+  -- スケジュールレコードあり＆スケジュール済み＆予定（分割なし、分割あり）・仮予定・TODO（日付なし、日付あり）あり
+  30641,
+  'test30641',
+  'test30641@example.com',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  false
+),
+(
+  -- スケジュールレコードあり＆スケジュール未作成
+  30642,
+  'test30642',
+  'test30642@example.com',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  false
+),
+(
+  -- スケジュールレコードなし＆ゲスト
+  30643,
+  'test30643',
+  'test30643@example.com',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  true
+),
+(
+  -- スケジュールレコードなし＆曜日設定レコードあり&固定予定あり
+  30644,
+  'test30644',
+  'test30644@example.com',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  false
+),
+(
+  -- スケジュールレコードなし＆曜日設定レコードなし＆予定・TODOあり
+  30645,
+  'test30645',
+  'test30645@example.com',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  false
+);
+
+INSERT INTO "schedules" 
+(
+  "id",
+  "user_id",
+  "date",
+  "start_time",
+  "end_time",
+  "start_time_at_schedule",
+  "end_time_at_schedule",
+  "is_scheduled"
+)
+VALUES
+(
+  30641,
+  30641,
+  '2022-12-12',
+  '0900',
+  '1800',
+  '1000',
+  '1900',
+  true
+),
+(
+  30642,
+  30642,
+  '2022-12-12',
+  '0900',
+  '1800',
+  '1000',
+  '1900',
+  false
+);
+
+INSERT INTO "day_settings" 
+(
+  "id",
+  "user_id",
+  "setting_name",    
+  "day",
+  "schedule_start_time",
+  "schedule_end_time",
+  "scheduling_logic"
+)
+VALUES
+(
+  30644,
+  30644,
+  '月曜日',
+  1,
+  '1000',
+  '1900',
+  0
+),
+(
+  30645,
+  30645,
+  '月曜日',
+  1,
+  '1000',
+  '1900',
+  0
+);
+
+INSERT INTO "plans" 
+(
+  "id",
+  "user_id",
+  "title",
+  "context",
+  "date",
+  "start_time",
+  "end_time",
+  "process_time",
+  "travel_time",
+  "buffer_time",
+  "plan_type",
+  "priority",
+  "place",
+  "is_scheduled",
+  "is_required_plan",
+  "parent_plan_id",
+  "is_parent_plan",
+  "todo_start_time"
+)
+VALUES
+(
+  -- 予定
+  306411,
+  30641,
+  '予定30641-1',
+  '説明30641-1',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室30641-1',
+  true,
+  true,
+  null,
+  false,
+  null
+),
+(
+  -- TODO(dateがnull)
+  306412,
+  30641,
+  '予定30641-2',
+  '説明30641-2',
+  null,
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  2,
+  5,
+  '会議室30641-2',
+  true,
+  true,
+  null,
+  false,
+  null
+),
+(
+  -- TODO(dateが2022-12-12)
+  306413,
+  30641,
+  '予定30641-3',
+  '説明30641-3',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  2,
+  5,
+  '会議室30641-3',
+  true,
+  true,
+  null,
+  false,
+  null
+),
+(
+  -- TODO(dateが2022-12-13)
+  306414,
+  30641,
+  '予定30641-4',
+  '説明30641-4',
+  '2022-12-13',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  2,
+  5,
+  '会議室30641-4',
+  true,
+  true,
+  null,
+  false,
+  null
+),
+(
+  -- 予定(親がいる)
+  306415,
+  30641,
+  '予定30641-5',
+  '説明30641-5',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室30641-5',
+  true,
+  true,
+  '306411',
+  false,
+  null
+),
+(
+  -- 予定（日程が合っている）
+  306451,
+  30645,
+  '予定30645-1',
+  '説明30645-1',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室30645-1',
+  true,
+  true,
+  null,
+  false,
+  null
+),
+(
+  -- TODO（日程なし）
+  306452,
+  30645,
+  '予定30645-1',
+  '説明30645-1',
+  null,
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  2,
+  5,
+  '会議室30645-1',
+  true,
+  true,
+  null,
+  false,
+  null
+),
+(
+  -- 予定（日程が異なる）
+  306453,
+  30645,
+  '予定30645-1',
+  '説明30645-1',
+  '2022-12-13',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室30645-1',
+  true,
+  true,
+  null,
+  false,
+  null
+),
+(
+  -- TODO(日程が合っている)
+  306454,
+  30645,
+  '予定30645-1',
+  '説明30645-1',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  2,
+  5,
+  '会議室30645-1',
+  true,
+  true,
+  null,
+  false,
+  null
+),
+(
+  -- TODO（日程が異なる）
+  306455,
+  30645,
+  '予定30645-1',
+  '説明30645-1',
+  '2022-12-13',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  2,
+  5,
+  '会議室30645-1',
+  true,
+  true,
+  null,
+  false,
+  null
+);
+
+INSERT INTO "temporary_plans" 
+(
+  "id",
+  "original_plan_id",
+  "user_id",
+  "title", 
+  "context",
+  "date",
+  "start_time",
+  "end_time",
+  "process_time",
+  "travel_time",
+  "buffer_time",
+  "plan_type",
+  "priority",
+  "place",
+  "todo_start_time"
+)
+VALUES
+(
+  -- 予定の仮予定
+  306411,
+  306411,
+  30641,
+  '予定(変更ずみ）30641-2',
+  null,
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  null,
+  null
+);
+
+INSERT INTO "fix_plans" 
+(
+  "id",
+  "day_id",
+  "set_id",
+  "title", 
+  "context",
+  "start_time",
+  "end_time",
+  "process_time",
+  "travel_time",
+  "buffer_time",
+  "plan_type",
+  "priority",
+  "place"
+)
+VALUES
+(
+  30644,
+  30644,
+  null,
+  '固定予定30644',
+  null,
+  '1000',
+  '1200',
+  120,
+  15,
+  15,
+  1,
+  5,
+  null
+);
+
+INSERT INTO "schedule_plan_inclusion" 
+(
+  "id",
+  "plan_id",
+  "schedule_id"
+)
+VALUES
+(
+  306411,
+  306411,
+  30641
+),
+(
+  306412,
+  306412,
+  30641
+);
