@@ -1,7 +1,7 @@
 CREATE TABLE "temporary_plans"
 (
   "id"               SERIAL              NOT NULL PRIMARY KEY,
-  "original_plan_id" INTEGER      UNIQUE     NULL REFERENCES "plans" ("id"),
+  "original_plan_id" INTEGER      UNIQUE          REFERENCES "plans" ("id"),
   "user_id"          INTEGER             NOT NULL REFERENCES "users" ("id"),
   "title"            VARCHAR(100)        NOT NULL, 
   "context"          TEXT,
@@ -14,6 +14,6 @@ CREATE TABLE "temporary_plans"
   "plan_type"        INTEGER,
   "priority"         INTEGER             NOT NULL,
   "place"            VARCHAR(100),
-  "is_delete"        BOOLEAN             NOT NULL DEFAULT false,
+  "is_deleted"       BOOLEAN             NOT NULL DEFAULT false,
   "todo_start_time"  TIMESTAMP
 );
