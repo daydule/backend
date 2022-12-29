@@ -9,6 +9,8 @@ const constant = require('../config/const');
  * スケジュール参照
  */
 router.get('/read', async (req, res) => {
+    // TODO バリデーションチェック
+
     // NOTE req.body.dateはYYYY-MM-DDの形
     const dateStr = req.body.date;
     const userId = req.user.id;
@@ -90,7 +92,7 @@ router.get('/read', async (req, res) => {
             );
 
             const getTodoResult = await pool.query(
-                'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3',
+                'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3 AND parent_plan_id IS NULL',
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
 
