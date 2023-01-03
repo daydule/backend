@@ -116,7 +116,17 @@ async function execute(pool, userId, scheduleId, startTime, endTime, plans, todo
                     todo.id,
                     scheduleId
                 ]);
-                await pool.query('UPDATE plans SET is_scheduled = $1 WHERE id = $2', [true, todo.id]);
+                const startAndEndTimeStr = timeUtil.getStartAndEndTimeStr(
+                    startTime,
+                    availableTimeStartIndex * constant.SECTION_MINUTES_LENGTH,
+                    todo.process_time
+                );
+                await pool.query('UPDATE plans SET start_time = $1, end_time = $2, is_scheduled = $3 WHERE id = $4', [
+                    startAndEndTimeStr.startTime,
+                    startAndEndTimeStr.endTime,
+                    true,
+                    todo.id
+                ]);
 
                 scheduledTodos.push(todo);
             } else {
@@ -149,30 +159,17 @@ async function execute(pool, userId, scheduleId, startTime, endTime, plans, todo
                             break;
                         }
                     }
-                    const now = new Date();
-                    const start = new Date(
-                        now.getFullYear(),
-                        now.getMonth(),
-                        now.getDate(),
-                        startTime.slice(0, 2),
-                        startTime.slice(2, 4)
+
+                    const startAndEndTimeStr = timeUtil.getStartAndEndTimeStr(
+                        startTime,
+                        availableSectionIndex[i] * constant.SECTION_MINUTES_LENGTH,
+                        processTime
                     );
-                    start.setTime(
-                        start.getTime() + availableSectionIndex[i] * constant.SECTION_MINUTES_LENGTH * 60 * 1000
-                    );
-                    const end = new Date(
-                        start.getFullYear(),
-                        start.getMonth(),
-                        start.getDate(),
-                        start.getHours,
-                        start.getMinutes
-                    );
-                    end.setTime(end.getTime + processTime * 60 * 1000);
 
                     divisionTodoTime.push({
                         startIndex: availableSectionIndex[i],
-                        startTime: ('0' + start.getHours()).slice(-2) + ('0' + start.getMinutes()).slice(-2),
-                        endTime: ('0' + end.getHours()).slice(-2) + ('0' + end.getMinutes()).slice(-2),
+                        startTime: startAndEndTimeStr.startTime,
+                        endTime: startAndEndTimeStr.endTime,
                         processTime: processTime
                     });
                     i += sequenceCount;

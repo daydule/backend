@@ -63,7 +63,35 @@ function subtractTimeStr(timeStr1, timeStr2) {
     return (date1.getTime() - date2.getTime()) / 60000;
 }
 
+/**
+ *  予定の開始時間・終了時間を計算する
+ *
+ * @param {string} scheduleStartTime - スケジュールの開始時間(書式：hhmm)
+ * @param {number} startTimeDiffBetweenScheduleAndPlan - スケジュールの開始時間と予定の開始時間の差（分）
+ * @param {number} processTime - 予定の時間（分）
+ * @returns {number} - 開始時間、終了時間
+ */
+function getStartAndEndTimeStr(scheduleStartTime, startTimeDiffBetweenScheduleAndPlan, processTime) {
+    const now = new Date();
+    const start = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        scheduleStartTime.slice(0, 2),
+        scheduleStartTime.slice(2, 4)
+    );
+    start.setTime(start.getTime() + startTimeDiffBetweenScheduleAndPlan * 60 * 1000);
+    const end = new Date(start.getFullYear(), start.getMonth(), start.getDate(), start.getHours(), start.getMinutes());
+    end.setTime(end.getTime() + processTime * 60 * 1000);
+
+    return {
+        startTime: ('0' + start.getHours()).slice(-2) + ('0' + start.getMinutes()).slice(-2),
+        endTime: ('0' + end.getHours()).slice(-2) + ('0' + end.getMinutes()).slice(-2)
+    };
+}
+
 module.exports = {
     compareTimeStr: compareTimeStr,
-    subtractTimeStr: subtractTimeStr
+    subtractTimeStr: subtractTimeStr,
+    getStartAndEndTimeStr: getStartAndEndTimeStr
 };

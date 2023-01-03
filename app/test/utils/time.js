@@ -29,4 +29,12 @@ describe('time.js', function () {
             assert.equal(result, 90);
         });
     });
+
+    describe('getStartAndEndTimeStr function', function () {
+        it('should return subtraction result of arg1 and arg2.', function () {
+            const result = timeUtil.getStartAndEndTimeStr('0900', 60, 60);
+            assert.equal(result.startTime, '1000');
+            assert.equal(result.endTime, '1100');
+        });
+    });
 });
