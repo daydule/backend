@@ -101,7 +101,7 @@ async function execute(pool, userId, scheduleId, startTime, endTime, plans, todo
 
     const scheduledTodos = [];
     const notScheduledTodos = [];
-    todos.forEach((todo) => {
+    await todos.forEach(async (todo) => {
         if (todo.process_time > freeTimeSum) {
             notScheduledTodos.push(todo);
         } else {
@@ -112,12 +112,11 @@ async function execute(pool, userId, scheduleId, startTime, endTime, plans, todo
                 freeTime.fill(1, availableTimeStartIndex, availableTimeStartIndex + needSectionNum);
                 freeTimeSum -= needSectionNum * constant.SECTION_MINUTES_LENGTH;
 
-                // TODO: awaitを追加する
-                pool.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
+                await pool.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
                     todo.id,
                     scheduleId
                 ]);
-                pool.query('UPDATE plans SET is_scheduled = $1 WHERE id = $2', [true, todo.id]);
+                await pool.query('UPDATE plans SET is_scheduled = $1 WHERE id = $2', [true, todo.id]);
 
                 scheduledTodos.push(todo);
             } else {
@@ -178,9 +177,9 @@ async function execute(pool, userId, scheduleId, startTime, endTime, plans, todo
                     });
                     i += sequenceCount;
                 }
-                // TODO: awaitを追加する
-                divisionTodoTime.forEach((todoTime, index) => {
-                    const divisionTodoCreateresult = pool.query(
+
+                divisionTodoTime.forEach(async (todoTime, index) => {
+                    const divisionTodoCreateresult = await pool.query(
                         'INSERT INTO plans (\
                             user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \
                             priority, place, is_scheduled, is_required_plan, parent_plan_id, todo_start_time) \
@@ -205,7 +204,7 @@ async function execute(pool, userId, scheduleId, startTime, endTime, plans, todo
                         ]
                     );
 
-                    pool.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
+                    await pool.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
                         divisionTodoCreateresult.rows[0].id,
                         scheduleId
                     ]);
@@ -213,8 +212,7 @@ async function execute(pool, userId, scheduleId, startTime, endTime, plans, todo
                     scheduledTodos.push(divisionTodoCreateresult.rows[0]);
                 });
 
-                // TODO: awaitを追加する
-                pool.query('UPDATE plans SET is_parent_plan = $1 WHERE id = $2', [true, todo.id]);
+                await pool.query('UPDATE plans SET is_parent_plan = $1 WHERE id = $2', [true, todo.id]);
             }
         }
     });
