@@ -66,7 +66,7 @@ async function execute(pool, userId, scheduleId, startTime, endTime, plans, todo
     });
     if (hasInvalidRequiredPlan) {
         return {
-            isError: false
+            isError: true
         };
     }
 

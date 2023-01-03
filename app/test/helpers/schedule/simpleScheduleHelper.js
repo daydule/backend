@@ -35,7 +35,7 @@ describe('simpleScheduleHelper.js', function () {
             };
 
             const result = await simpleScheduleHelper.execute('', '', '', '', '', '', '');
-            assert.deepEqual(result, expect);
+            assert.equal(result.isError, true);
         });
 
         it('should return object with isError flag true when there is an invalid start_time of required plan.', async function () {
@@ -50,7 +50,8 @@ describe('simpleScheduleHelper.js', function () {
                 }
             ];
 
-            const result = await simpleScheduleHelper.execute('', '', '', '0900', '1800', plans, '');
+            const todos = ['sample'];
+            const result = await simpleScheduleHelper.execute('', '', '', '0900', '1800', plans, todos);
             assert.deepEqual(result, expect);
         });
 
@@ -66,7 +67,8 @@ describe('simpleScheduleHelper.js', function () {
                 }
             ];
 
-            const result = await simpleScheduleHelper.execute('', '', '', '0900', '1800', plans, '');
+            const todos = ['sample'];
+            const result = await simpleScheduleHelper.execute('', '', '', '0900', '1800', plans, todos);
             assert.deepEqual(result, expect);
         });
 
