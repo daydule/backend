@@ -1,0 +1,159 @@
+INSERT INTO "users" 
+(
+  "id",
+  "nickname",
+  "email",
+  "hashed_password",
+  "salt",
+  "is_guest"
+)
+VALUES
+(
+  306861,
+  'test306861',
+  'test306861@example.com',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  false
+);
+
+INSERT INTO "schedules" 
+(
+  "id",
+  "user_id",
+  "date",
+  "start_time",
+  "end_time",
+  "start_time_at_schedule",
+  "end_time_at_schedule",
+  "is_created"
+)
+VALUES
+(
+  306861,
+  306861,
+  '2022-12-12',
+  '0900',
+  '1800',
+  null,
+  null,
+  false
+);
+
+INSERT INTO "plans" 
+(
+  "id",
+  "user_id",
+  "title",
+  "context",
+  "date",
+  "start_time",
+  "end_time",
+  "process_time",
+  "travel_time",
+  "buffer_time",
+  "plan_type",
+  "priority",
+  "place",
+  "is_scheduled",
+  "is_required_plan",
+  "parent_plan_id",
+  "is_parent_plan",
+  "todo_start_time"
+)
+VALUES
+(
+  -- 予定
+  306861,
+  306861,
+  '予定306861',
+  '説明306861',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室306861',
+  true,
+  true,
+  null,
+  false,
+  null
+),
+(
+  -- TODO(dateがnull)
+  306862,
+  306861,
+  '予定306862',
+  '説明306862',
+  null,
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  2,
+  5,
+  '会議室306862',
+  true,
+  true,
+  null,
+  false,
+  null
+);
+
+INSERT INTO "temporary_plans" 
+(
+  "id",
+  "original_plan_id",
+  "user_id",
+  "title", 
+  "context",
+  "date",
+  "start_time",
+  "end_time",
+  "process_time",
+  "travel_time",
+  "buffer_time",
+  "plan_type",
+  "priority",
+  "place",
+  "todo_start_time"
+)
+VALUES
+(
+  -- 予定の仮予定
+  306861,
+  306861,
+  306861,
+  '予定(変更ずみ）306861',
+  null,
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  null,
+  null
+);
+
+INSERT INTO "todo_orders" 
+(
+  "id",
+  "user_id",
+  "schedule_id", 
+  "todo_orders"
+)
+VALUES
+(
+  306861,
+  306861,
+  null,
+  'test'
+);

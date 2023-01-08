@@ -5,7 +5,7 @@ const constant = require('../config/const');
 /**
  * スケジュールを作成する
  *
- * @param {object} pool - DB接続
+ * @param {object} client - DB接続
  * @param {number} scheduleLogicId - ロジックID
  * @param {number} userId - ユーザーID
  * @param {number} scheduleId - スケジュールID
@@ -15,7 +15,7 @@ const constant = require('../config/const');
  * @param {Array} todos - TODO
  * @returns {object} - スケジュール作成結果
  */
-async function createSchedule(pool, scheduleLogicId, userId, scheduleId, startTime, endTime, plans, todos) {
+async function createSchedule(client, scheduleLogicId, userId, scheduleId, startTime, endTime, plans, todos) {
     let scheduleLogic;
     try {
         scheduleLogic = require('./schedule/' + constant.SCHEDULE_LOGIC_FILENAME[scheduleLogicId]);
@@ -25,16 +25,7 @@ async function createSchedule(pool, scheduleLogicId, userId, scheduleId, startTi
         };
     }
 
-    const result = await scheduleLogic.execute(
-        pool,
-        userId,
-        scheduleLogicId,
-        scheduleId,
-        startTime,
-        endTime,
-        plans,
-        todos
-    );
+    const result = await scheduleLogic.execute(client, userId, scheduleId, startTime, endTime, plans, todos);
     return {
         isError: false,
         result: result

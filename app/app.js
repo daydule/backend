@@ -15,6 +15,7 @@ const pool = require('./db/pool');
 const auth = require('./controllers/auth');
 const user = require('./controllers/user');
 const plan = require('./controllers/plan');
+const schedule = require('./controllers/schedule');
 const loginCheck = require('./middlewares/loginCheck');
 const port = secret.port;
 
@@ -44,6 +45,7 @@ app.use(loginCheck);
 
 app.use('/user', user);
 app.use('/plan', plan);
+app.use('/schedule', schedule);
 
 // sample code start ----------
 app.get('/', (req, res) => {
