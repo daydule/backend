@@ -9,9 +9,28 @@ INSERT INTO "users"
 )
 VALUES
 (
+  -- 予定・TODO・仮予定あり
   306861,
   'test306861',
   'test306861@example.com',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  false
+), 
+(
+  -- 予定あり・TODOなし
+  306862,
+  'test306862',
+  'test306862@example.com',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  false
+),
+(
+  -- 予定なし・TODOあり
+  306863,
+  'test306863',
+  'test306863@example.com',
   'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
   'i7Ri/9DBZL9XXwnpV9PKZQ==',
   false
@@ -32,6 +51,26 @@ VALUES
 (
   306861,
   306861,
+  '2022-12-12',
+  '0900',
+  '1800',
+  null,
+  null,
+  false
+),
+(
+  306862,
+  306862,
+  '2022-12-12',
+  '0900',
+  '1800',
+  null,
+  null,
+  false
+),
+(
+  306863,
+  306863,
   '2022-12-12',
   '0900',
   '1800',
@@ -103,6 +142,48 @@ VALUES
   null,
   false,
   null
+),
+(
+  -- 予定
+  306863,
+  306862,
+  '予定306863',
+  '説明306863',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室306863',
+  true,
+  true,
+  null,
+  false,
+  null
+),
+(
+  -- TODO(dateがnull)
+  306864,
+  306863,
+  '予定306864',
+  '説明306864',
+  null,
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  2,
+  5,
+  '会議室306864',
+  true,
+  true,
+  null,
+  false,
+  null
 );
 
 INSERT INTO "temporary_plans" 
@@ -155,5 +236,17 @@ VALUES
   306861,
   306861,
   null,
-  'test'
+  'test1'
+),
+(
+  306862,
+  306862,
+  null,
+  'test2'
+),
+(
+  306863,
+  306863,
+  null,
+  'test3'
 );
