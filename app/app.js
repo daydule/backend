@@ -5,7 +5,7 @@ const cors = require('cors');
 const app = express();
 app.use(
     cors({
-        // TODO: 本番環境とで切り替えられるようにする
+        // TODO: 開発環境と本番環境が自動で切り替わるようにする
         origin: 'http://localhost:3001'
     })
 );
