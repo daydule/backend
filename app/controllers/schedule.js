@@ -74,7 +74,7 @@ router.post('/create', async (req, res) => {
 
         await client.query('COMMIT');
 
-        return res.status(200).json(createScheduleResult.result);
+        return res.status(200).json(createScheduleResult);
     } catch (e) {
         await client.query('ROLLBACK');
         console.error(e);

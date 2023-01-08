@@ -26,10 +26,7 @@ async function createSchedule(client, scheduleLogicId, userId, scheduleId, start
     }
 
     const result = await scheduleLogic.execute(client, userId, scheduleId, startTime, endTime, plans, todos);
-    return {
-        isError: false,
-        result: result
-    };
+    return result;
 }
 
 module.exports = {
