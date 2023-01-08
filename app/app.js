@@ -5,8 +5,8 @@ const cors = require('cors');
 const app = express();
 app.use(
     cors({
-        // TODO: '*'で良いのかどうか検討する
-        origin: '*'
+        // TODO: 本番環境とで切り替えられるようにする
+        origin: 'http://localhost:3001'
     })
 );
 
