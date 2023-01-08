@@ -18,24 +18,54 @@ router.post('/create', async (req, res) => {
 
     // TODO: バリデーションチェック
 
-    // TODO: スケジュールレコードを取得する
-    const scheduleId = 1;
-    const startTime = '0900';
-    const endTime = '1800';
+    const getScheduleResult = await pool.query('SELECT * FROM schedules WHERE user_id = $1 AND date = $2', [
+        userId,
+        dateStr
+    ]);
+    const scheduleId = getScheduleResult.rows[0].id;
+    const startTime = getScheduleResult.rows[0].start_time;
+    const endTime = getScheduleResult.rows[0].end_time;
 
-    // TODO: 日程が同じ予定を取得する
-    const plans = [];
+    const getPlansResult = await pool.query(
+        'SELECT * FROM plans WHERE user_id = $1 AND date = $2 AND plan_type != $3',
+        [userId, dateStr, constant.PLAN_TYPE.TODO]
+    );
 
-    // TODO: 未完了TODOを取得する
-    const todos = [];
+    const getTodoResult = await pool.query(
+        'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3 AND is_done = $4',
+        [userId, dateStr, constant.PLAN_TYPE.TODO, false]
+    );
+
+    const getTodoOrdersResult = await pool.query('SELECT * FROM todo_orders WHERE user_id = $1 AND schedule_id = $2', [
+        userId,
+        null
+    ]);
 
     try {
-        // TODO: 過去の仮予定を削除する
-        // TODO: TODO並び順を複製する
-        // TODO: スケジュール作成
+        await pool.query('DELETE FROM temporary_plans WHERE user_id = $1', [userId]);
 
-        let result = scheduleHelper.createSchedule(pool, 0, userId, scheduleId, startTime, endTime, plans, todos);
-        // TODO: 結果を返却
+        let result = await scheduleHelper.createSchedule(
+            pool,
+            0,
+            userId,
+            scheduleId,
+            startTime,
+            endTime,
+            getPlansResult.rows,
+            getTodoResult.rows
+        );
+
+        await pool.query('INSERT INTO todo_orders(user_id, schedule_id, todo_order) VALUES($1, $2, $3)', [
+            userId,
+            scheduleId,
+            getTodoOrdersResult.rows[0].todo_order
+        ]);
+
+        await pool.query(
+            'UPDATE schedules SET start_time_at_schedule = $1 AND end_time_at_schedule = $2, is_created = $3 WHERE id = $4',
+            [startTime, endTime, true, scheduleId]
+        );
+
         return res.status(200).json({
             isError: false,
             schedule: result
