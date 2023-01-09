@@ -24,7 +24,7 @@ router.post('/create', async (req, res) => {
     const todoStartTime = req.body.todo_start_time;
 
     try {
-        // TODO バリデーションチェックを行う
+        // TODO: バリデーションチェックを行う
 
         const result = await pool.query(
             'INSERT INTO plans (\
@@ -54,7 +54,7 @@ router.post('/create', async (req, res) => {
             plan: result.rows[0]
         });
     } catch (e) {
-        // TODO バリデーションエラーはHTTPステータスコード400で返却するように実装する
+        // TODO: バリデーションエラーはHTTPステータスコード400で返却するように実装する
 
         console.error(e);
 
@@ -85,7 +85,7 @@ router.post('/temporary/create', async (req, res) => {
     const todoStartTime = req.body.todoStartTime;
 
     try {
-        // TODO バリデーションチェックを行う
+        // TODO: バリデーションチェックを行う
 
         const result = await pool.query(
             'INSERT INTO temporary_plans (\
@@ -114,7 +114,7 @@ router.post('/temporary/create', async (req, res) => {
             temporaryPlan: result.rows[0]
         });
     } catch (e) {
-        // TODO バリデーションエラーはHTTPステータスコード400で返却するように実装する
+        // TODO: バリデーションエラーはHTTPステータスコード400で返却するように実装する
 
         console.error(e);
 
@@ -134,7 +134,7 @@ router.post('/upsertTodoPriority', async (req, res) => {
     let upsertResult;
 
     try {
-        // TODO バリデーションチェックを行う
+        // TODO: バリデーションチェックを行う
 
         // TODO並び順の取得（履歴用ではなく、ユーザーに一つだけ紐づく並び順を取得）
         const getResult = await pool.query('SELECT * FROM todo_orders WHERE user_id = $1 AND schedule_id IS NULL', [
@@ -160,7 +160,7 @@ router.post('/upsertTodoPriority', async (req, res) => {
     } catch (e) {
         console.error(e);
 
-        // TODO バリデーションエラーはHTTPステータスコード400で返却する
+        // TODO: バリデーションエラーはHTTPステータスコード400で返却する
 
         return res.status(500).json({
             isError: true,
