@@ -7,6 +7,5 @@ module.exports = {
             SCHEDULE_END_TIME: '1800'
         }
     },
-    DAY_LIST: ['日', '月', '火', '水', '木', '金', '土'],
-    DAY_LIST_NUM: 7
+    DAY_LIST: ['日', '月', '火', '水', '木', '金', '土']
 };

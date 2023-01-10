@@ -119,10 +119,10 @@ router.post('/password/update', guestCheck, async function (req, res) {
  */
 router.get('/schedule/settings/read', async function (req, res) {
     const userId = req.user.id;
-    const dayListNum = constant.DAY_LIST_NUM;
-    const daySettingInfo = [];
+    const dayListNum = constant.DAY_LIST.length;
 
     try {
+        const daySettingInfo = [];
         for (let i = 0; i < dayListNum; i++) {
             const getDaySettingResult = await pool.query('SELECT * FROM day_settings WHERE user_id = $1 AND day = $2', [
                 userId,
