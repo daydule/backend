@@ -21,58 +21,58 @@ router.get('/read', async (req, res) => {
     let scheduleId = null;
 
     try {
-        const getScheduleResult = await pool.query('SELECT * FROM schedules WHERE user_id = $1 AND date = $2', [
+        const getSchedulesResult = await pool.query('SELECT * FROM schedules WHERE user_id = $1 AND date = $2', [
             userId,
             dateStr
         ]);
 
-        if (getScheduleResult.rows.length > 0) {
-            isScheduled = getScheduleResult.rows[0].is_scheduled;
-            scheduleId = getScheduleResult.rows[0].id;
+        if (getSchedulesResult.rows.length > 0) {
+            isScheduled = getSchedulesResult.rows[0].is_scheduled;
+            scheduleId = getSchedulesResult.rows[0].id;
         } else {
             let startTime = constant.DEFAULT.SCHEDULE.SCHEDULE_START_TIME;
             let endTime = constant.DEFAULT.SCHEDULE.SCHEDULE_END_TIME;
 
             if (!req.user.is_guest) {
-                const getDaySettingResult = await pool.query(
+                const getDaySettingsResult = await pool.query(
                     'SELECT * FROM day_settings WHERE user_id = $1 AND day = $2',
                     [userId, day]
                 );
 
-                if (getDaySettingResult.rows.length) {
-                    startTime = getDaySettingResult.rows[0].schedule_start_time;
-                    endTime = getDaySettingResult.rows[0].schedule_end_time;
+                if (getDaySettingsResult.rows.length === 0) {
+                    throw new Error('There is no day setting info.');
+                }
 
-                    const getFixPlansResult = await pool.query('SELECT * FROM fix_plans WHERE day_id = $1', [
-                        getDaySettingResult.rows[0].id
-                    ]);
+                startTime = getDaySettingsResult.rows[0].schedule_start_time;
+                endTime = getDaySettingsResult.rows[0].schedule_end_time;
 
-                    await getFixPlansResult.rows.forEach((plan) => {
-                        pool.query(
-                            'INSERT INTO plans (\
+                const getFixPlansResult = await pool.query('SELECT * FROM fix_plans WHERE day_id = $1', [
+                    getDaySettingsResult.rows[0].id
+                ]);
+
+                await getFixPlansResult.rows.forEach((plan) => {
+                    pool.query(
+                        'INSERT INTO plans (\
                                 user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \
                                 priority, place, is_required_plan) \
                                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *',
-                            [
-                                userId,
-                                plan.title,
-                                plan.context,
-                                date,
-                                plan.start_time,
-                                plan.end_time,
-                                plan.process_time,
-                                plan.travel_time,
-                                plan.buffer_time,
-                                plan.plan_type,
-                                plan.priority,
-                                plan.place,
-                                true
-                            ]
-                        );
-                    });
-                } else {
-                    throw new Error('曜日設定情報がありません。');
-                }
+                        [
+                            userId,
+                            plan.title,
+                            plan.context,
+                            date,
+                            plan.start_time,
+                            plan.end_time,
+                            plan.process_time,
+                            plan.travel_time,
+                            plan.buffer_time,
+                            plan.plan_type,
+                            plan.priority,
+                            plan.place,
+                            true
+                        ]
+                    );
+                });
             }
 
             await pool.query('INSERT INTO schedules (user_id, date, start_time, end_time) VALUES ($1, $2, $3, $4)', [
@@ -91,7 +91,7 @@ router.get('/read', async (req, res) => {
                 [scheduleId]
             );
 
-            const getTodoResult = await pool.query(
+            const getTodosResult = await pool.query(
                 'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3 AND parent_plan_id IS NULL',
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
@@ -100,7 +100,7 @@ router.get('/read', async (req, res) => {
                 userId
             ]);
 
-            const getTemporaryPlan = (temporaryPlans, planId) => {
+            const getTemporaryPlans = (temporaryPlans, planId) => {
                 for (let i = 0; i < temporaryPlans.length; i++) {
                     if (temporaryPlans[i].original_plan_id === planId) {
                         return temporaryPlans[i];
@@ -109,7 +109,7 @@ router.get('/read', async (req, res) => {
                 return null;
             };
             const mixedPlans = getPlansResult.rows.map((plan) => {
-                const temporaryPlan = getTemporaryPlan(getTemporaryPlansResult.rows, plan.id);
+                const temporaryPlan = getTemporaryPlans(getTemporaryPlansResult.rows, plan.id);
                 if (temporaryPlan) {
                     return {
                         id: plan.id,
@@ -141,14 +141,14 @@ router.get('/read', async (req, res) => {
                     isScheduled: true,
                     plans: mixedPlans
                 },
-                todos: getTodoResult.rows
+                todos: getTodosResult.rows
             });
         } else {
             const getPlansResult = await pool.query(
                 'SELECT * FROM plans WHERE user_id = $1 AND date = $2 AND plan_type != $3',
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
-            const getTodoResult = await pool.query(
+            const getTodosResult = await pool.query(
                 'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3',
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
@@ -158,7 +158,7 @@ router.get('/read', async (req, res) => {
                     isScheduled: false,
                     plans: getPlansResult.rows
                 },
-                todos: getTodoResult.rows
+                todos: getTodosResult.rows
             });
         }
     } catch (e) {
