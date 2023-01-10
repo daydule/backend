@@ -4,7 +4,7 @@
 const assert = require('chai').assert;
 // eslint-disable-next-line node/no-unpublished-require
 const sinon = require('sinon');
-const loginCheck = require('../../middlewares/loginCheck');
+const loginCheck = require('../../app/middlewares/loginCheck');
 
 describe('loginCheck.js', function () {
     describe('loginCheck function', function () {
