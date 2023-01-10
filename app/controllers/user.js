@@ -6,6 +6,7 @@ const pool = require('../db/pool');
 const { promisify } = require('util');
 const crypto = require('crypto');
 const guestCheck = require('../middlewares/guestCheck');
+const constant = require('../config/const');
 
 /**
  * ユーザー情報参照
@@ -102,6 +103,51 @@ router.post('/password/update', guestCheck, async function (req, res) {
                 nickname: result.rows[0].nickname,
                 email: result.rows[0].email
             }
+        });
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: 'サーバーエラー'
+        });
+    }
+});
+
+/**
+ * スケジュール設定参照
+ */
+router.get('/schedule/settings/read', async function (req, res) {
+    const userId = req.user.id;
+    const dayListNum = constant.DAY_LIST.length;
+
+    try {
+        const daySettingInfo = [];
+        for (let i = 0; i < dayListNum; i++) {
+            const getDaySettingResult = await pool.query('SELECT * FROM day_settings WHERE user_id = $1 AND day = $2', [
+                userId,
+                i
+            ]);
+
+            daySettingInfo.push(getDaySettingResult.rows[0]);
+        }
+
+        const result = [];
+        for (let i = 0; i < daySettingInfo.length; i++) {
+            const getFixPlansResult = await pool.query('SELECT * FROM fix_plans WHERE day_id = $1', [
+                daySettingInfo[i].id
+            ]);
+
+            result.push({
+                dayId: daySettingInfo[i].day,
+                daySetting: daySettingInfo[i],
+                fixPlans: getFixPlansResult.rows
+            });
+        }
+
+        return res.status(200).json({
+            isError: false,
+            settingInfo: result
         });
     } catch (e) {
         console.error(e);
