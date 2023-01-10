@@ -5,7 +5,7 @@ CREATE TABLE "temporary_plans"
   "user_id"          INTEGER             NOT NULL REFERENCES "users" ("id"),
   "title"            VARCHAR(100)        NOT NULL, 
   "context"          TEXT,
-  "date"             DATE                NOT NULL,
+  "date"             DATE,
   "start_time"       VARCHAR(4),
   "end_time"         VARCHAR(4),
   "process_time"     INTEGER,

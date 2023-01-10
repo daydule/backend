@@ -4,7 +4,7 @@ CREATE TABLE "plans"
   "user_id"          INTEGER      NOT NULL REFERENCES "users" ("id"),
   "title"            VARCHAR(100) NOT NULL, 
   "context"          TEXT,
-  "date"             DATE         NOT NULL,
+  "date"             DATE,
   "start_time"       VARCHAR(4),
   "end_time"         VARCHAR(4),
   "process_time"     INTEGER,
@@ -17,5 +17,6 @@ CREATE TABLE "plans"
   "is_required_plan" BOOLEAN,
   "parent_plan_id"   INTEGER,
   "is_parent_plan"   BOOLEAN,
-  "todo_start_time"  TIMESTAMP
+  "todo_start_time"  TIMESTAMP,
+  "is_done"          BOOLEAN      DEFAULT FALSE
 );
