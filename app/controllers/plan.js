@@ -67,6 +67,81 @@ router.post('/create', async (req, res) => {
 });
 
 /**
+ * 予定更新
+ */
+router.post('/:id/update', async (req, res) => {
+    // TODO: バリデーションチェックを行う
+    const id = req.params.id;
+
+    const userId = req.user.id;
+    const title = req.body.title;
+    const context = req.body.context;
+    const date = req.body.date;
+    const startTime = req.body.startTime;
+    const endTime = req.body.endTime;
+    const processTime = req.body.processTime;
+    const travelTime = req.body.travelTime;
+    const bufferTime = req.body.bufferTime;
+    const planType = req.body.planType;
+    const priority = req.body.priority;
+    const place = req.body.place;
+    const isRequiredPlan = req.body.isRequiredPlan;
+    const parentPlanId = req.body.parentPlanId;
+    const isParentPlan = req.body.isParentPlan;
+    const todoStartTime = req.body.todoStartTime;
+
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+        const getPlanResult = await client.query('SELECT * from plans where id = $1', [id]);
+        if (getPlanResult.rows.length === 0) throw new Error('There is no plan with id(' + id + ').');
+        const sql =
+            'UPDATE plans \
+                SET user_id = $1, title = $2, context = $3, date = $4, start_time = $5, end_time = $6, \
+                process_time = $7, travel_time = $8, buffer_time = $9, plan_type = $10, \
+                priority = $11, place = $12, is_required_plan = $13, parent_plan_id = $14, \
+                is_parent_plan = $15, todo_start_time = $16 \
+                WHERE id = $17 RETURNING *';
+        const values = [
+            userId,
+            title,
+            context,
+            date,
+            startTime,
+            endTime,
+            processTime,
+            travelTime,
+            bufferTime,
+            planType,
+            priority,
+            place,
+            isRequiredPlan,
+            parentPlanId,
+            isParentPlan,
+            todoStartTime,
+            id
+        ];
+        const result = await client.query(sql, values);
+        await client.query('COMMIT');
+        return res.status(200).json({
+            isError: false,
+            plan: result.rows[0]
+        });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: 'システムエラー'
+        });
+    } finally {
+        client.release();
+    }
+});
+
+/**
  * 予定作成（スケジュール作成後）
  */
 router.post('/temporary/create', async (req, res) => {
