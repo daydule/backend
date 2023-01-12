@@ -67,6 +67,37 @@ router.post('/create', async (req, res) => {
 });
 
 /**
+ * 予定削除
+ */
+router.delete('/:id', async (req, res) => {
+    const id = req.params.id;
+
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+        const getPlanResult = await client.query('SELECT * from plans where id = $1', [id]);
+        if (getPlanResult.rows.length === 0) throw new Error('There is no plan with id(' + id + ').');
+        const result = await client.query('DELETE from plans where id = $1 RETURNING *', [id]);
+        await client.query('COMMIT');
+        return res.status(200).json({
+            isError: false,
+            plan: result.rows[0]
+        });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: 'システムエラー'
+        });
+    } finally {
+        client.release();
+    }
+});
+
+/**
  * 予定作成（スケジュール作成後）
  */
 router.post('/temporary/create', async (req, res) => {
