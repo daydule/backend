@@ -21,8 +21,8 @@ router.post('/signup', async (req, res) => {
     try {
         // TODO バリデーションチェックを行う
 
-        const checkEmailExistanceResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (checkEmailExistanceResult.rows.length > 0) {
+        const checkEmailExistenceResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (checkEmailExistenceResult.rows.length > 0) {
             isClientError = true;
             throw new Error('そのメールアドレスは既に使用されています。');
         }
