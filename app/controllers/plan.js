@@ -95,7 +95,9 @@ router.post('/:id/update', async (req, res) => {
     try {
         await client.query('BEGIN');
         const getPlanResult = await client.query('SELECT * from plans where id = $1', [id]);
-        if (getPlanResult.rows.length === 0) throw new Error('There is no plan with id(' + id + ').');
+        if (getPlanResult.rows.length === 0) {
+            throw new Error('There is no plan with id(' + id + ').');
+        }
         const sql =
             'UPDATE plans \
                 SET user_id = $1, title = $2, context = $3, date = $4, start_time = $5, end_time = $6, \
