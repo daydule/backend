@@ -80,11 +80,10 @@ router.delete('/:id', async (req, res) => {
         if (getPlanResult.rows.length === 0) {
             throw new Error('There is no plan with id(' + id + ').');
         }
-        const result = await client.query('DELETE from plans where id = $1 RETURNING *', [id]);
+        await client.query('DELETE from plans where id = $1', [id]);
         await client.query('COMMIT');
         return res.status(200).json({
-            isError: false,
-            plan: result.rows[0]
+            isError: false
         });
     } catch (e) {
         await client.query('ROLLBACK');
