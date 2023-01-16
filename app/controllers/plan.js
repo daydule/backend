@@ -77,7 +77,9 @@ router.delete('/:id', async (req, res) => {
     try {
         await client.query('BEGIN');
         const getPlanResult = await client.query('SELECT * from plans where id = $1', [id]);
-        if (getPlanResult.rows.length === 0) throw new Error('There is no plan with id(' + id + ').');
+        if (getPlanResult.rows.length === 0) {
+            throw new Error('There is no plan with id(' + id + ').');
+        }
         const result = await client.query('DELETE from plans where id = $1 RETURNING *', [id]);
         await client.query('COMMIT');
         return res.status(200).json({
