@@ -5,7 +5,7 @@ const assert = require('chai').assert;
 const { Pool } = require('pg');
 // eslint-disable-next-line node/no-unpublished-require
 const sinon = require('sinon');
-const daySettingsHelper = require('../../helpers/daySettingsHelper');
+const daySettingsHelper = require('../../app/helpers/daySettingsHelper');
 
 describe('daySettingsHelper.js', function () {
     describe('initDaySettings function', function () {
