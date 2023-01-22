@@ -236,6 +236,107 @@ router.post('/temporary/create', async (req, res) => {
 });
 
 /**
+ * 予定削除（スケジュール作成後）
+ */
+router.post('/temporary/:id/delete', async (req, res) => {
+    const userId = req.user.id;
+    const planId = req.params.id;
+
+    const client = await pool.connect();
+
+    try {
+        // TODO: バリデーションチェックを行う
+
+        await client.query('BEGIN');
+
+        const getPlanResult = await client.query('SELECT * from plans where id = $1', [planId]);
+        if (getPlanResult.rows.length === 0) {
+            throw new Error('There is no plan with id(' + planId + ').');
+        }
+
+        const updateResult = await client.query(
+            'UPDATE temporary_plans SET is_deleted = $1 WHERE original_plan_id = $2',
+            [true, planId]
+        );
+        if (updateResult.rows.length === 0) {
+            await pool.query(
+                'INSERT INTO temporary_plans (\
+                    original_plan_id, user_id, title, context, date, start_time, end_time, process_time, \
+                    travel_time, buffer_time, plan_type, priority, place, is_deleted, todo_start_time) \
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)',
+                [
+                    getPlanResult.rows[0].id,
+                    userId,
+                    getPlanResult.rows[0].title,
+                    getPlanResult.rows[0].context,
+                    getPlanResult.rows[0].date,
+                    getPlanResult.rows[0].startTime,
+                    getPlanResult.rows[0].endTime,
+                    getPlanResult.rows[0].processTime,
+                    getPlanResult.rows[0].travelTime,
+                    getPlanResult.rows[0].bufferTime,
+                    getPlanResult.rows[0].planType,
+                    getPlanResult.rows[0].priority,
+                    getPlanResult.rows[0].place,
+                    true,
+                    getPlanResult.rows[0].todoStartTime
+                ]
+            );
+        }
+
+        if (getPlanResult.rows[0].is_parent_plan) {
+            const getDividedPlans = await client.query('SELECT * from plans where parent_plan_id = $1', [planId]);
+            for (let i = 0; i < getDividedPlans.rows.length; i++) {
+                const updateResult = await client.query(
+                    'UPDATE temporary_plans SET is_deleted = $1 WHERE original_plan_id = $2 RETURNING *',
+                    [true, getDividedPlans.rows[i].id]
+                );
+                if (updateResult.rows.length === 0) {
+                    await pool.query(
+                        'INSERT INTO temporary_plans (\
+                            original_plan_id, user_id, title, context, date, start_time, end_time, process_time, \
+                            travel_time, buffer_time, plan_type, priority, place, is_deleted, todo_start_time) \
+                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)',
+                        [
+                            getDividedPlans.rows[i].id,
+                            userId,
+                            getDividedPlans.rows[i].title,
+                            getDividedPlans.rows[i].context,
+                            getDividedPlans.rows[i].date,
+                            getDividedPlans.rows[i].startTime,
+                            getDividedPlans.rows[i].endTime,
+                            getDividedPlans.rows[i].processTime,
+                            getDividedPlans.rows[i].travelTime,
+                            getDividedPlans.rows[i].bufferTime,
+                            getDividedPlans.rows[i].planType,
+                            getDividedPlans.rows[i].priority,
+                            getDividedPlans.rows[i].place,
+                            true,
+                            getDividedPlans.rows[i].todoStartTime
+                        ]
+                    );
+                }
+            }
+        }
+
+        await client.query('COMMIT');
+        return res.status(200).json({
+            isError: false
+        });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: 'システムエラー'
+        });
+    } finally {
+        client.release();
+    }
+});
+
+/**
  * TODO並び順の作成/更新処理
  */
 router.post('/upsertTodoPriority', async (req, res) => {
