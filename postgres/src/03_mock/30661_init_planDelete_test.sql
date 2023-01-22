@@ -1,0 +1,61 @@
+INSERT INTO "users" 
+(
+  "id",
+  "nickname",
+  "email",
+  "hashed_password",
+  "salt",
+  "is_guest"
+)
+VALUES
+(
+  306611,
+  'test306611',
+  'test306611@example.com',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  false
+);
+
+INSERT INTO "plans"
+(
+  "id",
+  "user_id",
+  "title",
+  "context",
+  "date",
+  "start_time",
+  "end_time",
+  "process_time",
+  "travel_time",
+  "buffer_time",
+  "plan_type",
+  "priority",
+  "place",
+  "is_scheduled",
+  "is_required_plan",
+  "parent_plan_id",
+  "is_parent_plan",
+  "todo_start_time"
+)
+VALUES
+(
+  306611,
+  306611,
+  '予定1',
+  '説明1',
+  '2023-1-11',
+  '0900',
+  '1100',
+  120,
+  0,
+  0,
+  0,
+  5,
+  '会議室1',
+  true,
+  true,
+  null,
+  false,
+  null
+);
