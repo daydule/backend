@@ -16,17 +16,27 @@ const constant = require('../config/const');
  * @returns {object} - スケジュール作成結果
  */
 async function createSchedule(client, scheduleLogicId, userId, scheduleId, startTime, endTime, plans, todos) {
-    let scheduleLogic;
     try {
-        scheduleLogic = require('./schedule/' + constant.SCHEDULE_LOGIC_FILENAME[scheduleLogicId]);
+        const scheduleLogic = require('./schedule/' + constant.SCHEDULE_LOGIC_FILENAME[scheduleLogicId]);
+        const result = await scheduleLogic.execute(
+            client,
+            userId,
+            scheduleLogicId,
+            scheduleId,
+            startTime,
+            endTime,
+            plans,
+            todos
+        );
+        return {
+            isError: false,
+            result: result
+        };
     } catch (e) {
         return {
             isError: true
         };
     }
-
-    const result = await scheduleLogic.execute(client, userId, scheduleId, startTime, endTime, plans, todos);
-    return result;
 }
 
 module.exports = {

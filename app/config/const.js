@@ -5,6 +5,10 @@ module.exports = {
         DAY_SETTINGS: {
             SCHEDULE_START_TIME: '0900',
             SCHEDULE_END_TIME: '1800'
+        },
+        SCHEDULE: {
+            SCHEDULE_START_TIME: '0900',
+            SCHEDULE_END_TIME: '1800'
         }
     },
     SCHEDULE_LOGIC_FILENAME: {

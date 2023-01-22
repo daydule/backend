@@ -1,7 +1,14 @@
 'use strict';
 
 const express = require('express');
+const cors = require('cors');
 const app = express();
+app.use(
+    cors({
+        // TODO: 開発環境と本番環境が自動で切り替わるようにする
+        origin: 'http://localhost:3001'
+    })
+);
 
 const expressSession = require('express-session');
 const pgSession = require('connect-pg-simple')(expressSession);
@@ -67,21 +74,6 @@ app.get('/notFound', (req, res) => {
     });
 });
 
-app.get('/memo', function (req, res, next) {
-    // SELECT
-    pool.query('SELECT * FROM memo', function (error, results) {
-        // エラーの場合
-        if (error) {
-            throw error;
-        }
-
-        // 正常なら取得したデータを返却
-        res.status(200).json({
-            data: results.rows
-        });
-        return next();
-    });
-});
 // sample code end ----------
 
 app.listen(port, () => {
