@@ -236,6 +236,222 @@ router.post('/temporary/create', async (req, res) => {
 });
 
 /**
+ * 予定更新（スケジュール作成後）
+ */
+router.post('/temporary/:id/update', async (req, res) => {
+    const userId = req.user.id;
+    const title = req.body.title;
+    const context = req.body.context;
+    const date = req.body.date;
+    const startTime = req.body.startTime;
+    const endTime = req.body.endTime;
+    const processTime = req.body.processTime;
+    const travelTime = req.body.travelTime;
+    const bufferTime = req.body.bufferTime;
+    const planType = req.body.planType;
+    const priority = req.body.priority;
+    const place = req.body.place;
+    const todoStartTime = req.body.todoStartTime;
+    const isTimeOrDateChanged = req.body.isTimeOrDateChanged;
+    const planId = req.params.id;
+
+    const client = await pool.connect();
+
+    try {
+        // TODO: バリデーションチェックを行う
+
+        await client.query('BEGIN');
+
+        const getPlanResult = await client.query('SELECT * from plans where id = $1', [planId]);
+        if (getPlanResult.rows.length === 0) {
+            throw new Error('There is no plan with id(' + planId + ').');
+        }
+
+        if (getPlanResult.rows[0].parent_plan_id && !isTimeOrDateChanged) {
+            // 変更対象が分割予定、かつ時間や日付の更新ではない場合
+
+            // 分割元予定の更新
+            const updateParentPlanResult = await client.query(
+                'UPDATE temporary_plans SET title = $1, context = $2, priority = $3, place = $4 WHERE original_plan_id = $5 RETURNING *',
+                [title, context, priority, place, getPlanResult.rows[0].parent_plan_id]
+            );
+            if (updateParentPlanResult.rows.length === 0) {
+                const getParentPlanResult = await client.query('SELECT * from plans where id = $1', [
+                    getPlanResult.rows[0].parent_plan_id
+                ]);
+                await pool.query(
+                    'INSERT INTO temporary_plans (\
+                        original_plan_id, user_id, title, context, date, start_time, end_time, process_time, \
+                        travel_time, buffer_time, plan_type, priority, place, todo_start_time) \
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)',
+                    [
+                        getParentPlanResult.rows[0].planId,
+                        getParentPlanResult.rows[0].userId,
+                        title,
+                        context,
+                        getParentPlanResult.rows[0].date,
+                        getParentPlanResult.rows[0].startTime,
+                        getParentPlanResult.rows[0].endTime,
+                        getParentPlanResult.rows[0].processTime,
+                        getParentPlanResult.rows[0].travelTime,
+                        getParentPlanResult.rows[0].bufferTime,
+                        getParentPlanResult.rows[0].planType,
+                        priority,
+                        place,
+                        getParentPlanResult.rows[0].todoStartTime
+                    ]
+                );
+            }
+
+            // 他の分割予定
+            const getDividedPlans = await client.query('SELECT * from plans where parent_plan_id = $1', [
+                getPlanResult.rows[0].parent_plan_id
+            ]);
+            for (let i = 0; i < getDividedPlans.rows.length; i++) {
+                const updateDividedPlanResult = await client.query(
+                    'UPDATE temporary_plans SET title = $1, context = $2, priority = $3, place = $4 WHERE original_plan_id = $5 RETURNING *',
+                    [title, context, priority, place, getDividedPlans.rows[i]]
+                );
+
+                if (updateDividedPlanResult.rows.length === 0) {
+                    await pool.query(
+                        'INSERT INTO temporary_plans (\
+                            original_plan_id, user_id, title, context, date, start_time, end_time, process_time, \
+                            travel_time, buffer_time, plan_type, priority, place, todo_start_time) \
+                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)',
+                        [
+                            updateDividedPlanResult.rows[i].id,
+                            userId,
+                            updateDividedPlanResult.rows[i].title,
+                            updateDividedPlanResult.rows[i].context,
+                            updateDividedPlanResult.rows[i].date,
+                            updateDividedPlanResult.rows[i].startTime,
+                            updateDividedPlanResult.rows[i].endTime,
+                            updateDividedPlanResult.rows[i].processTime,
+                            updateDividedPlanResult.rows[i].travelTime,
+                            updateDividedPlanResult.rows[i].bufferTime,
+                            updateDividedPlanResult.rows[i].planType,
+                            updateDividedPlanResult.rows[i].priority,
+                            updateDividedPlanResult.rows[i].place,
+                            updateDividedPlanResult.rows[i].todoStartTime
+                        ]
+                    );
+                }
+            }
+        } else {
+            if (getPlanResult.rows[0].is_parent_plan) {
+                // 変更対象が分割元予定の場合
+
+                // 分割予定の更新
+                const getDividedPlans = await client.query('SELECT * from plans where parent_plan_id = $1', [planId]);
+                for (let i = 0; i < getDividedPlans.rows.length; i++) {
+                    let updateDividedPlanResult = null;
+                    if (isTimeOrDateChanged) {
+                        updateDividedPlanResult = await client.query(
+                            'UPDATE temporary_plans SET is_deleted = $1 WHERE original_plan_id = $2 RETURNING *',
+                            [true, getDividedPlans.rows[i].id]
+                        );
+                    } else {
+                        updateDividedPlanResult = await client.query(
+                            'UPDATE temporary_plans SET title = $1, context = $2, priority = $3, place = $4 WHERE original_plan_id = $5 RETURNING *',
+                            [title, context, priority, place, getDividedPlans[i]]
+                        );
+                    }
+
+                    if (updateDividedPlanResult.rows.length === 0) {
+                        await pool.query(
+                            'INSERT INTO temporary_plans (\
+                                original_plan_id, user_id, title, context, date, start_time, end_time, process_time, \
+                                travel_time, buffer_time, plan_type, priority, place, is_deleted, todo_start_time) \
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)',
+                            [
+                                getDividedPlans.rows[i].id,
+                                userId,
+                                getDividedPlans.rows[i].title,
+                                getDividedPlans.rows[i].context,
+                                getDividedPlans.rows[i].date,
+                                getDividedPlans.rows[i].startTime,
+                                getDividedPlans.rows[i].endTime,
+                                getDividedPlans.rows[i].processTime,
+                                getDividedPlans.rows[i].travelTime,
+                                getDividedPlans.rows[i].bufferTime,
+                                getDividedPlans.rows[i].planType,
+                                getDividedPlans.rows[i].priority,
+                                getDividedPlans.rows[i].place,
+                                isTimeOrDateChanged, // 時間や日付変更の場合は削除フラグを立てる
+                                getDividedPlans.rows[i].todoStartTime
+                            ]
+                        );
+                    }
+                }
+            }
+
+            const updateResult = await client.query(
+                'UPDATE temporary_plans SET original_plan_id = $1, user_id = $2, title = $3, context = $4, date = $5, \
+                start_time = $6, end_time = $7, process_time = $8, travel_time = $9, buffer_time = $10, plan_type = $11, \
+                priority = $12, place = $13, todo_start_time = $14 WHERE original_plan_id = $15 RETURNING *',
+                [
+                    planId,
+                    userId,
+                    title,
+                    context,
+                    date,
+                    startTime,
+                    endTime,
+                    processTime,
+                    travelTime,
+                    bufferTime,
+                    planType,
+                    priority,
+                    place,
+                    todoStartTime,
+                    planId
+                ]
+            );
+            if (updateResult.rows.length === 0) {
+                await pool.query(
+                    'INSERT INTO temporary_plans (\
+                        original_plan_id, user_id, title, context, date, start_time, end_time, process_time, \
+                        travel_time, buffer_time, plan_type, priority, place, todo_start_time) \
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)',
+                    [
+                        planId,
+                        userId,
+                        title,
+                        context,
+                        date,
+                        startTime,
+                        endTime,
+                        processTime,
+                        travelTime,
+                        bufferTime,
+                        planType,
+                        priority,
+                        place,
+                        todoStartTime
+                    ]
+                );
+            }
+        }
+
+        await client.query('COMMIT');
+        return res.status(200).json({
+            isError: false
+        });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: 'システムエラー'
+        });
+    } finally {
+        client.release();
+    }
+});
+
+/**
  * 予定削除（スケジュール作成後）
  */
 router.post('/temporary/:id/delete', async (req, res) => {
@@ -255,7 +471,7 @@ router.post('/temporary/:id/delete', async (req, res) => {
         }
 
         const updateResult = await client.query(
-            'UPDATE temporary_plans SET is_deleted = $1 WHERE original_plan_id = $2',
+            'UPDATE temporary_plans SET is_deleted = $1 WHERE original_plan_id = $2 RETURNING *',
             [true, planId]
         );
         if (updateResult.rows.length === 0) {
