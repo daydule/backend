@@ -6,7 +6,7 @@
     "start": "node app.js;",
     "start:nodemon": "nodemon ./app/app.js",
     "start:debug": "nodemon -L --inspect-brk=0.0.0.0:9229 ./app/app.js",
-    "test": "./node_modules/.bin/mocha"
+    "test": "./node_modules/.bin/mocha --recursive"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   "homepage": "https://github.com/daydule/backend#readme",
   "dependencies": {
     "connect-pg-simple": "^7.0.0",
+    "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "csurf": "^1.11.0",
     "express": "^4.18.2",
