@@ -41,24 +41,16 @@ function compareTimeStr(timeStr1, timeStr2) {
  *
  * @param {string} timeStr1 - 時間書式の文字列1(書式：hhmm)
  * @param {string} timeStr2 - 時間書式の文字列2(書式：hhmm)
- * @returns {number} - 比較結果
+ * @returns {number} - 時間の差（分数）
  */
 function subtractTimeStr(timeStr1, timeStr2) {
     const now = new Date();
-    const date1 = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        timeStr1.slice(0, 2),
-        timeStr1.slice(2, 4)
-    );
-    const date2 = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        timeStr2.slice(0, 2),
-        timeStr2.slice(2, 4)
-    );
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    const currentDate = now.getDate();
+
+    const date1 = new Date(currentYear, currentMonth, currentDate, timeStr1.slice(0, 2), timeStr1.slice(2, 4));
+    const date2 = new Date(currentYear, currentMonth, currentDate, timeStr2.slice(0, 2), timeStr2.slice(2, 4));
 
     return (date1.getTime() - date2.getTime()) / 60000;
 }
@@ -69,7 +61,7 @@ function subtractTimeStr(timeStr1, timeStr2) {
  * @param {string} scheduleStartTime - スケジュールの開始時間(書式：hhmm)
  * @param {number} startTimeDiffBetweenScheduleAndPlan - スケジュールの開始時間と予定の開始時間の差（分）
  * @param {number} processTime - 予定の時間（分）
- * @returns {number} - 開始時間、終了時間
+ * @returns {string} - 開始時間、終了時間
  */
 function getStartAndEndTimeStr(scheduleStartTime, startTimeDiffBetweenScheduleAndPlan, processTime) {
     const now = new Date();

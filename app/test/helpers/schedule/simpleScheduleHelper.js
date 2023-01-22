@@ -10,7 +10,6 @@ const updateFunction = sinon.stub().callsFake(() => {});
 describe('simpleScheduleHelper.js', function () {
     const pool = {
         query: function (sql, params) {
-            // return new Promise((resolve, reject) => {
             if (sql === 'UPDATE plans SET is_parent_plan = $1 WHERE id = $2') {
                 // 分割TODOがあった時の処理
                 updateFunction();
@@ -24,14 +23,15 @@ describe('simpleScheduleHelper.js', function () {
                     ]
                 };
             }
-            // });
         }
     };
 
     describe('execute function', function () {
         it('should return object with isError flag true when length of todos is 0.', async function () {
             const expect = {
-                isError: true
+                isError: true,
+                errorId: 'errorId',
+                errorMessage: 'システムエラー'
             };
 
             const result = await simpleScheduleHelper.execute('', '', '', '', '', '', '');
@@ -40,7 +40,9 @@ describe('simpleScheduleHelper.js', function () {
 
         it('should return object with isError flag true when there is an invalid start_time of required plan.', async function () {
             const expect = {
-                isError: true
+                isError: true,
+                errorId: 'errorId',
+                errorMessage: 'システムエラー'
             };
 
             const plans = [
@@ -57,7 +59,9 @@ describe('simpleScheduleHelper.js', function () {
 
         it('should return object with isError flag true when there is an invalid end_time of required plan.', async function () {
             const expect = {
-                isError: true
+                isError: true,
+                errorId: 'errorId',
+                errorMessage: 'システムエラー'
             };
 
             const plans = [
