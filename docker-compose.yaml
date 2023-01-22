@@ -37,9 +37,9 @@ services:
         working_dir: /daydule/
         command:
             # nodemon
-            # ['./wait-for-db-container.sh', 'npm', 'run', 'start:nodemon']
+            ['./wait-for-db-container.sh', 'npm', 'run', 'start:nodemon']
             # nodemon × debug
-            ['./wait-for-db-container.sh', 'npm', 'run', 'start:debug']
+            # ['./wait-for-db-container.sh', 'npm', 'run', 'start:debug']
 
 volumes:
     db_data_volume:
