@@ -4,7 +4,7 @@
 const assert = require('chai').assert;
 // eslint-disable-next-line node/no-unpublished-require
 const sinon = require('sinon');
-const simpleScheduleHelper = require('../../../helpers/schedule/simpleScheduleHelper');
+const simpleScheduleHelper = require('../../../app/helpers/schedule/simpleScheduleHelper');
 const updateFunction = sinon.stub().callsFake(() => {});
 
 describe('simpleScheduleHelper.js', function () {

@@ -3,7 +3,7 @@
 // eslint-disable-next-line node/no-unpublished-require
 const assert = require('chai').assert;
 // eslint-disable-next-line node/no-unpublished-require
-const timeUtil = require('../../utils/time');
+const timeUtil = require('../../app/utils/time');
 
 describe('time.js', function () {
     describe('compareTimeStr function', function () {

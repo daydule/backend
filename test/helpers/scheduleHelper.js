@@ -13,7 +13,7 @@ const scheduleLogic = {
     })
 };
 
-const scheduleHelper = proxyquire('../../helpers/scheduleHelper', {
+const scheduleHelper = proxyquire('../../app/helpers/scheduleHelper', {
     './schedule/simpleScheduleHelper': scheduleLogic
 });
 
