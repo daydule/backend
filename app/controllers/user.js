@@ -177,4 +177,46 @@ router.get('/schedule/settings/read', guestCheck, async function (req, res) {
     }
 });
 
+/**
+ * 曜日別設定更新
+ */
+router.post('/schedule/settings/update', guestCheck, async function (req, res) {
+    const id = req.body.id;
+    const scheduleStartTime = req.body.scheduleStartTime;
+    const scheduleEndTime = req.body.scheduleEndTime;
+    const schedulingLogic = req.body.schedulingLogic;
+
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+        const selectResult = await client.query('SELECT * FROM day_settings WHERE id = $1', [id]);
+        if (selectResult.rows.length === 0) {
+            throw new Error('There is not the record that has this id. id(' + id + ')');
+        }
+
+        const sql =
+            'UPDATE day_settings \
+                SET schedule_start_time = $1, schedule_end_time = $2, scheduling_logic = $3 \
+                WHERE id = $4 RETURNING *';
+        const values = [scheduleStartTime, scheduleEndTime, schedulingLogic, id];
+        const result = await client.query(sql, values);
+        await client.query('COMMIT');
+        return res.status(200).json({
+            isError: false,
+            daySettings: result.rows
+        });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: 'サーバーエラー'
+        });
+    } finally {
+        client.release();
+    }
+});
+
 module.exports = router;
