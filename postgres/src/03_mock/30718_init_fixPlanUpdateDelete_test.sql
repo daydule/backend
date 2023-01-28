@@ -1,0 +1,131 @@
+INSERT INTO "users" 
+(
+  "id",
+  "nickname",
+  "email",
+  "hashed_password",
+  "salt",
+  "is_guest"
+)
+VALUES
+(
+  307181,
+  'test307181',
+  'test307181@example.com',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  false
+);
+
+INSERT INTO "day_settings" (
+  "id",
+  "user_id",
+  "setting_name",
+  "day",
+  "schedule_start_time",
+  "schedule_end_time",
+  "scheduling_logic"
+) VALUES (
+  307181,
+  307181,
+  '日曜日',
+  0,
+  '1000',
+  '1900',
+  0
+),
+(
+  307182,
+  307181,
+  '月曜日',
+  1,
+  '1000',
+  '1900',
+  0
+),(
+  307183,
+  307181,
+  '火曜日',
+  2,
+  '1000',
+  '1900',
+  0
+),(
+  307184,
+  307181,
+  '水曜日',
+  3,
+  '1000',
+  '1900',
+  0
+),(
+  307185,
+  307181,
+  '木曜日',
+  4,
+  '1000',
+  '1900',
+  0
+),(
+  307186,
+  307181,
+  '金曜日',
+  5,
+  '1000',
+  '1900',
+  0
+),(
+  307187,
+  307181,
+  '土曜日',
+  6,
+  '1000',
+  '1900',
+  0
+);
+
+
+INSERT INTO "fix_plans" (
+  "id",
+  "day_id",
+  "set_id",
+  "title", 
+  "context",
+  "start_time",
+  "end_time",
+  "process_time",
+  "travel_time",
+  "buffer_time",
+  "plan_type",
+  "priority",
+  "place"
+) VALUES (
+  307181,
+  307181,
+  307181,
+  '固定予定307184',
+  null,
+  '1000',
+  '1200',
+  120,
+  15,
+  15,
+  1,
+  5,
+  null
+),(
+  307182,
+  307182,
+  307181,
+  '固定予定307182',
+  null,
+  '1000',
+  '1200',
+  120,
+  15,
+  15,
+  1,
+  5,
+  null
+);
+
