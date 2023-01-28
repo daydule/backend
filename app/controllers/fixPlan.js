@@ -131,4 +131,45 @@ router.post('/update', async (req, res) => {
     }
 });
 
+/**
+ * 固定予定削除
+ */
+router.delete('/delete', async (req, res) => {
+    const ids = req.body.ids;
+
+    const client = await pool.connect();
+    try {
+        // TODO: バリデーションチェックを行う
+        client.query('BEGIN');
+        const result = await client.query('SELECT * FROM fix_plans WHERE id = ANY($1::INTEGER[])', [ids]);
+        if (result.rows.length !== ids.length) {
+            throw new Error('There is some ids that is not existing in fix_plans. ids(' + ids.join(', ') + ')');
+        } else if (result.rows.some((row) => result.rows[0].set_id !== row.set_id)) {
+            throw new Error(
+                'There is some records that has another set_id. ids(' +
+                    ids.join(', ') +
+                    '), set_ids(' +
+                    result.rows.map((row) => row.set_id).join(', ') +
+                    ')'
+            );
+        }
+
+        await client.query('DELETE FROM fix_plans WHERE id = ANY($1::INTEGER[])', [ids]);
+        client.query('COMMIT');
+        return res.status(200).json({
+            isError: false
+        });
+    } catch (e) {
+        client.query('ROLLBACK');
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: 'システムエラー'
+        });
+    } finally {
+        client.release();
+    }
+});
+
 module.exports = router;
