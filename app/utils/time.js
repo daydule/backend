@@ -61,7 +61,9 @@ function subtractTimeStr(timeStr1, timeStr2) {
  * @param {string} scheduleStartTime - スケジュールの開始時間(書式：hhmm)
  * @param {number} startTimeDiffBetweenScheduleAndPlan - スケジュールの開始時間と予定の開始時間の差（分）
  * @param {number} processTime - 予定の時間（分）
- * @returns {string} - 開始時間、終了時間
+ * @returns {Object} result - オブジェクト
+ * @returns {string} result.startTime - 開始時間(書式:hhmm)
+ * @returns {string} result.endTime   - 終了時間(書式:hhmm)
  */
 function getStartAndEndTimeStr(scheduleStartTime, startTimeDiffBetweenScheduleAndPlan, processTime) {
     const now = new Date();
