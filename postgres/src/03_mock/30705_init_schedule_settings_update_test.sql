@@ -1,0 +1,93 @@
+INSERT INTO "users" 
+(
+  "id",
+  "nickname",
+  "email",
+  "hashed_password",
+  "salt",
+  "is_guest"
+)
+VALUES
+(
+  307051,
+  'test307051',
+  'test307051@example.com',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  false
+);
+
+INSERT INTO "day_settings" 
+(
+  "id",
+  "user_id",
+  "setting_name",    
+  "day",
+  "schedule_start_time",
+  "schedule_end_time",
+  "scheduling_logic"
+)
+VALUES
+(
+  307051,
+  307051,
+  '日曜日',
+  0,
+  '1000',
+  '1900',
+  0
+),
+(
+  307052,
+  307051,
+  '月曜日',
+  1,
+  '1000',
+  '1900',
+  0
+),
+(
+  307053,
+  307051,
+  '火曜日',
+  2,
+  '1000',
+  '1900',
+  0
+),
+(
+  307054,
+  307051,
+  '水曜日',
+  3,
+  '1000',
+  '1900',
+  0
+),
+(
+  307055,
+  307051,
+  '木曜日',
+  4,
+  '1000',
+  '1900',
+  0
+),
+(
+  307056,
+  307051,
+  '金曜日',
+  5,
+  '1000',
+  '1900',
+  0
+),
+(
+  307057,
+  307051,
+  '土曜日',
+  6,
+  '1000',
+  '1900',
+  0
+);
