@@ -4,7 +4,7 @@
 const assert = require('chai').assert;
 // eslint-disable-next-line node/no-unpublished-require
 const sinon = require('sinon');
-const simpleScheduleHelper = require('../../../helpers/schedule/simpleScheduleHelper');
+const simpleScheduleHelper = require('../../../app/helpers/schedule/simpleScheduleHelper');
 const updateFunction = sinon.stub().callsFake(() => {});
 
 describe('simpleScheduleHelper.js', function () {
@@ -76,7 +76,7 @@ describe('simpleScheduleHelper.js', function () {
             assert.deepEqual(result, expect);
         });
 
-        it('should register 35m 1th TODO to schedule and does NOT register 60m 2th TODO to schedule.', async function () {
+        it('should register 35m 1st TODO to schedule and NOT register 60m 2nd TODO to schedule.', async function () {
             const plans = [
                 {
                     is_required_plan: true,
@@ -123,7 +123,7 @@ describe('simpleScheduleHelper.js', function () {
             assert.equal(result.other.todos[0].title, 'test5');
         });
 
-        it('should register 60m 1th TODO and 30m 3th TODO to schedule and does NOT register 35m 2th TODO to schedule.', async function () {
+        it('should register 60m 1st TODO and 30m 3rd TODO to schedule and NOT register 35m 2nd TODO to schedule.', async function () {
             const plans = [
                 {
                     is_required_plan: true,

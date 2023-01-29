@@ -13,13 +13,13 @@ const scheduleLogic = {
     })
 };
 
-const scheduleHelper = proxyquire('../../helpers/scheduleHelper', {
+const scheduleHelper = proxyquire('../../app/helpers/scheduleHelper', {
     './schedule/simpleScheduleHelper': scheduleLogic
 });
 
 describe('scheduleHelper.js', function () {
     describe('createSchedule function', function () {
-        it('should return object with isError flag true when scheduleLgicId is NOT correct.', async function () {
+        it('should return object with isError flag true when scheduleLogicId is NOT correct.', async function () {
             const expect = {
                 isError: false,
                 result: 'result'
@@ -29,9 +29,11 @@ describe('scheduleHelper.js', function () {
             assert.deepStrictEqual(result, expect);
         });
 
-        it('should return object with isError flag false when scheduleLgicId is correct.', async function () {
+        it('should return object with isError flag false when scheduleLogicId is correct.', async function () {
             const expect = {
-                isError: true
+                isError: true,
+                errorId: 'errorId',
+                errorMessage: 'システムエラー'
             };
 
             const result = await scheduleHelper.createSchedule('', 1, '', '', '', '', '', '');
