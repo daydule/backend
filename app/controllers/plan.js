@@ -285,32 +285,32 @@ router.post('/temporary/:id/update', async (req, res) => {
                         travel_time, buffer_time, plan_type, priority, place, todo_start_time) \
                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)',
                     [
-                        getParentPlanResult.rows[0].planId,
-                        getParentPlanResult.rows[0].userId,
+                        getParentPlanResult.rows[0].id,
+                        getParentPlanResult.rows[0].user_id,
                         title,
                         context,
                         getParentPlanResult.rows[0].date,
-                        getParentPlanResult.rows[0].startTime,
-                        getParentPlanResult.rows[0].endTime,
-                        getParentPlanResult.rows[0].processTime,
-                        getParentPlanResult.rows[0].travelTime,
-                        getParentPlanResult.rows[0].bufferTime,
-                        getParentPlanResult.rows[0].planType,
+                        getParentPlanResult.rows[0].start_time,
+                        getParentPlanResult.rows[0].end_time,
+                        getParentPlanResult.rows[0].process_time,
+                        getParentPlanResult.rows[0].travel_time,
+                        getParentPlanResult.rows[0].buffer_time,
+                        getParentPlanResult.rows[0].plan_type,
                         priority,
                         place,
-                        getParentPlanResult.rows[0].todoStartTime
+                        getParentPlanResult.rows[0].todo_start_time
                     ]
                 );
             }
 
-            // 他の分割予定
+            // 分割予定
             const getDividedPlans = await client.query('SELECT * from plans where parent_plan_id = $1', [
                 getPlanResult.rows[0].parent_plan_id
             ]);
             for (let i = 0; i < getDividedPlans.rows.length; i++) {
                 const updateDividedPlanResult = await client.query(
                     'UPDATE temporary_plans SET title = $1, context = $2, priority = $3, place = $4 WHERE original_plan_id = $5 RETURNING *',
-                    [title, context, priority, place, getDividedPlans.rows[i]]
+                    [title, context, priority, place, getDividedPlans.rows[i].id]
                 );
 
                 if (updateDividedPlanResult.rows.length === 0) {
@@ -320,20 +320,20 @@ router.post('/temporary/:id/update', async (req, res) => {
                             travel_time, buffer_time, plan_type, priority, place, todo_start_time) \
                             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)',
                         [
-                            updateDividedPlanResult.rows[i].id,
+                            getDividedPlans.rows[i].id,
                             userId,
-                            updateDividedPlanResult.rows[i].title,
-                            updateDividedPlanResult.rows[i].context,
-                            updateDividedPlanResult.rows[i].date,
-                            updateDividedPlanResult.rows[i].startTime,
-                            updateDividedPlanResult.rows[i].endTime,
-                            updateDividedPlanResult.rows[i].processTime,
-                            updateDividedPlanResult.rows[i].travelTime,
-                            updateDividedPlanResult.rows[i].bufferTime,
-                            updateDividedPlanResult.rows[i].planType,
-                            updateDividedPlanResult.rows[i].priority,
-                            updateDividedPlanResult.rows[i].place,
-                            updateDividedPlanResult.rows[i].todoStartTime
+                            title,
+                            context,
+                            getDividedPlans.rows[i].date,
+                            getDividedPlans.rows[i].start_time,
+                            getDividedPlans.rows[i].end_time,
+                            getDividedPlans.rows[i].process_time,
+                            getDividedPlans.rows[i].travel_time,
+                            getDividedPlans.rows[i].buffer_time,
+                            getDividedPlans.rows[i].plan_type,
+                            priority,
+                            place,
+                            getDividedPlans.rows[i].todo_start_time
                         ]
                     );
                 }
@@ -354,7 +354,7 @@ router.post('/temporary/:id/update', async (req, res) => {
                     } else {
                         updateDividedPlanResult = await client.query(
                             'UPDATE temporary_plans SET title = $1, context = $2, priority = $3, place = $4 WHERE original_plan_id = $5 RETURNING *',
-                            [title, context, priority, place, getDividedPlans[i]]
+                            [title, context, priority, place, getDividedPlans.rows[i].id]
                         );
                     }
 
@@ -367,19 +367,19 @@ router.post('/temporary/:id/update', async (req, res) => {
                             [
                                 getDividedPlans.rows[i].id,
                                 userId,
-                                getDividedPlans.rows[i].title,
-                                getDividedPlans.rows[i].context,
+                                title,
+                                context,
                                 getDividedPlans.rows[i].date,
-                                getDividedPlans.rows[i].startTime,
-                                getDividedPlans.rows[i].endTime,
-                                getDividedPlans.rows[i].processTime,
-                                getDividedPlans.rows[i].travelTime,
-                                getDividedPlans.rows[i].bufferTime,
-                                getDividedPlans.rows[i].planType,
-                                getDividedPlans.rows[i].priority,
-                                getDividedPlans.rows[i].place,
+                                getDividedPlans.rows[i].start_time,
+                                getDividedPlans.rows[i].end_time,
+                                getDividedPlans.rows[i].process_time,
+                                getDividedPlans.rows[i].travel_time,
+                                getDividedPlans.rows[i].buffer_time,
+                                getDividedPlans.rows[i].plan_type,
+                                priority,
+                                place,
                                 isTimeOrDateChanged, // 時間や日付変更の場合は削除フラグを立てる
-                                getDividedPlans.rows[i].todoStartTime
+                                getDividedPlans.rows[i].todo_start_time
                             ]
                         );
                     }

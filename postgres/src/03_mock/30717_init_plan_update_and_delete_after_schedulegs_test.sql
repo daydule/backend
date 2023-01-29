@@ -1,0 +1,273 @@
+INSERT INTO "users" 
+(
+  "id",
+  "nickname",
+  "email",
+  "hashed_password",
+  "salt",
+  "is_guest"
+)
+VALUES
+(
+  307171,
+  'test307171',
+  'test307171@example.com',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  false
+),
+(
+  307172,
+  'test307172',
+  'test307172@example.com',
+  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
+  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  false
+);
+
+INSERT INTO "plans" 
+(
+  "id",
+  "user_id",
+  "title",
+  "context",
+  "date",
+  "start_time",
+  "end_time",
+  "process_time",
+  "travel_time",
+  "buffer_time",
+  "plan_type",
+  "priority",
+  "place",
+  "is_scheduled",
+  "is_required_plan",
+  "parent_plan_id",
+  "is_parent_plan",
+  "todo_start_time"
+)
+VALUES
+(
+  -- 普通の予定
+  307171,
+  307171,
+  '予定307171',
+  '説明307171',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室307171',
+  true,
+  true,
+  null,
+  false,
+  null
+),
+(
+  -- 分割元の予定(仮予定なし)
+  307172,
+  307171,
+  '予定307172',
+  '説明307172',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室307172',
+  true,
+  true,
+  null,
+  true,
+  null
+),
+(
+  -- 分割予定(仮予定なし)
+  307173,
+  307171,
+  '予定307173',
+  '説明307173',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室307173',
+  true,
+  true,
+  '307172',
+  false,
+  null
+),
+(
+  -- 分割元の予定(仮予定あり)
+  307174,
+  307171,
+  '予定307174',
+  '説明307174',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室307174',
+  true,
+  true,
+  null,
+  true,
+  null
+),
+(
+  -- 分割予定(仮予定あり)
+  307175,
+  307171,
+  '予定307175',
+  '説明307175',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室307175',
+  true,
+  true,
+  '307174',
+  false,
+  null
+),
+(
+  -- 普通の予定
+  307176,
+  307172,
+  '予定307176',
+  '説明307176',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室307176',
+  true,
+  true,
+  null,
+  false,
+  null
+),
+(
+  -- 分割元の予定(仮予定なし)
+  307177,
+  307172,
+  '予定307177',
+  '説明307177',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室307177',
+  true,
+  true,
+  null,
+  true,
+  null
+),
+(
+  -- 分割予定(仮予定なし)
+  307178,
+  307172,
+  '予定307178',
+  '説明307178',
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  '会議室307178',
+  true,
+  true,
+  '307177',
+  false,
+  null
+);
+
+INSERT INTO "temporary_plans" 
+(
+  "id",
+  "original_plan_id",
+  "user_id",
+  "title", 
+  "context",
+  "date",
+  "start_time",
+  "end_time",
+  "process_time",
+  "travel_time",
+  "buffer_time",
+  "plan_type",
+  "priority",
+  "place",
+  "todo_start_time"
+)
+VALUES
+(
+  -- 予定の仮予定
+  307171,
+  307174,
+  307171,
+  '予定(変更ずみ）307174',
+  null,
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  null,
+  null
+),
+(
+  -- 予定の仮予定
+  307172,
+  307175,
+  307171,
+  '予定(変更ずみ）307175',
+  null,
+  '2022-12-12',
+  '0900',
+  '1100',
+  120,
+  15,
+  15,
+  0,
+  5,
+  null,
+  null
+);
