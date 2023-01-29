@@ -31,7 +31,9 @@ describe('scheduleHelper.js', function () {
 
         it('should return object with isError flag false when scheduleLogicId is correct.', async function () {
             const expect = {
-                isError: true
+                isError: true,
+                errorId: 'errorId',
+                errorMessage: 'システムエラー'
             };
 
             const result = await scheduleHelper.createSchedule('', 1, '', '', '', '', '', '');

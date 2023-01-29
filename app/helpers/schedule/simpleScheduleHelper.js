@@ -13,27 +13,17 @@ const timeUtil = require('../../utils/time');
  */
 function findAvailableSectionStartIndex(freeSections, sectionNum) {
     let count = 0;
-    let foundIndex = null;
     for (let i = 0; i < freeSections.length; i++) {
-        if (count >= sectionNum || freeSections[i] === 1) {
-            continue;
+        if (freeSections[i] === 0) {
+            count++;
+        } else {
+            count = 0;
         }
-
-        count = 0;
-        for (let j = i; j < freeSections.length; j++) {
-            if (freeSections[j] === 0) {
-                count++;
-            } else {
-                break;
-            }
-        }
-
-        if (count >= sectionNum) {
-            foundIndex = i;
+        if (count === sectionNum) {
+            return i - count + 1;
         }
     }
-
-    return foundIndex !== null ? foundIndex : -1;
+    return -1;
 }
 
 /**

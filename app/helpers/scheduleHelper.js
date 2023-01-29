@@ -33,8 +33,12 @@ async function createSchedule(pool, scheduleLogicId, userId, scheduleId, startTi
             result: result
         };
     } catch (e) {
+        console.error(e);
+
         return {
-            isError: true
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: 'システムエラー'
         };
     }
 }
