@@ -47,13 +47,19 @@ router.post('/create', async (req, res) => {
             'place'
         ];
 
-        const values = dayIds.reduce(
-            (previous, id) => [
-                ...previous,
-                [id, title, context, startTime, endTime, processTime, travelTime, bufferTime, planType, priority, place]
-            ],
-            []
-        );
+        const values = dayIds.map((dayId) => [
+            dayId,
+            title,
+            context,
+            startTime,
+            endTime,
+            processTime,
+            travelTime,
+            bufferTime,
+            planType,
+            priority,
+            place
+        ]);
         const sql = format(
             'INSERT INTO ' + tableName + ' (' + tableColumns.join(', ') + ') VALUES %L RETURNING *',
             values
