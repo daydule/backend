@@ -70,7 +70,7 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
     let freeSections = new Array(timeUtil.subtractTimeStr(endTimeStr, startTimeStr) / constant.SECTION_MINUTES_LENGTH);
     freeSections.fill(0);
 
-    let freeSectionsSum = freeSections.length * constant.SECTION_MINUTES_LENGTH;
+    let remainingFreeTimeMin = freeSections.length * constant.SECTION_MINUTES_LENGTH;
 
     const requiredPlans = [];
     const optionalPlans = [];
@@ -85,7 +85,7 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
             let endIndex = startIndex + processTimeMin / constant.SECTION_MINUTES_LENGTH;
 
             freeSections.fill(1, startIndex, endIndex);
-            freeSectionsSum -= processTimeMin;
+            remainingFreeTimeMin -= processTimeMin;
         } else {
             optionalPlans.push(plan);
         }
@@ -94,7 +94,7 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
     const scheduledTodos = [];
     const notScheduledTodos = [];
     await todos.forEach(async (todo) => {
-        if (todo.process_time > freeSectionsSum) {
+        if (todo.process_time > remainingFreeTimeMin) {
             notScheduledTodos.push(todo);
         } else {
             const needSectionNum = todo.process_time / constant.SECTION_MINUTES_LENGTH;
@@ -102,7 +102,7 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
 
             if (availableTimeStartIndex !== -1) {
                 freeSections.fill(1, availableTimeStartIndex, availableTimeStartIndex + needSectionNum);
-                freeSectionsSum -= needSectionNum * constant.SECTION_MINUTES_LENGTH;
+                remainingFreeTimeMin -= needSectionNum * constant.SECTION_MINUTES_LENGTH;
 
                 await pool.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
                     todo.id,
@@ -136,7 +136,7 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
                 availableSectionIndex.forEach((index) => {
                     freeSections[index] = 1;
                 });
-                freeSectionsSum -= needSectionNum * constant.SECTION_MINUTES_LENGTH;
+                remainingFreeTimeMin -= needSectionNum * constant.SECTION_MINUTES_LENGTH;
 
                 const dividedTodoTime = [];
                 for (let i = 0; i < availableSectionIndex.length; i++) {
