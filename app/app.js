@@ -54,6 +54,10 @@ app.use('/user', user);
 app.use('/plan', plan);
 app.use('/schedule', schedule);
 
+app.use((req, res) => {
+    res.status(404).json({ isError: true, errorId: 'errorId', errorMessage: 'Not Found' });
+});
+
 app.listen(port, () => {
     console.log(`app listening on port ${port}`);
 });
