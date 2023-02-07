@@ -1,7 +1,7 @@
 'use strict';
 
 const { check } = require('express-validator/check');
-const { PLAN_TYPE } = require('../config/const');
+const { PLAN_TYPE } = require('../../config/const');
 
 const plansValidationCheck = {
     id: check('id').notEmpty().withMessage('not empty').isInt().withMessage('should be an integer'),

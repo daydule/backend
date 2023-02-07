@@ -4,92 +4,78 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
 const { validationResult } = require('express-validator/check');
-const { plansValidationCheck, todoOrdersValidationCheck, errorMessageFormatter } = require('../middlewares/validator');
+const { errorMessageFormatter } = require('../middlewares/validation/generalValidators');
+const {
+    createPlanValidators,
+    upsertTodoPriorityValidators
+} = require('../middlewares/validation/planControllerValidators');
 
 /**
  * 予定作成
  */
-router.post(
-    '/create',
-    [
-        plansValidationCheck.title,
-        plansValidationCheck.context,
-        plansValidationCheck.date,
-        plansValidationCheck.startTime,
-        plansValidationCheck.endTime,
-        plansValidationCheck.processTime,
-        plansValidationCheck.travelTime,
-        plansValidationCheck.bufferTime,
-        plansValidationCheck.planType,
-        plansValidationCheck.priority,
-        plansValidationCheck.place,
-        plansValidationCheck.isRequiredPlan,
-        plansValidationCheck.todoStartTime
-    ],
-    async (req, res) => {
-        const result = validationResult(req);
-        if (result.errors.length !== 0) {
-            console.error(result);
-            return res.status(400).json({
-                isError: true,
-                errorId: 'errorId',
-                errorMessage: errorMessageFormatter(result.errors)
-            });
-        }
+router.post('/create', createPlanValidators, async (req, res) => {
+    const result = validationResult(req);
+    if (result.errors.length !== 0) {
+        console.error(result);
+        return res.status(400).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: errorMessageFormatter(result.errors)
+        });
+    }
 
-        const userId = req.user.id;
-        const title = req.body.title;
-        const context = req.body.context;
-        const date = req.body.date;
-        const startTime = req.body.startTime;
-        const endTime = req.body.endTime;
-        const processTime = req.body.processTime;
-        const travelTime = req.body.travelTime;
-        const bufferTime = req.body.bufferTime;
-        const planType = req.body.planType;
-        const priority = req.body.priority;
-        const place = req.body.place;
-        const isRequiredPlan = req.body.isRequiredPlan;
-        const todoStartTime = req.body.todoStartTime;
+    const userId = req.user.id;
+    const title = req.body.title;
+    const context = req.body.context;
+    const date = req.body.date;
+    const startTime = req.body.startTime;
+    const endTime = req.body.endTime;
+    const processTime = req.body.processTime;
+    const travelTime = req.body.travelTime;
+    const bufferTime = req.body.bufferTime;
+    const planType = req.body.planType;
+    const priority = req.body.priority;
+    const place = req.body.place;
+    const isRequiredPlan = req.body.isRequiredPlan;
+    const todoStartTime = req.body.todoStartTime;
 
-        try {
-            const result = await pool.query(
-                'INSERT INTO plans (\
+    try {
+        const result = await pool.query(
+            'INSERT INTO plans (\
                 user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \
                 priority, place, is_required_plan, todo_start_time) \
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *',
-                [
-                    userId,
-                    title,
-                    context,
-                    date,
-                    startTime,
-                    endTime,
-                    processTime,
-                    travelTime,
-                    bufferTime,
-                    planType,
-                    priority,
-                    place,
-                    isRequiredPlan,
-                    todoStartTime
-                ]
-            );
+            [
+                userId,
+                title,
+                context,
+                date,
+                startTime,
+                endTime,
+                processTime,
+                travelTime,
+                bufferTime,
+                planType,
+                priority,
+                place,
+                isRequiredPlan,
+                todoStartTime
+            ]
+        );
 
-            return res.status(200).json({
-                isError: false,
-                plan: result.rows[0]
-            });
-        } catch (e) {
-            console.error(e);
-            return res.status(500).json({
-                isError: true,
-                errorId: 'errorId',
-                errorMessage: 'システムエラー'
-            });
-        }
+        return res.status(200).json({
+            isError: false,
+            plan: result.rows[0]
+        });
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: 'システムエラー'
+        });
     }
-);
+});
 
 /**
  * 予定更新
@@ -262,7 +248,7 @@ router.post('/temporary/create', async (req, res) => {
 /**
  * TODO並び順の作成/更新処理
  */
-router.post('/upsertTodoPriority', [todoOrdersValidationCheck.todoOrders], async (req, res) => {
+router.post('/upsertTodoPriority', upsertTodoPriorityValidators, async (req, res) => {
     const result = validationResult(req);
     if (result.errors.length !== 0) {
         console.error(result);
