@@ -1,7 +1,7 @@
 'use strict';
 
 const { check } = require('express-validator/check');
-const { PLAN_TYPE_LIST } = require('../config/const');
+const { PLAN_TYPE } = require('../config/const');
 
 const plansValidationCheck = {
     id: check('id').notEmpty().withMessage('not empty').isInt().withMessage('should be an integer'),
@@ -35,7 +35,7 @@ const plansValidationCheck = {
     planType: check('planType')
         .notEmpty()
         .withMessage('not empty')
-        .isIn(PLAN_TYPE_LIST)
+        .isIn(Object.values(PLAN_TYPE))
         .withMessage('incorrect plan type number'),
     priority: check('priority')
         .optional({ checkFalsy: true, nullable: true })

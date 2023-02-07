@@ -92,6 +92,114 @@ router.post(
 );
 
 /**
+ * 予定更新
+ */
+router.post('/:id/update', async (req, res) => {
+    const userId = req.user.id;
+    const id = req.params.id;
+
+    const title = req.body.title;
+    const context = req.body.context;
+    const date = req.body.date;
+    const startTime = req.body.startTime;
+    const endTime = req.body.endTime;
+    const processTime = req.body.processTime;
+    const travelTime = req.body.travelTime;
+    const bufferTime = req.body.bufferTime;
+    const planType = req.body.planType;
+    const priority = req.body.priority;
+    const place = req.body.place;
+    const isRequiredPlan = req.body.isRequiredPlan;
+    const parentPlanId = req.body.parentPlanId;
+    const isParentPlan = req.body.isParentPlan;
+    const todoStartTime = req.body.todoStartTime;
+
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+        const getPlanResult = await client.query('SELECT * from plans where id = $1', [id]);
+        if (getPlanResult.rows.length === 0) {
+            throw new Error('There is no plan with id(' + id + ').');
+        }
+        const sql =
+            'UPDATE plans \
+                SET user_id = $1, title = $2, context = $3, date = $4, start_time = $5, end_time = $6, \
+                process_time = $7, travel_time = $8, buffer_time = $9, plan_type = $10, \
+                priority = $11, place = $12, is_required_plan = $13, parent_plan_id = $14, \
+                is_parent_plan = $15, todo_start_time = $16 \
+                WHERE id = $17 RETURNING *';
+        const values = [
+            userId,
+            title,
+            context,
+            date,
+            startTime,
+            endTime,
+            processTime,
+            travelTime,
+            bufferTime,
+            planType,
+            priority,
+            place,
+            isRequiredPlan,
+            parentPlanId,
+            isParentPlan,
+            todoStartTime,
+            id
+        ];
+        const result = await client.query(sql, values);
+        await client.query('COMMIT');
+        return res.status(200).json({
+            isError: false,
+            plan: result.rows[0]
+        });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: 'システムエラー'
+        });
+    } finally {
+        client.release();
+    }
+});
+
+/**
+ * 予定削除
+ */
+router.delete('/:id', async (req, res) => {
+    const id = req.params.id;
+
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+        const getPlanResult = await client.query('SELECT * from plans where id = $1', [id]);
+        if (getPlanResult.rows.length === 0) {
+            throw new Error('There is no plan with id(' + id + ').');
+        }
+        await client.query('DELETE from plans where id = $1', [id]);
+        await client.query('COMMIT');
+        return res.status(200).json({
+            isError: false
+        });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: 'システムエラー'
+        });
+    } finally {
+        client.release();
+    }
+});
+
+/**
  * 予定作成（スケジュール作成後）
  */
 router.post('/temporary/create', async (req, res) => {
@@ -110,7 +218,7 @@ router.post('/temporary/create', async (req, res) => {
     const todoStartTime = req.body.todoStartTime;
 
     try {
-        // TODO バリデーションチェックを行う
+        // TODO: バリデーションチェックを行う
 
         const result = await pool.query(
             'INSERT INTO temporary_plans (\
@@ -139,7 +247,7 @@ router.post('/temporary/create', async (req, res) => {
             temporaryPlan: result.rows[0]
         });
     } catch (e) {
-        // TODO バリデーションエラーはHTTPステータスコード400で返却するように実装する
+        // TODO: バリデーションエラーはHTTPステータスコード400で返却するように実装する
 
         console.error(e);
 
