@@ -1,6 +1,5 @@
 'use strict';
 
-const { Pool } = require('pg');
 const constant = require('../../config/const');
 const timeUtil = require('../../utils/time');
 
@@ -29,7 +28,7 @@ function findAvailableSectionStartIndex(freeSections, sectionNum) {
 /**
  * シンプルスケジュールを作成する
  *
- * @param {Pool} pool - DB接続
+ * @param {object} client - DB接続
  * @param {number} userId - ユーザーID
  * @param {number} scheduleId - スケジュールID
  * @param {string} startTimeStr - スケジュール開始時間
@@ -38,7 +37,7 @@ function findAvailableSectionStartIndex(freeSections, sectionNum) {
  * @param {Array} todos - 優先度降順のTODO
  * @returns {object} - スケジュール作成結果
  */
-async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans, todos) {
+async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, plans, todos) {
     if (todos.length === 0) {
         return {
             isError: true,
@@ -70,7 +69,7 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
     let freeSections = new Array(timeUtil.subtractTimeStr(endTimeStr, startTimeStr) / constant.SECTION_MINUTES_LENGTH);
     freeSections.fill(0);
 
-    let freeSectionsSum = freeSections.length * constant.SECTION_MINUTES_LENGTH;
+    let remainingFreeTimeMin = freeSections.length * constant.SECTION_MINUTES_LENGTH;
 
     const requiredPlans = [];
     const optionalPlans = [];
@@ -85,7 +84,7 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
             let endIndex = startIndex + processTimeMin / constant.SECTION_MINUTES_LENGTH;
 
             freeSections.fill(1, startIndex, endIndex);
-            freeSectionsSum -= processTimeMin;
+            remainingFreeTimeMin -= processTimeMin;
         } else {
             optionalPlans.push(plan);
         }
@@ -93,57 +92,57 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
 
     const scheduledTodos = [];
     const notScheduledTodos = [];
-    for (let i = 0; i < todos.length; i++) {
-        if (todos[i].process_time > freeSectionsSum) {
-            notScheduledTodos.push(todos[i]);
+    await todos.forEach(async (todo) => {
+        if (todo.process_time > remainingFreeTimeMin) {
+            notScheduledTodos.push(todo);
         } else {
-            const needSectionNum = todos[i].process_time / constant.SECTION_MINUTES_LENGTH;
+            const needSectionNum = todo.process_time / constant.SECTION_MINUTES_LENGTH;
             const availableTimeStartIndex = findAvailableSectionStartIndex(freeSections, needSectionNum);
 
             if (availableTimeStartIndex !== -1) {
                 freeSections.fill(1, availableTimeStartIndex, availableTimeStartIndex + needSectionNum);
-                freeSectionsSum -= needSectionNum * constant.SECTION_MINUTES_LENGTH;
+                remainingFreeTimeMin -= needSectionNum * constant.SECTION_MINUTES_LENGTH;
 
-                await pool.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
-                    todos[i].id,
+                await client.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
+                    todo.id,
                     scheduleId
                 ]);
                 const startAndEndTimeStr = timeUtil.getStartAndEndTimeStr(
                     startTimeStr,
                     availableTimeStartIndex * constant.SECTION_MINUTES_LENGTH,
-                    todos[i].process_time
+                    todo.process_time
                 );
-                await pool.query('UPDATE plans SET start_time = $1, end_time = $2, is_scheduled = $3 WHERE id = $4', [
+                await client.query('UPDATE plans SET start_time = $1, end_time = $2, is_scheduled = $3 WHERE id = $4', [
                     startAndEndTimeStr.startTime,
                     startAndEndTimeStr.endTime,
                     true,
-                    todos[i].id
+                    todo.id
                 ]);
 
-                scheduledTodos.push(todos[i]);
+                scheduledTodos.push(todo);
             } else {
                 const availableSectionIndex = [];
-                for (let j = 0; j < freeSections.length; j++) {
+                for (let i = 0; i < freeSections.length; i++) {
                     if (availableSectionIndex.length === needSectionNum) {
                         break;
                     }
 
-                    if (freeSections[j] === 0) {
-                        availableSectionIndex.push(j);
+                    if (freeSections[i] === 0) {
+                        availableSectionIndex.push(i);
                     }
                 }
 
                 availableSectionIndex.forEach((index) => {
                     freeSections[index] = 1;
                 });
-                freeSectionsSum -= needSectionNum * constant.SECTION_MINUTES_LENGTH;
+                remainingFreeTimeMin -= needSectionNum * constant.SECTION_MINUTES_LENGTH;
 
                 const dividedTodoTime = [];
-                for (let j = 0; j < availableSectionIndex.length; j++) {
+                for (let i = 0; i < availableSectionIndex.length; i++) {
                     let processTimeMin = constant.SECTION_MINUTES_LENGTH;
                     let sequenceCount = 0;
-                    for (let k = j; k < availableSectionIndex.length - 1; k++) {
-                        let isSequence = availableSectionIndex[k] + 1 === availableSectionIndex[k + 1];
+                    for (let j = i; j < availableSectionIndex.length - 1; j++) {
+                        let isSequence = availableSectionIndex[j] + 1 === availableSectionIndex[j + 1];
                         if (isSequence) {
                             processTimeMin += constant.SECTION_MINUTES_LENGTH;
                             sequenceCount += 1;
@@ -154,57 +153,57 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
 
                     const startAndEndTimeStr = timeUtil.getStartAndEndTimeStr(
                         startTimeStr,
-                        availableSectionIndex[j] * constant.SECTION_MINUTES_LENGTH,
+                        availableSectionIndex[i] * constant.SECTION_MINUTES_LENGTH,
                         processTimeMin
                     );
 
                     dividedTodoTime.push({
-                        startIndex: availableSectionIndex[j],
+                        startIndex: availableSectionIndex[i],
                         startTime: startAndEndTimeStr.startTime,
                         endTime: startAndEndTimeStr.endTime,
                         processTime: processTimeMin
                     });
-                    j += sequenceCount;
+                    i += sequenceCount;
                 }
 
-                for (let j = 0; j < dividedTodoTime.length; j++) {
-                    const dividedTodoCreateResult = await pool.query(
+                dividedTodoTime.forEach(async (todoTime, index) => {
+                    const dividedTodoCreateResult = await client.query(
                         'INSERT INTO plans (\
                             user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \
                             priority, place, is_scheduled, is_required_plan, parent_plan_id, todo_start_time) \
                             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *',
                         [
                             userId,
-                            todos[i].title,
-                            todos[i].context,
-                            todos[i].date,
-                            dividedTodoTime[j].startTime,
-                            dividedTodoTime[j].endTime,
-                            dividedTodoTime[j].processTime,
-                            j === 0 ? todos[i].travel_time : 0, // 最初だけ設定
-                            j === dividedTodoTime.length - 1 ? dividedTodoTime[j].buffer_time : 0, // 最後だけ設定
-                            todos[i].plan_type,
-                            todos[i].priority,
-                            todos[i].place,
+                            todo.title,
+                            todo.context,
+                            todo.date,
+                            todoTime.startTime,
+                            todoTime.endTime,
+                            todoTime.processTime,
+                            index === 0 ? todo.travel_time : 0, // 最初だけ設定
+                            index === dividedTodoTime.length - 1 ? todoTime.buffer_time : 0, // 最後だけ設定
+                            todo.plan_type,
+                            todo.priority,
+                            todo.place,
                             true,
-                            todos[i].is_required_plan,
-                            todos[i].id,
-                            todos[i].todo_start_time
+                            todo.is_required_plan,
+                            todo.id,
+                            todo.todo_start_time
                         ]
                     );
 
-                    await pool.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
+                    await client.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
                         dividedTodoCreateResult.rows[0].id,
                         scheduleId
                     ]);
 
                     scheduledTodos.push(dividedTodoCreateResult.rows[0]);
-                }
+                });
 
-                await pool.query('UPDATE plans SET is_parent_plan = $1 WHERE id = $2', [true, todos[i].id]);
+                await client.query('UPDATE plans SET is_parent_plan = $1 WHERE id = $2', [true, todo.id]);
             }
         }
-    }
+    });
 
     return {
         isError: false,
