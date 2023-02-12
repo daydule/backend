@@ -54,27 +54,9 @@ app.use('/user', user);
 app.use('/plan', plan);
 app.use('/schedule', schedule);
 
-// sample code start ----------
-app.get('/', (req, res) => {
-    res.json({
-        message: 'daydule'
-    });
+app.use((req, res) => {
+    res.status(404).json({ isError: true, errorId: 'errorId', errorMessage: 'Not Found' });
 });
-
-app.post('/', (req, res) => {
-    res.json({
-        message: 'daydulexxxxx'
-    });
-});
-
-app.get('/notFound', (req, res) => {
-    res.json({
-        message: '404 not found',
-        hoge: 'hoge'
-    });
-});
-
-// sample code end ----------
 
 app.listen(port, () => {
     console.log(`app listening on port ${port}`);
