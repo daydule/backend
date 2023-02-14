@@ -6,7 +6,8 @@ const app = express();
 app.use(
     cors({
         // TODO: 開発環境と本番環境が自動で切り替わるようにする
-        origin: 'http://localhost:3001'
+        origin: 'http://localhost:3001',
+        credentials: true
     })
 );
 
@@ -22,6 +23,7 @@ const pool = require('./db/pool');
 const auth = require('./controllers/auth');
 const user = require('./controllers/user');
 const plan = require('./controllers/plan');
+const fixPlan = require('./controllers/fixPlan');
 const schedule = require('./controllers/schedule');
 const loginCheck = require('./middlewares/loginCheck');
 const port = secret.port;
@@ -52,29 +54,12 @@ app.use(loginCheck);
 
 app.use('/user', user);
 app.use('/plan', plan);
+app.use('/fixPlan', fixPlan);
 app.use('/schedule', schedule);
 
-// sample code start ----------
-app.get('/', (req, res) => {
-    res.json({
-        message: 'daydule'
-    });
+app.use((req, res) => {
+    res.status(404).json({ isError: true, errorId: 'errorId', errorMessage: 'Not Found' });
 });
-
-app.post('/', (req, res) => {
-    res.json({
-        message: 'daydulexxxxx'
-    });
-});
-
-app.get('/notFound', (req, res) => {
-    res.json({
-        message: '404 not found',
-        hoge: 'hoge'
-    });
-});
-
-// sample code end ----------
 
 app.listen(port, () => {
     console.log(`app listening on port ${port}`);
