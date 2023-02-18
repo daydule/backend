@@ -1,26 +1,65 @@
 'use strict';
 
-const { plansValidationCheck, todoOrdersValidationCheck } = require('./generalValidators');
+const { plansValidators, todoOrdersValidators } = require('./generalValidators');
 
 const createPlanValidators = [
-    plansValidationCheck.title,
-    plansValidationCheck.context,
-    plansValidationCheck.date,
-    plansValidationCheck.startTime,
-    plansValidationCheck.endTime,
-    plansValidationCheck.processTime,
-    plansValidationCheck.travelTime,
-    plansValidationCheck.bufferTime,
-    plansValidationCheck.planType,
-    plansValidationCheck.priority,
-    plansValidationCheck.place,
-    plansValidationCheck.isRequiredPlan,
-    plansValidationCheck.todoStartTime
+    plansValidators.title,
+    plansValidators.context,
+    plansValidators.date,
+    plansValidators.startTime,
+    plansValidators.endTime,
+    plansValidators.processTime,
+    plansValidators.travelTime,
+    plansValidators.bufferTime,
+    plansValidators.planType,
+    plansValidators.priority,
+    plansValidators.place,
+    plansValidators.isRequiredPlan,
+    plansValidators.todoStartTime
 ];
 
-const upsertTodoPriorityValidators = [todoOrdersValidationCheck.todoOrders];
+const updatePlanValidators = [
+    plansValidators.id,
+    plansValidators.title,
+    plansValidators.context,
+    plansValidators.date,
+    plansValidators.startTime,
+    plansValidators.endTime,
+    plansValidators.processTime,
+    plansValidators.travelTime,
+    plansValidators.bufferTime,
+    plansValidators.planType,
+    plansValidators.priority,
+    plansValidators.place,
+    plansValidators.isRequiredPlan,
+    plansValidators.parentPlanId,
+    plansValidators.isParentPlan,
+    plansValidators.todoStartTime
+];
+
+const deletePlanValidators = [plansValidators.id];
+
+const createTemporaryPlanValidators = [
+    plansValidators.title,
+    plansValidators.context,
+    plansValidators.date,
+    plansValidators.startTime,
+    plansValidators.endTime,
+    plansValidators.processTime,
+    plansValidators.travelTime,
+    plansValidators.bufferTime,
+    plansValidators.planType,
+    plansValidators.priority,
+    plansValidators.place,
+    plansValidators.todoStartTime
+];
+
+const upsertTodoPriorityValidators = [todoOrdersValidators.todoOrders];
 
 module.exports = {
     createPlanValidators,
-    upsertTodoPriorityValidators
+    updatePlanValidators,
+    upsertTodoPriorityValidators,
+    deletePlanValidators,
+    createTemporaryPlanValidators
 };

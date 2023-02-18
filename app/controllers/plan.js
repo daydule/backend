@@ -3,11 +3,14 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
-const { validationResult } = require('express-validator/check');
+const { validationResult } = require('express-validator');
 const { errorMessageFormatter } = require('../middlewares/validation/generalValidators');
 const {
     createPlanValidators,
-    upsertTodoPriorityValidators
+    upsertTodoPriorityValidators,
+    updatePlanValidators,
+    deletePlanValidators,
+    createTemporaryPlanValidators
 } = require('../middlewares/validation/planControllerValidators');
 
 /**
@@ -80,7 +83,17 @@ router.post('/create', createPlanValidators, async (req, res) => {
 /**
  * 予定更新
  */
-router.post('/:id/update', async (req, res) => {
+router.post('/:id/update', updatePlanValidators, async (req, res) => {
+    const result = validationResult(req);
+    if (result.errors.length !== 0) {
+        console.error(result);
+        return res.status(400).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: errorMessageFormatter(result.errors)
+        });
+    }
+
     const userId = req.user.id;
     const id = req.params.id;
 
@@ -156,7 +169,17 @@ router.post('/:id/update', async (req, res) => {
 /**
  * 予定削除
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', deletePlanValidators, async (req, res) => {
+    const result = validationResult(req);
+    if (result.errors.length !== 0) {
+        console.error(result);
+        return res.status(400).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: errorMessageFormatter(result.errors)
+        });
+    }
+
     const id = req.params.id;
 
     const client = await pool.connect();
@@ -188,7 +211,17 @@ router.delete('/:id', async (req, res) => {
 /**
  * 予定作成（スケジュール作成後）
  */
-router.post('/temporary/create', async (req, res) => {
+router.post('/temporary/create', createTemporaryPlanValidators, async (req, res) => {
+    const result = validationResult(req);
+    if (result.errors.length !== 0) {
+        console.error(result);
+        return res.status(400).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: errorMessageFormatter(result.errors)
+        });
+    }
+
     const userId = req.user.id;
     const title = req.body.title;
     const context = req.body.context;

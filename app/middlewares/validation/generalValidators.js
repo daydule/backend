@@ -1,9 +1,9 @@
 'use strict';
 
-const { check } = require('express-validator/check');
+const { check } = require('express-validator');
 const { PLAN_TYPE } = require('../../config/const');
 
-const plansValidationCheck = {
+const plansValidators = {
     id: check('id').notEmpty().withMessage('not empty').isInt().withMessage('should be an integer'),
     title: check('title')
         .notEmpty()
@@ -12,18 +12,36 @@ const plansValidationCheck = {
         .withMessage('should be between 1 and 100 characters.'),
     context: check('context').optional({ checkFalsy: true, nullable: true }),
     date: check('date').optional({ checkFalsy: true, nullable: true }).isISO8601().withMessage('incorrect date format'),
-    startTime: check('startTime')
-        .optional({ checkFalsy: true, nullable: true })
-        .isLength({ min: 4, max: 4 })
-        .withMessage('should be a string of four digits'),
-    endTime: check('endTime')
-        .optional({ checkFalsy: true, nullable: true })
-        .isLength({ min: 4, max: 4 })
-        .withMessage('should be a string of four digits'),
-    processTime: check('processTime')
-        .optional({ nullable: true })
-        .isInt({ min: 0 })
-        .withMessage('should be greater than 0'),
+    startTime: check('startTime').custom((startTime, { req }) => {
+        if (!startTime) {
+            if (req.body.planType === PLAN_TYPE.PLAN || req.body.planType === PLAN_TYPE.FIX_PLAN) {
+                throw new Error('not empty');
+            }
+        } else if (startTime.length !== 4) {
+            throw new Error('should be a string of four digits');
+        }
+        return true;
+    }),
+    endTime: check('endTime').custom((endTime, { req }) => {
+        if (!endTime) {
+            if (req.body.planType === PLAN_TYPE.PLAN || req.body.planType === PLAN_TYPE.FIX_PLAN) {
+                throw new Error('not empty');
+            }
+        } else if (endTime.length !== 4) {
+            throw new Error('should be a string of four digits');
+        }
+        return true;
+    }),
+    processTime: check('processTime').custom((processTime, { req }) => {
+        if (!processTime) {
+            if (req.body.planType === PLAN_TYPE.TODO) {
+                throw new Error('not empty');
+            }
+        } else if (!Number.isInteger(processTime) || processTime < 0) {
+            throw new Error('should be integer and greater than 0');
+        }
+        return true;
+    }),
     travelTime: check('travelTime')
         .optional({ nullable: true })
         .isInt({ min: 0 })
@@ -45,14 +63,19 @@ const plansValidationCheck = {
         .optional({ checkFalsy: true, nullable: true })
         .isLength({ min: 1, max: 100 })
         .withMessage('should be between 1 and 100 characters.'),
-    isRequiredPlan: check('isRequiredPlan').optional({ nullable: true }).isBoolean().withMessage('incorrect format'),
+    isRequiredPlan: check('isRequiredPlan')
+        .optional({ nullable: true })
+        .isBoolean()
+        .withMessage('should be an boolean'),
+    parentPlanId: check('parentPlanId').optional({ nullable: true }).isInt().withMessage('should be an integer'),
+    isParentPlan: check('isParentPlan').optional({ nullable: true }).isBoolean().withMessage('should be an boolean'),
     todoStartTime: check('todoStartTime')
         .optional({ checkFalsy: true, nullable: true })
         .isISO8601()
         .withMessage('incorrect time format')
 };
 
-const todoOrdersValidationCheck = {
+const todoOrdersValidators = {
     id: check('id').notEmpty().withMessage('not empty').isInt().withMessage('should be an integer'),
     todoOrders: check('todoOrders')
         .notEmpty()
@@ -75,7 +98,7 @@ const errorMessageFormatter = function (errors) {
 };
 
 module.exports = {
-    plansValidationCheck,
-    todoOrdersValidationCheck,
+    plansValidators,
+    todoOrdersValidators,
     errorMessageFormatter
 };
