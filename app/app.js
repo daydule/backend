@@ -1,8 +1,10 @@
 'use strict';
 
 const express = require('express');
+const morgan = require('morgan');
 const cors = require('cors');
 const app = express();
+app.use(morgan('combined'));
 app.use(
     cors({
         // TODO: 開発環境と本番環境が自動で切り替わるようにする
