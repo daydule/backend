@@ -37,7 +37,7 @@ const plansValidators = {
             if (req.body.planType === PLAN_TYPE.TODO) {
                 throw new Error('not empty');
             }
-        } else if (!Number.isInteger(processTime) || processTime < 0) {
+        } else if (!Number.isInteger(Number(processTime)) || Number(processTime) < 0) {
             throw new Error('should be integer and greater than 0');
         }
         return true;
