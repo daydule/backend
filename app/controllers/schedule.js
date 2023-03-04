@@ -8,11 +8,11 @@ const constant = require('../config/const');
 /**
  * スケジュール参照
  */
-router.get('/read', async (req, res) => {
+router.get('/read/:date', async (req, res) => {
     // TODO バリデーションチェック
 
     // NOTE req.body.dateはYYYY-MM-DDの形
-    const dateStr = req.body.date;
+    const dateStr = req.params.date;
     const userId = req.user.id;
 
     const date = new Date(dateStr);
