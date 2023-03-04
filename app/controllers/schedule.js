@@ -146,7 +146,7 @@ router.get('/read/:date', async (req, res) => {
         } else {
             const getPlansResult = await pool.query(
                 'SELECT * FROM plans WHERE user_id = $1 AND date = $2 AND plan_type != $3',
-                [userId, dateStr, constant.PLAN_TYPE.TODO]
+                [userId, dateStr, constant.PLAN_TYPE.PLAN]
             );
             const getTodosResult = await pool.query(
                 'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3',
