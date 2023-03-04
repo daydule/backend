@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
 const constant = require('../config/const');
+const { transferSnakeCaseToLowerCamelCase } = require('../helpers/scheduleHelper');
 
 /**
  * スケジュール参照
@@ -139,9 +140,9 @@ router.get('/read/:date', async (req, res) => {
                 isError: false,
                 schedule: {
                     isScheduled: true,
-                    plans: mixedPlans
+                    plans: mixedPlans.map((plan) => transferSnakeCaseToLowerCamelCase(plan))
                 },
-                todos: getTodosResult.rows
+                todos: getTodosResult.rows.map((plan) => transferSnakeCaseToLowerCamelCase(plan))
             });
         } else {
             const getPlansResult = await pool.query(
@@ -156,9 +157,9 @@ router.get('/read/:date', async (req, res) => {
                 isError: false,
                 schedule: {
                     isScheduled: false,
-                    plans: getPlansResult.rows
+                    plans: getPlansResult.rows.map((plan) => transferSnakeCaseToLowerCamelCase(plan))
                 },
-                todos: getTodosResult.rows
+                todos: getTodosResult.rows.map((plan) => transferSnakeCaseToLowerCamelCase(plan))
             });
         }
     } catch (e) {

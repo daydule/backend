@@ -43,6 +43,35 @@ async function createSchedule(pool, scheduleLogicId, userId, scheduleId, startTi
     }
 }
 
+/**
+ *
+ * @param {object} plan - プロパティがスネークケースの予定オブジェクト
+ * @returns {object} - プロパティがローワーキャメルケースの予定オブジェクト
+ */
+function transferSnakeCaseToLowerCamelCase(plan) {
+    return {
+        id: plan.id,
+        userId: plan.user_id,
+        title: plan.title,
+        context: plan.context,
+        date: plan.date,
+        startTime: plan.start_time,
+        end_time: plan.end_time,
+        processTime: plan.process_time,
+        travelTime: plan.travel_time,
+        bufferTime: plan.buffer_time,
+        planType: plan.plan_type,
+        priority: plan.priority,
+        place: plan.place,
+        isScheduled: plan.is_scheduled,
+        isRequiredPlan: plan.is_required_plan,
+        parentPlanId: plan.parent_plan_id,
+        isParentPlan: plan.is_parent_plan,
+        todoStartTime: plan.todo_start_time
+    };
+}
+
 module.exports = {
-    createSchedule: createSchedule
+    createSchedule: createSchedule,
+    transferSnakeCaseToLowerCamelCase: transferSnakeCaseToLowerCamelCase
 };
