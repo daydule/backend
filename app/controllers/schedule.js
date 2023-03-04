@@ -17,17 +17,17 @@ router.get('/read', async (req, res) => {
 
     const date = new Date(dateStr);
     const day = date.getDay();
-    let isScheduled = false;
+    let isCreated = false;
     let scheduleId = null;
 
     try {
         const getSchedulesResult = await pool.query('SELECT * FROM schedules WHERE user_id = $1 AND date = $2', [
             userId,
-            dateStr
+            date
         ]);
 
         if (getSchedulesResult.rows.length > 0) {
-            isScheduled = getSchedulesResult.rows[0].is_scheduled;
+            isCreated = getSchedulesResult.rows[0].is_created;
             scheduleId = getSchedulesResult.rows[0].id;
         } else {
             let startTime = constant.DEFAULT.SCHEDULE.SCHEDULE_START_TIME;
@@ -83,7 +83,7 @@ router.get('/read', async (req, res) => {
             ]);
         }
 
-        if (isScheduled) {
+        if (isCreated) {
             const getPlansResult = await pool.query(
                 'SELECT * FROM schedule_plan_inclusion\
                 JOIN plans ON schedule_plan_inclusion.plan_id = plans.id \
