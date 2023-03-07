@@ -269,7 +269,37 @@ router.post('/temporary/:id/update', async (req, res) => {
             throw new Error('There is no plan with id(' + planId + ').');
         }
 
+        const isTimeChanged = (function () {
+            if (getTemporaryPlanResult.rows.length > 0) {
+                return (
+                    startTime !== getTemporaryPlanResult.rows[0].start_time ||
+                    endTime !== getTemporaryPlanResult.rows[0].end_time ||
+                    processTime !== getTemporaryPlanResult.rows[0].process_time ||
+                    travelTime !== getTemporaryPlanResult.rows[0].travel_time ||
+                    bufferTime !== getTemporaryPlanResult.rows[0].buffer_time
+                );
+            } else {
+                return (
+                    startTime !== getPlanResult.rows[0].start_time ||
+                    endTime !== getPlanResult.rows[0].end_time ||
+                    processTime !== getPlanResult.rows[0].process_time ||
+                    travelTime !== getPlanResult.rows[0].travel_time ||
+                    bufferTime !== getPlanResult.rows[0].buffer_time
+                );
+            }
+        })();
+        const isDateChanged = (function () {
+            if (getTemporaryPlanResult.rows.length > 0) {
+                return date !== getTemporaryPlanResult.rows[0].date;
+            } else {
+                return date !== getPlanResult.rows[0].date;
+            }
+        })();
+
         // TODO: 分割予定、かつ日付変更の場合、エラー
+        if (getPlanResult.rows[0].parent_plan_id && isDateChanged) {
+            throw new Error('Cannot change date of divided plan.');
+        }
 
         if (!getPlanResult.rows[0].is_parent_plan && !getPlanResult.rows[0].parent_plan_id) {
             // 通常の予定の場合
@@ -330,32 +360,6 @@ router.post('/temporary/:id/update', async (req, res) => {
         const isParent = getPlanResult.rows[0].is_parent_plan;
         const parentPlanId = isParent ? getPlanResult.rows[0].id : getPlanResult.rows[0].parent_plan_id;
         const getParentPlanResult = await client.query('SELECT * from plans where id = $1', [parentPlanId]);
-        const isTimeChanged = (function () {
-            if (getTemporaryPlanResult.rows.length > 0) {
-                return (
-                    startTime !== getTemporaryPlanResult.rows[0].start_time ||
-                    endTime !== getTemporaryPlanResult.rows[0].end_time ||
-                    processTime !== getTemporaryPlanResult.rows[0].process_time ||
-                    travelTime !== getTemporaryPlanResult.rows[0].travel_time ||
-                    bufferTime !== getTemporaryPlanResult.rows[0].buffer_time
-                );
-            } else {
-                return (
-                    startTime !== getPlanResult.rows[0].start_time ||
-                    endTime !== getPlanResult.rows[0].end_time ||
-                    processTime !== getPlanResult.rows[0].process_time ||
-                    travelTime !== getPlanResult.rows[0].travel_time ||
-                    bufferTime !== getPlanResult.rows[0].buffer_time
-                );
-            }
-        })();
-        const isDateChanged = (function () {
-            if (getTemporaryPlanResult.rows.length > 0) {
-                return date !== getTemporaryPlanResult.rows[0].date;
-            } else {
-                return date !== getPlanResult.rows[0].date;
-            }
-        })();
 
         if (!isTimeChanged && !isDateChanged) {
             // 分割関係の予定、かつ日付や時間を更新しない場合
