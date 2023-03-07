@@ -470,10 +470,12 @@ router.post('/temporary/:id/delete', async (req, res) => {
             throw new Error('There is no plan with id(' + planId + ').');
         }
 
+        // 該当予定の削除フラグを立てる
         const updateResult = await client.query(
             'UPDATE temporary_plans SET is_deleted = $1 WHERE original_plan_id = $2 RETURNING *',
             [true, planId]
         );
+
         if (updateResult.rows.length === 0) {
             await pool.query(
                 'INSERT INTO temporary_plans (\
@@ -501,6 +503,7 @@ router.post('/temporary/:id/delete', async (req, res) => {
         }
 
         if (getPlanResult.rows[0].is_parent_plan) {
+            // 分割元予定の場合、分割予定の削除フラグも立てる
             const getDividedPlans = await client.query('SELECT * from plans where parent_plan_id = $1', [planId]);
             for (let i = 0; i < getDividedPlans.rows.length; i++) {
                 const updateResult = await client.query(
