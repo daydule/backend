@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
 const constant = require('../config/const');
-const { transferSnakeCaseToLowerCamelCase } = require('../helpers/scheduleHelper');
+const { transferSnakeCaseObjectToLowerCamelCaseObject } = require('../helpers/scheduleHelper');
 
 /**
  * スケジュール参照
@@ -140,9 +140,9 @@ router.get('/read/:date', async (req, res) => {
                 isError: false,
                 schedule: {
                     isScheduled: true,
-                    plans: mixedPlans.map((plan) => transferSnakeCaseToLowerCamelCase(plan))
+                    plans: mixedPlans.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
                 },
-                todos: getTodosResult.rows.map((plan) => transferSnakeCaseToLowerCamelCase(plan))
+                todos: getTodosResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
             });
         } else {
             const getPlansResult = await pool.query(
@@ -157,9 +157,9 @@ router.get('/read/:date', async (req, res) => {
                 isError: false,
                 schedule: {
                     isScheduled: false,
-                    plans: getPlansResult.rows.map((plan) => transferSnakeCaseToLowerCamelCase(plan))
+                    plans: getPlansResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
                 },
-                todos: getTodosResult.rows.map((plan) => transferSnakeCaseToLowerCamelCase(plan))
+                todos: getTodosResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
             });
         }
     } catch (e) {

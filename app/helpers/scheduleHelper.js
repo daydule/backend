@@ -44,34 +44,36 @@ async function createSchedule(pool, scheduleLogicId, userId, scheduleId, startTi
 }
 
 /**
- *
- * @param {object} plan - プロパティがスネークケースの予定オブジェクト
- * @returns {object} - プロパティがローワーキャメルケースの予定オブジェクト
+ * @param {string} string - スネークケースの文字列
+ * @returns {string} - ローワーキャメルケースの文字列
  */
-function transferSnakeCaseToLowerCamelCase(plan) {
-    return {
-        id: plan.id,
-        userId: plan.user_id,
-        title: plan.title,
-        context: plan.context,
-        date: plan.date,
-        startTime: plan.start_time,
-        end_time: plan.end_time,
-        processTime: plan.process_time,
-        travelTime: plan.travel_time,
-        bufferTime: plan.buffer_time,
-        planType: plan.plan_type,
-        priority: plan.priority,
-        place: plan.place,
-        isScheduled: plan.is_scheduled,
-        isRequiredPlan: plan.is_required_plan,
-        parentPlanId: plan.parent_plan_id,
-        isParentPlan: plan.is_parent_plan,
-        todoStartTime: plan.todo_start_time
-    };
+function transferSnakeCaseToLowerCamelCase(string) {
+    return string
+        .split('_')
+        .map(function (word, index) {
+            if (index === 0) {
+                return word.toLowerCase();
+            }
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        })
+        .join('');
+}
+
+/**
+ *
+ * @param {object} object - プロパティがスネークケースのオブジェクト
+ * @returns {object} - プロパティがローワーキャメルケースのオブジェクト
+ */
+function transferSnakeCaseObjectToLowerCamelCaseObject(object) {
+    const result = {};
+    Object.keys(object).forEach((key) => {
+        result[transferSnakeCaseToLowerCamelCase(key)] = object[key];
+    });
+    return result;
 }
 
 module.exports = {
-    createSchedule: createSchedule,
-    transferSnakeCaseToLowerCamelCase: transferSnakeCaseToLowerCamelCase
+    createSchedule,
+    transferSnakeCaseToLowerCamelCase,
+    transferSnakeCaseObjectToLowerCamelCaseObject
 };
