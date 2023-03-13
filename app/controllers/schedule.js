@@ -44,6 +44,22 @@ router.post('/create', async (req, res) => {
             [userId]
         );
 
+        const sortedTodos = [];
+        if (getTodoResult.rows.length !== 0 && getTodoOrdersResult.rows.length !== 0) {
+            const todoOrders = getTodoOrdersResult.rows[0].todo_orders.split(',');
+            const todos = getTodoResult.rows;
+
+            todoOrders.map((todoId) => {
+                const targetTodo = todos.find((todo) => {
+                    return todo.id === Number(todoId);
+                });
+
+                if (targetTodo) {
+                    sortedTodos.push(targetTodo);
+                }
+            });
+        }
+
         await client.query('BEGIN');
 
         const createScheduleResult = await scheduleHelper.createSchedule(
@@ -54,7 +70,8 @@ router.post('/create', async (req, res) => {
             startTime,
             endTime,
             getPlansResult.rows,
-            getTodoResult.rows
+            sortedTodos,
+            dateStr
         );
 
         if (createScheduleResult.isError) {
@@ -78,6 +95,11 @@ router.post('/create', async (req, res) => {
     } catch (e) {
         await client.query('ROLLBACK');
         console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: 'システムエラー'
+        });
     } finally {
         client.release();
     }
