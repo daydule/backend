@@ -4,30 +4,31 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
 const constant = require('../config/const');
+const { transferSnakeCaseObjectToLowerCamelCaseObject } = require('../helpers/scheduleHelper');
 
 /**
  * スケジュール参照
  */
-router.get('/read', async (req, res) => {
+router.get('/read/:date', async (req, res) => {
     // TODO バリデーションチェック
 
     // NOTE req.body.dateはYYYY-MM-DDの形
-    const dateStr = req.body.date;
+    const dateStr = req.params.date;
     const userId = req.user.id;
 
     const date = new Date(dateStr);
     const day = date.getDay();
-    let isScheduled = false;
+    let isCreated = false;
     let scheduleId = null;
 
     try {
         const getSchedulesResult = await pool.query('SELECT * FROM schedules WHERE user_id = $1 AND date = $2', [
             userId,
-            dateStr
+            date
         ]);
 
         if (getSchedulesResult.rows.length > 0) {
-            isScheduled = getSchedulesResult.rows[0].is_scheduled;
+            isCreated = getSchedulesResult.rows[0].is_created;
             scheduleId = getSchedulesResult.rows[0].id;
         } else {
             let startTime = constant.DEFAULT.SCHEDULE.SCHEDULE_START_TIME;
@@ -83,7 +84,7 @@ router.get('/read', async (req, res) => {
             ]);
         }
 
-        if (isScheduled) {
+        if (isCreated) {
             const getPlansResult = await pool.query(
                 'SELECT * FROM schedule_plan_inclusion\
                 JOIN plans ON schedule_plan_inclusion.plan_id = plans.id \
@@ -139,9 +140,9 @@ router.get('/read', async (req, res) => {
                 isError: false,
                 schedule: {
                     isScheduled: true,
-                    plans: mixedPlans
+                    plans: mixedPlans.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
                 },
-                todos: getTodosResult.rows
+                todos: getTodosResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
             });
         } else {
             const getPlansResult = await pool.query(
@@ -156,9 +157,9 @@ router.get('/read', async (req, res) => {
                 isError: false,
                 schedule: {
                     isScheduled: false,
-                    plans: getPlansResult.rows
+                    plans: getPlansResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
                 },
-                todos: getTodosResult.rows
+                todos: getTodosResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
             });
         }
     } catch (e) {
