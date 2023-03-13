@@ -19,6 +19,7 @@ router.post('/create', async (req, res) => {
         const userId = req.user.id;
 
         // TODO: バリデーションチェック
+        // TODO: 日付はYYYY-MM-DDの書式でチェックするように修正
 
         const getScheduleResult = await client.query('SELECT * FROM schedules WHERE user_id = $1 AND date = $2', [
             userId,
@@ -34,7 +35,7 @@ router.post('/create', async (req, res) => {
         );
 
         const getTodoResult = await client.query(
-            'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3 AND is_done = $4',
+            'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3 AND is_scheduled = $4',
             [userId, dateStr, constant.PLAN_TYPE.TODO, false]
         );
 
@@ -44,8 +45,6 @@ router.post('/create', async (req, res) => {
         );
 
         await client.query('BEGIN');
-
-        await client.query('DELETE FROM temporary_plans WHERE user_id = $1', [userId]);
 
         const createScheduleResult = await scheduleHelper.createSchedule(
             client,
