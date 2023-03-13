@@ -10,9 +10,20 @@ const updateFunction = sinon.stub().callsFake(() => {});
 describe('simpleScheduleHelper.js', function () {
     const pool = {
         query: function (sql, params) {
-            if (sql === 'UPDATE plans SET is_parent_plan = $1 WHERE id = $2') {
+            if (sql === 'UPDATE plans SET is_scheduled = $1, is_parent_plan = $2 WHERE id = $3') {
                 // 分割TODOがあった時の処理
                 updateFunction();
+            } else if (
+                sql ===
+                'UPDATE plans SET start_time = $1, end_time = $2, date = $3, is_scheduled = $4 WHERE id = $5 RETURNING *'
+            ) {
+                return {
+                    rows: [
+                        {
+                            start_time: params[0]
+                        }
+                    ]
+                };
             } else {
                 return {
                     rows: [
@@ -116,7 +127,7 @@ describe('simpleScheduleHelper.js', function () {
             assert.equal(result.schedule.requiredPlans[1].title, 'test2');
             assert.equal(result.schedule.requiredPlans.length, 2);
             assert.equal(result.schedule.todos.length, 1);
-            assert.equal(result.schedule.todos[0].title, 'test4');
+            assert.equal(result.schedule.todos[0].start_time, '1000');
             assert.equal(result.schedule.optionalPlans.length, 1);
             assert.equal(result.schedule.optionalPlans[0].title, 'test3');
             assert.equal(result.other.todos.length, 1);
@@ -162,8 +173,8 @@ describe('simpleScheduleHelper.js', function () {
 
             const result = await simpleScheduleHelper.execute(pool, '', '', '0900', '1200', plans, todos);
             assert.equal(result.schedule.todos.length, 2);
-            assert.equal(result.schedule.todos[0].title, 'test4');
-            assert.equal(result.schedule.todos[1].title, 'test6');
+            assert.equal(result.schedule.todos[0].start_time, '1000');
+            assert.equal(result.schedule.todos[1].start_time, '1130');
             assert.equal(result.other.todos.length, 1);
             assert.equal(result.other.todos[0].title, 'test5');
         });
