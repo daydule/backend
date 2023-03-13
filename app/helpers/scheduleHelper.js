@@ -1,11 +1,12 @@
 'use strict';
 
 const constant = require('../config/const');
+const { Client } = require('pg');
 
 /**
  * スケジュールを作成する
  *
- * @param {object} client - DB接続
+ * @param {Client} client - DB接続
  * @param {number} scheduleLogicId - ロジックID
  * @param {number} userId - ユーザーID
  * @param {number} scheduleId - スケジュールID
@@ -13,21 +14,13 @@ const constant = require('../config/const');
  * @param {string} endTime - スケジュール終了時間
  * @param {Array} plans - 予定
  * @param {Array} todos - TODO
+ * @param {string} date - 日付
  * @returns {object} - スケジュール作成結果
  */
-async function createSchedule(client, scheduleLogicId, userId, scheduleId, startTime, endTime, plans, todos) {
+async function createSchedule(client, scheduleLogicId, userId, scheduleId, startTime, endTime, plans, todos, date) {
     try {
         const scheduleLogic = require('./schedule/' + constant.SCHEDULE_LOGIC_FILENAME[scheduleLogicId]);
-        const result = await scheduleLogic.execute(
-            client,
-            userId,
-            scheduleLogicId,
-            scheduleId,
-            startTime,
-            endTime,
-            plans,
-            todos
-        );
+        const result = await scheduleLogic.execute(client, userId, scheduleId, startTime, endTime, plans, todos, date);
         return {
             isError: false,
             result: result
