@@ -43,6 +43,37 @@ async function createSchedule(client, scheduleLogicId, userId, scheduleId, start
     }
 }
 
+/**
+ * @param {string} string - スネークケースの文字列
+ * @returns {string} - ローワーキャメルケースの文字列
+ */
+function transferSnakeCaseToLowerCamelCase(string) {
+    return string
+        .split('_')
+        .map(function (word, index) {
+            if (index === 0) {
+                return word.toLowerCase();
+            }
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        })
+        .join('');
+}
+
+/**
+ *
+ * @param {object} object - プロパティがスネークケースのオブジェクト
+ * @returns {object} - プロパティがローワーキャメルケースのオブジェクト
+ */
+function transferSnakeCaseObjectToLowerCamelCaseObject(object) {
+    const result = {};
+    Object.keys(object).forEach((key) => {
+        result[transferSnakeCaseToLowerCamelCase(key)] = object[key];
+    });
+    return result;
+}
+
 module.exports = {
-    createSchedule: createSchedule
+    createSchedule,
+    transferSnakeCaseToLowerCamelCase,
+    transferSnakeCaseObjectToLowerCamelCaseObject
 };
