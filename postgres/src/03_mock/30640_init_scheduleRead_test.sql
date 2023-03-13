@@ -63,7 +63,7 @@ INSERT INTO "schedules"
   "end_time",
   "start_time_at_schedule",
   "end_time_at_schedule",
-  "is_scheduled"
+  "is_created"
 )
 VALUES
 (
