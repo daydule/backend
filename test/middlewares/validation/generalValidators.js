@@ -19,7 +19,7 @@ describe('generalValidators.js', function () {
             ];
             await plansValidators.title(req, {}, () => {});
             const result = validationResult(req);
-            expect(expectedError).to.eql(errorMessageFormatter(result.errors));
+            expect(result.errors).to.eql(errorMessageFormatter(expectedError));
         });
     });
 });
