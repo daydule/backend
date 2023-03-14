@@ -1,8 +1,10 @@
 'use strict';
 
 const express = require('express');
+const morgan = require('morgan');
 const cors = require('cors');
 const app = express();
+app.use(morgan('combined'));
 app.use(
     cors({
         // TODO: 開発環境と本番環境が自動で切り替わるようにする
@@ -39,8 +41,9 @@ app.use(
         }),
         secret: secret.cookieSecret,
         resave: false,
-        cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
+        cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }, // 30 days
         // Insert express-session options here
+        saveUninitialized: false
     })
 );
 // TODO: csrfトークンが必要になったタイミングでコメントアウトを外す
