@@ -11,7 +11,7 @@ const {
     updatePlanValidators,
     deletePlanValidators,
     createTemporaryPlanValidators
-} = require('../middlewares/validators/planControllerValidators');
+} = require('../middlewares/validator/planControllerValidators');
 
 /**
  * 予定作成

@@ -10,7 +10,7 @@ const loginCheck = require('../middlewares/loginCheck');
 const daySettingsHelper = require('../helpers/daySettingsHelper');
 const { validationResult } = require('express-validator');
 const { errorMessageFormatter } = require('../helpers/validationHelper');
-const { signupValidators } = require('../middlewares/validators/authControllerValidators');
+const { signupValidators } = require('../middlewares/validator/authControllerValidators');
 
 /**
  * サインアップ

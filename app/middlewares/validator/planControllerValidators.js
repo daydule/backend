@@ -1,6 +1,6 @@
 'use strict';
 
-const { plansValidators, todoOrdersValidators } = require('./generalValidators');
+const { plansValidators, todoOrdersValidators } = require('./definition/allValidators');
 
 const createPlanValidators = [
     plansValidators.title,
