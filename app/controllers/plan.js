@@ -4,14 +4,14 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
 const { validationResult } = require('express-validator');
-const { errorMessageFormatter } = require('../middlewares/validation/generalValidators');
+const { errorMessageFormatter } = require('../helpers/validationHelper');
 const {
     createPlanValidators,
     upsertTodoPriorityValidators,
     updatePlanValidators,
     deletePlanValidators,
     createTemporaryPlanValidators
-} = require('../middlewares/validation/planControllerValidators');
+} = require('../middlewares/validators/planControllerValidators');
 
 /**
  * 予定作成

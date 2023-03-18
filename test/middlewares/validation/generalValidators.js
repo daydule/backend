@@ -5,7 +5,8 @@ const { assert, expect } = require('chai');
 // eslint-disable-next-line node/no-unpublished-require
 const sinon = require('sinon');
 const { validationResult } = require('express-validator');
-const { plansValidators, errorMessageFormatter } = require('../../../app/middlewares/validation/generalValidators');
+const { plansValidators } = require('../../../app/middlewares/validators/generalValidators');
+const { errorMessageFormatter } = require('../../../app/helpers/validationHelper');
 
 describe('generalValidators.js', function () {
     describe('plansValidators.title function', function () {
