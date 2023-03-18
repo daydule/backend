@@ -91,7 +91,50 @@ const todoOrdersValidators = {
         .withMessage('incorrect format')
 };
 
+const userValidators = {
+    id: check('id').notEmpty().withMessage('not empty').isInt().withMessage('should be an integer'),
+    email: check('email')
+        .notEmpty()
+        .withMessage('not empty')
+        .isEmail()
+        .withMessage('should be in email address format'),
+    password: check('password')
+        .notEmpty()
+        .withMessage('not empty')
+        .isStrongPassword({
+            minLength: 8,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 0,
+            returnScore: false
+        })
+        .withMessage(
+            'should use a string that contains at least 8 characters, including lowercase letters, uppercase letters, and numbers'
+        )
+};
+
+/**
+ * isStrongPassword(defaultOptions)
+ * defaultOptions =
+ * {
+ *    minLength: 8,       // 8文字以上
+ *    minLowercase: 1,    // 小文字1文字以上
+ *    minUppercase: 1,    // 大文字1文字以上
+ *    minNumbers: 1,      // 数字1文字以上
+ *    minSymbols: 1,      // 記号1文字以上
+ *    returnScore: false, // パスワードの評価を返さない
+ *    pointsPerUnique: 1, // 以下はパスワードの評価をする際のポイント割合のオプション
+ *    pointsPerRepeat: 0.5,
+ *    pointsForContainingLower: 10,
+ *    pointsForContainingUpper: 10,
+ *    pointsForContainingNumber: 10,
+ *    pointsForContainingSymbol: 10
+ * }
+ */
+
 module.exports = {
     plansValidators,
-    todoOrdersValidators
+    todoOrdersValidators,
+    userValidators
 };
