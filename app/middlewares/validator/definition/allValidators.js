@@ -5,6 +5,11 @@ const { PLAN_TYPE } = require('../../../config/const');
 
 const plansValidators = {
     id: check('id').notEmpty().withMessage('not empty').isInt().withMessage('should be an integer'),
+    ids: check('ids')
+        .isArray()
+        .withMessage('should be an array')
+        .custom((ids) => ids.every((id) => Number.isInteger(Number(id))))
+        .withMessage('should contain only integers'),
     title: check('title')
         .notEmpty()
         .withMessage('not empty')
@@ -73,6 +78,19 @@ const plansValidators = {
         .optional({ checkFalsy: true, nullable: true })
         .isISO8601()
         .withMessage('incorrect time format')
+    /**
+     * optional(defaultOptions)
+     * defaultOptions =
+     * {
+     *   nullable: false,  // 値がnullまたはundefinedの場合でも検証をスキップしない
+     *   checkFalsy: false // false、0、''、null、undefinedなどの場合でも検証をスキップしない
+     * }
+     */
+};
+
+const fixPlansValidators = {
+    setIdForCreate: check('setId').optional({ nullable: true }).isInt().withMessage('should be an integer'),
+    setIdForUpdate: check('setId').notEmpty().withMessage('not empty').isInt().withMessage('should be an integer')
 };
 
 const todoOrdersValidators = {
@@ -112,29 +130,38 @@ const userValidators = {
         .withMessage(
             'should use a string that contains at least 8 characters, including lowercase letters, uppercase letters, and numbers'
         )
+    /**
+     * isStrongPassword(defaultOptions)
+     * defaultOptions =
+     * {
+     *    minLength: 8,       // 8文字以上
+     *    minLowercase: 1,    // 小文字1文字以上
+     *    minUppercase: 1,    // 大文字1文字以上
+     *    minNumbers: 1,      // 数字1文字以上
+     *    minSymbols: 1,      // 記号1文字以上
+     *    returnScore: false, // パスワードの評価を返さない
+     *    pointsPerUnique: 1, // 以下はパスワードの評価をする際のポイント割合のオプション
+     *    pointsPerRepeat: 0.5,
+     *    pointsForContainingLower: 10,
+     *    pointsForContainingUpper: 10,
+     *    pointsForContainingNumber: 10,
+     *    pointsForContainingSymbol: 10
+     * }
+     */
 };
 
-/**
- * isStrongPassword(defaultOptions)
- * defaultOptions =
- * {
- *    minLength: 8,       // 8文字以上
- *    minLowercase: 1,    // 小文字1文字以上
- *    minUppercase: 1,    // 大文字1文字以上
- *    minNumbers: 1,      // 数字1文字以上
- *    minSymbols: 1,      // 記号1文字以上
- *    returnScore: false, // パスワードの評価を返さない
- *    pointsPerUnique: 1, // 以下はパスワードの評価をする際のポイント割合のオプション
- *    pointsPerRepeat: 0.5,
- *    pointsForContainingLower: 10,
- *    pointsForContainingUpper: 10,
- *    pointsForContainingNumber: 10,
- *    pointsForContainingSymbol: 10
- * }
- */
+const daySettingsValidators = {
+    dayIds: check('dayIds')
+        .isArray()
+        .withMessage('should be an array')
+        .custom((dayIds) => dayIds.every((id) => Number.isInteger(Number(id))))
+        .withMessage('should contain only integers')
+};
 
 module.exports = {
     plansValidators,
+    fixPlansValidators,
     todoOrdersValidators,
-    userValidators
+    userValidators,
+    daySettingsValidators
 };

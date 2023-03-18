@@ -5,13 +5,30 @@ const router = express.Router();
 const pool = require('../db/pool');
 const guestCheck = require('../middlewares/guestCheck');
 const { bulkInsert } = require('../utils/dbOperation');
+const { validationResult } = require('express-validator');
+const { errorMessageFormatter } = require('../helpers/validationHelper');
+const {
+    createFixPlanValidators,
+    updateFixPlanValidators,
+    deleteFixPlanValidators
+} = require('../middlewares/validator/fixPlanControllerValidators');
 
 router.use(guestCheck);
 
 /**
  * 固定予定作成
  */
-router.post('/create', async (req, res) => {
+router.post('/create', createFixPlanValidators, async (req, res) => {
+    const result = validationResult(req);
+    if (result.errors.length !== 0) {
+        console.error(result);
+        return res.status(400).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: errorMessageFormatter(result.errors)
+        });
+    }
+
     const dayIds = req.body.dayIds;
     const setId = req.body.setId;
     const title = req.body.title;
@@ -123,7 +140,17 @@ router.post('/create', async (req, res) => {
 /**
  * 固定予定更新
  */
-router.post('/update', async (req, res) => {
+router.post('/update', updateFixPlanValidators, async (req, res) => {
+    const result = validationResult(req);
+    if (result.errors.length !== 0) {
+        console.error(result);
+        return res.status(400).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: errorMessageFormatter(result.errors)
+        });
+    }
+
     const setId = req.body.setId;
     const title = req.body.title;
     const context = req.body.context;
@@ -167,7 +194,17 @@ router.post('/update', async (req, res) => {
 /**
  * 固定予定削除
  */
-router.delete('/delete', async (req, res) => {
+router.delete('/delete', deleteFixPlanValidators, async (req, res) => {
+    const result = validationResult(req);
+    if (result.errors.length !== 0) {
+        console.error(result);
+        return res.status(400).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: errorMessageFormatter(result.errors)
+        });
+    }
+
     const ids = req.body.ids;
 
     const client = await pool.connect();
