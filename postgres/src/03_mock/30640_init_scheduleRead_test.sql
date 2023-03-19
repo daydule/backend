@@ -13,8 +13,8 @@ VALUES
   306401,
   'test306401',
   'test306401@example.com',
-  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
-  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
+  'iP15S6qSFqFnmPQ9ihQcHA==',
   false
 ),
 (
@@ -22,8 +22,8 @@ VALUES
   306402,
   'test306402',
   'test306402@example.com',
-  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
-  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
+  'iP15S6qSFqFnmPQ9ihQcHA==',
   false
 ),
 (
@@ -31,8 +31,8 @@ VALUES
   306403,
   'test306403',
   'test306403@example.com',
-  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
-  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
+  'iP15S6qSFqFnmPQ9ihQcHA==',
   true
 ),
 (
@@ -40,8 +40,8 @@ VALUES
   306404,
   'test306404',
   'test306404@example.com',
-  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
-  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
+  'iP15S6qSFqFnmPQ9ihQcHA==',
   false
 ),
 (
@@ -49,8 +49,8 @@ VALUES
   306405,
   'test306405',
   'test306405@example.com',
-  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
-  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
+  'iP15S6qSFqFnmPQ9ihQcHA==',
   false
 );
 

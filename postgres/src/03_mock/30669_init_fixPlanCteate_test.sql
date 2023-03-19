@@ -12,8 +12,8 @@ VALUES
   306691,
   'test306691',
   'test306691@example.com',
-  'AqAiCY+SW+adRHoJm3GppjJM6uKsb5LZo1LjbXkkfzU=',
-  'i7Ri/9DBZL9XXwnpV9PKZQ==',
+  '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
+  'iP15S6qSFqFnmPQ9ihQcHA==',
   false
 );
 
