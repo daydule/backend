@@ -22,7 +22,7 @@ const plansValidators = {
     travelTime: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('travelTime'), 0),
     bufferTime: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('bufferTime'), 0),
     planType: validationChainWrappers.checkInWrapper(checkNotEmpty('planType'), Object.values(PLAN_TYPE)),
-    priority: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('priority'), 1),
+    priority: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('priority'), 0),
     place: validationChainWrappers.checkLengthMinMaxWrapper(skipCheckIfUndefined('place'), 1, 100),
     isRequiredPlan: validationChainWrappers.checkBooleanWrapper(skipCheckIfUndefined('isRequiredPlan')),
     parentPlanId: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('parentPlanId'), 1),
