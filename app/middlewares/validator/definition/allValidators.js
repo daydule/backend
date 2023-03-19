@@ -1,11 +1,12 @@
 'use strict';
 
-const { PLAN_TYPE } = require('../../../config/const');
+const { PLAN_TYPE, SCHEDULE_LOGIC_FILENAME } = require('../../../config/const');
 const {
     validationChainWrappers,
     checkNotEmpty,
     skipCheckIfUndefined,
-    skipCheckIfNullable
+    skipCheckIfNullable,
+    skipCheckIfFalsy
 } = require('./validationUtils');
 
 const plansValidators = {
@@ -19,7 +20,7 @@ const plansValidators = {
     processTime: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('processTime'), 1),
     travelTime: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('travelTime'), 0),
     bufferTime: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('bufferTime'), 0),
-    planType: checkNotEmpty('planType').isIn(Object.values(PLAN_TYPE)).withMessage('should be a set value'),
+    planType: validationChainWrappers.checkInWrapper(checkNotEmpty('planType'), Object.values(PLAN_TYPE)),
     priority: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('priority'), 1),
     place: validationChainWrappers.checkLengthMinMaxWrapper(skipCheckIfUndefined('place'), 1, 100),
     isRequiredPlan: validationChainWrappers.checkBooleanWrapper(skipCheckIfUndefined('isRequiredPlan')),
@@ -41,8 +42,11 @@ const plansValidators = {
 };
 
 const fixPlansValidators = {
-    setIdForCreate: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('setId'), 1),
-    setIdForUpdate: validationChainWrappers.checkIntegerWithMinWrapper(checkNotEmpty('setId'), 1),
+    setId: ({ isNotEmpty }) =>
+        validationChainWrappers.checkIntegerWithMinWrapper(
+            isNotEmpty ? checkNotEmpty('setId') : skipCheckIfUndefined('setId'),
+            1
+        ),
     startTime: validationChainWrappers.checkTimeString4digitsWrapper(checkNotEmpty('startTime')),
     endTime: validationChainWrappers.checkTimeString4digitsWrapper(checkNotEmpty('endTime'))
 };
@@ -54,8 +58,9 @@ const todoOrdersValidators = {
 
 const userValidators = {
     id: validationChainWrappers.checkIntegerWithMinWrapper(checkNotEmpty('id'), 1),
+    nickname: validationChainWrappers.checkLengthMinMaxWrapper(skipCheckIfFalsy('nickname'), 1, 20),
     email: validationChainWrappers.checkEmailWrapper(checkNotEmpty('email')),
-    password: validationChainWrappers.checkPasswordWrapper(checkNotEmpty('password'))
+    password: (fields) => validationChainWrappers.checkPasswordWrapper(checkNotEmpty(fields))
 };
 
 const scheduleValidators = {
@@ -65,7 +70,13 @@ const scheduleValidators = {
 };
 
 const daySettingsValidators = {
-    dayIds: validationChainWrappers.checkIntegerArrayWrapper(checkNotEmpty('dayIds'))
+    dayIds: validationChainWrappers.checkIntegerArrayWrapper(checkNotEmpty('dayIds')),
+    scheduleStartTime: validationChainWrappers.checkTimeString4digitsWrapper(checkNotEmpty('scheduleStartTime')),
+    scheduleEndTime: validationChainWrappers.checkTimeString4digitsWrapper(checkNotEmpty('scheduleEndTime')),
+    schedulingLogic: validationChainWrappers.checkInWrapper(
+        checkNotEmpty('schedulingLogic'),
+        Object.keys[SCHEDULE_LOGIC_FILENAME]
+    )
 };
 
 module.exports = {

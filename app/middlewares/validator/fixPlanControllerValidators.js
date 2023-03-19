@@ -4,7 +4,7 @@ const { plansValidators, daySettingsValidators, fixPlansValidators } = require('
 
 const createFixPlanValidators = [
     daySettingsValidators.dayIds,
-    fixPlansValidators.setIdForCreate,
+    fixPlansValidators.setId({ isNotEmpty: false }),
     plansValidators.title,
     plansValidators.context,
     fixPlansValidators.startTime,
@@ -17,7 +17,7 @@ const createFixPlanValidators = [
     plansValidators.place
 ];
 const updateFixPlanValidators = [
-    fixPlansValidators.setIdForUpdate,
+    fixPlansValidators.setId({ isNotEmpty: true }),
     plansValidators.title,
     plansValidators.context,
     fixPlansValidators.startTime,

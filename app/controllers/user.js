@@ -7,6 +7,13 @@ const { promisify } = require('util');
 const crypto = require('crypto');
 const guestCheck = require('../middlewares/guestCheck');
 const constant = require('../config/const');
+const { validationResult } = require('express-validator');
+const { errorMessageFormatter } = require('../helpers/validationHelper');
+const {
+    updateUserValidators,
+    updateUserPasswordValidators,
+    updateScheduleSettingsValidators
+} = require('../middlewares/validator/userControllerValidators');
 
 /**
  * ユーザー情報参照
@@ -25,7 +32,17 @@ router.get('/read', function (req, res) {
 /**
  * ユーザー情報更新
  */
-router.post('/update', guestCheck, async function (req, res) {
+router.post('/update', [guestCheck].concat(updateUserValidators), async function (req, res) {
+    const result = validationResult(req);
+    if (result.errors.length !== 0) {
+        console.error(result);
+        return res.status(400).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: errorMessageFormatter(result.errors)
+        });
+    }
+
     const nickname = req.body.nickname;
     const email = req.body.email;
     const password = req.body.password;
@@ -74,7 +91,16 @@ router.post('/update', guestCheck, async function (req, res) {
 /**
  * パスワード更新
  */
-router.post('/password/update', guestCheck, async function (req, res) {
+router.post('/password/update', [guestCheck].concat(updateUserPasswordValidators), async function (req, res) {
+    const result = validationResult(req);
+    if (result.errors.length !== 0) {
+        console.error(result);
+        return res.status(400).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: errorMessageFormatter(result.errors)
+        });
+    }
     const currentPassword = req.body.currentPassword;
     const newPassword = req.body.newPassword;
 
@@ -180,43 +206,57 @@ router.get('/schedule/settings/read', guestCheck, async function (req, res) {
 /**
  * 曜日別設定更新
  */
-router.post('/schedule/settings/update', guestCheck, async function (req, res) {
-    const id = req.body.id;
-    const scheduleStartTime = req.body.scheduleStartTime;
-    const scheduleEndTime = req.body.scheduleEndTime;
-    const schedulingLogic = req.body.schedulingLogic;
-
-    const client = await pool.connect();
-
-    try {
-        await client.query('BEGIN');
-        const selectResult = await client.query('SELECT * FROM day_settings WHERE id = $1', [id]);
-        if (selectResult.rows.length === 0) {
-            throw new Error('There is not the record that has this id. id(' + id + ')');
+router.post(
+    '/schedule/settings/update',
+    [guestCheck].concat(updateScheduleSettingsValidators),
+    async function (req, res) {
+        const result = validationResult(req);
+        if (result.errors.length !== 0) {
+            console.error(result);
+            return res.status(400).json({
+                isError: true,
+                errorId: 'errorId',
+                errorMessage: errorMessageFormatter(result.errors)
+            });
         }
 
-        const sql =
-            'UPDATE day_settings \
+        const id = req.body.id;
+        const scheduleStartTime = req.body.scheduleStartTime;
+        const scheduleEndTime = req.body.scheduleEndTime;
+        const schedulingLogic = req.body.schedulingLogic;
+
+        const client = await pool.connect();
+
+        try {
+            await client.query('BEGIN');
+            const selectResult = await client.query('SELECT * FROM day_settings WHERE id = $1', [id]);
+            if (selectResult.rows.length === 0) {
+                throw new Error('There is not the record that has this id. id(' + id + ')');
+            }
+
+            const sql =
+                'UPDATE day_settings \
                 SET schedule_start_time = $1, schedule_end_time = $2, scheduling_logic = $3 \
                 WHERE id = $4 RETURNING *';
-        const values = [scheduleStartTime, scheduleEndTime, schedulingLogic, id];
-        const result = await client.query(sql, values);
-        await client.query('COMMIT');
-        return res.status(200).json({
-            isError: false,
-            daySettings: result.rows
-        });
-    } catch (e) {
-        await client.query('ROLLBACK');
-        console.error(e);
-        return res.status(500).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: 'サーバーエラー'
-        });
-    } finally {
-        client.release();
+            const values = [scheduleStartTime, scheduleEndTime, schedulingLogic, id];
+            const result = await client.query(sql, values);
+            await client.query('COMMIT');
+            return res.status(200).json({
+                isError: false,
+                daySettings: result.rows
+            });
+        } catch (e) {
+            await client.query('ROLLBACK');
+            console.error(e);
+            return res.status(500).json({
+                isError: true,
+                errorId: 'errorId',
+                errorMessage: 'サーバーエラー'
+            });
+        } finally {
+            client.release();
+        }
     }
-});
+);
 
 module.exports = router;

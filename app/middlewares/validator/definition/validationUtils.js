@@ -59,6 +59,7 @@ const validationChainWrappers = {
             })
             .withMessage('should be a string of "HHMM" format (3)'),
     checkBooleanWrapper: (validationChain) => validationChain.isBoolean().withMessage('should be a boolean'),
+    checkInWrapper: (validationChain, array) => validationChain.isIn(array).withMessage('should be a set value'),
     checkEmailWrapper: (validationChain) => validationChain.isEmail().withMessage('should be in email address format'),
     checkPasswordWrapper: (validationChain) =>
         validationChain
