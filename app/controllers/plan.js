@@ -3,8 +3,6 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
-const { validationResult } = require('express-validator');
-const { errorMessageFormatter } = require('../helpers/validationHelper');
 const {
     createPlanValidators,
     upsertTodoPriorityValidators,
@@ -17,16 +15,6 @@ const {
  * 予定作成
  */
 router.post('/create', createPlanValidators, async (req, res) => {
-    const result = validationResult(req);
-    if (result.errors.length !== 0) {
-        console.error(result);
-        return res.status(400).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: errorMessageFormatter(result.errors)
-        });
-    }
-
     const userId = req.user.id;
     const title = req.body.title;
     const context = req.body.context;
@@ -84,16 +72,6 @@ router.post('/create', createPlanValidators, async (req, res) => {
  * 予定更新
  */
 router.post('/:id/update', updatePlanValidators, async (req, res) => {
-    const result = validationResult(req);
-    if (result.errors.length !== 0) {
-        console.error(result);
-        return res.status(400).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: errorMessageFormatter(result.errors)
-        });
-    }
-
     const userId = req.user.id;
     const id = req.params.id;
 
@@ -170,16 +148,6 @@ router.post('/:id/update', updatePlanValidators, async (req, res) => {
  * 予定削除
  */
 router.delete('/:id', deletePlanValidators, async (req, res) => {
-    const result = validationResult(req);
-    if (result.errors.length !== 0) {
-        console.error(result);
-        return res.status(400).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: errorMessageFormatter(result.errors)
-        });
-    }
-
     const id = req.params.id;
 
     const client = await pool.connect();
@@ -212,16 +180,6 @@ router.delete('/:id', deletePlanValidators, async (req, res) => {
  * 予定作成（スケジュール作成後）
  */
 router.post('/temporary/create', createTemporaryPlanValidators, async (req, res) => {
-    const result = validationResult(req);
-    if (result.errors.length !== 0) {
-        console.error(result);
-        return res.status(400).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: errorMessageFormatter(result.errors)
-        });
-    }
-
     const userId = req.user.id;
     const title = req.body.title;
     const context = req.body.context;
@@ -282,16 +240,6 @@ router.post('/temporary/create', createTemporaryPlanValidators, async (req, res)
  * TODO並び順の作成/更新処理
  */
 router.post('/upsertTodoPriority', upsertTodoPriorityValidators, async (req, res) => {
-    const result = validationResult(req);
-    if (result.errors.length !== 0) {
-        console.error(result);
-        return res.status(400).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: errorMessageFormatter(result.errors)
-        });
-    }
-
     const todoOrders = req.body.todoOrders; // TODOのIDをカンマ区切りにした文字列
     let upsertResult;
 

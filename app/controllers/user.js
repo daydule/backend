@@ -7,8 +7,6 @@ const { promisify } = require('util');
 const crypto = require('crypto');
 const guestCheck = require('../middlewares/guestCheck');
 const { DAY_LIST } = require('../config/const');
-const { validationResult } = require('express-validator');
-const { errorMessageFormatter } = require('../helpers/validationHelper');
 const {
     updateUserValidators,
     updateUserPasswordValidators,
@@ -33,16 +31,6 @@ router.get('/read', function (req, res) {
  * ユーザー情報更新
  */
 router.post('/update', [guestCheck].concat(updateUserValidators), async function (req, res) {
-    const result = validationResult(req);
-    if (result.errors.length !== 0) {
-        console.error(result);
-        return res.status(400).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: errorMessageFormatter(result.errors)
-        });
-    }
-
     const nickname = req.body.nickname;
     const email = req.body.email;
     const password = req.body.password;
@@ -92,15 +80,6 @@ router.post('/update', [guestCheck].concat(updateUserValidators), async function
  * パスワード更新
  */
 router.post('/password/update', [guestCheck].concat(updateUserPasswordValidators), async function (req, res) {
-    const result = validationResult(req);
-    if (result.errors.length !== 0) {
-        console.error(result);
-        return res.status(400).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: errorMessageFormatter(result.errors)
-        });
-    }
     const currentPassword = req.body.currentPassword;
     const newPassword = req.body.newPassword;
 
@@ -210,16 +189,6 @@ router.post(
     '/schedule/settings/update',
     [guestCheck].concat(updateScheduleSettingsValidators),
     async function (req, res) {
-        const result = validationResult(req);
-        if (result.errors.length !== 0) {
-            console.error(result);
-            return res.status(400).json({
-                isError: true,
-                errorId: 'errorId',
-                errorMessage: errorMessageFormatter(result.errors)
-            });
-        }
-
         const id = req.body.id;
         const scheduleStartTime = req.body.scheduleStartTime;
         const scheduleEndTime = req.body.scheduleEndTime;

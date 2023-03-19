@@ -1,6 +1,7 @@
 'use strict';
 
 const { plansValidators, daySettingsValidators, fixPlansValidators } = require('./definition/allValidators');
+const validationResultCheck = require('./definition/validationResultCheck');
 
 const createFixPlanValidators = [
     daySettingsValidators.dayIds,
@@ -32,7 +33,7 @@ const updateFixPlanValidators = [
 const deleteFixPlanValidators = [plansValidators.ids];
 
 module.exports = {
-    createFixPlanValidators,
-    updateFixPlanValidators,
-    deleteFixPlanValidators
+    createFixPlanValidators: createFixPlanValidators.concat(validationResultCheck),
+    updateFixPlanValidators: updateFixPlanValidators.concat(validationResultCheck),
+    deleteFixPlanValidators: deleteFixPlanValidators.concat(validationResultCheck)
 };

@@ -8,24 +8,12 @@ const crypto = require('crypto');
 const pool = require('../db/pool');
 const loginCheck = require('../middlewares/loginCheck');
 const daySettingsHelper = require('../helpers/daySettingsHelper');
-const { validationResult } = require('express-validator');
-const { errorMessageFormatter } = require('../helpers/validationHelper');
 const { signupValidators } = require('../middlewares/validator/authControllerValidators');
 
 /**
  * サインアップ
  */
 router.post('/signup', signupValidators, async (req, res) => {
-    const result = validationResult(req);
-    if (result.errors.length !== 0) {
-        console.error(result);
-        return res.status(400).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: errorMessageFormatter(result.errors)
-        });
-    }
-
     const email = req.body.email;
     const password = req.body.password;
     const salt = crypto.randomBytes(16).toString('base64');

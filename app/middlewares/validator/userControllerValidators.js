@@ -1,6 +1,7 @@
 'use strict';
 
 const { userValidators, daySettingsValidators } = require('./definition/allValidators');
+const validationResultCheck = require('./definition/validationResultCheck');
 
 const updateUserValidators = [userValidators.nickname, userValidators.email, userValidators.password('password')];
 const updateUserPasswordValidators = [
@@ -14,7 +15,7 @@ const updateScheduleSettingsValidators = [
 ];
 
 module.exports = {
-    updateUserValidators,
-    updateUserPasswordValidators,
-    updateScheduleSettingsValidators
+    updateUserValidators: updateUserValidators.concat(validationResultCheck),
+    updateUserPasswordValidators: updateUserPasswordValidators.concat(validationResultCheck),
+    updateScheduleSettingsValidators: updateScheduleSettingsValidators.concat(validationResultCheck)
 };
