@@ -5,12 +5,26 @@ const router = express.Router();
 const pool = require('../db/pool');
 const constant = require('../config/const');
 const { transferSnakeCaseObjectToLowerCamelCaseObject } = require('../helpers/scheduleHelper');
+const { validationResult } = require('express-validator');
+const { errorMessageFormatter } = require('../helpers/validationHelper');
+const {
+    readScheduleValidators,
+    updateScheduleValidators
+} = require('../middlewares/validator/scheduleControllerValidators');
 
 /**
  * スケジュール参照
  */
-router.get('/read/:date', async (req, res) => {
-    // TODO バリデーションチェック
+router.get('/read/:date', readScheduleValidators, async (req, res) => {
+    const result = validationResult(req);
+    if (result.errors.length !== 0) {
+        console.error(result);
+        return res.status(400).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: errorMessageFormatter(result.errors)
+        });
+    }
 
     // NOTE req.body.dateはYYYY-MM-DDの形
     const dateStr = req.params.date;
@@ -176,10 +190,20 @@ router.get('/read/:date', async (req, res) => {
 /**
  * スケジュールレコード更新
  */
-router.post('/:date/update', async (req, res) => {
+router.post('/:date/update', updateScheduleValidators, async (req, res) => {
+    const result = validationResult(req);
+    if (result.errors.length !== 0) {
+        console.error(result);
+        return res.status(400).json({
+            isError: true,
+            errorId: 'errorId',
+            errorMessage: errorMessageFormatter(result.errors)
+        });
+    }
+
+    const date = req.params.date;
     const startTime = req.body.startTime;
     const endTime = req.body.endTime;
-    const date = req.params.date;
     const userId = req.user.id;
 
     try {
