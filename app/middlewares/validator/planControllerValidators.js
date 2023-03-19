@@ -15,7 +15,8 @@ const createPlanValidators = [
     plansValidators.priority,
     plansValidators.place,
     plansValidators.isRequiredPlan,
-    plansValidators.todoStartTime
+    plansValidators.todoStartTime,
+    plansValidators.checkWithPlanType
 ];
 
 const updatePlanValidators = [
@@ -34,7 +35,8 @@ const updatePlanValidators = [
     plansValidators.isRequiredPlan,
     plansValidators.parentPlanId,
     plansValidators.isParentPlan,
-    plansValidators.todoStartTime
+    plansValidators.todoStartTime,
+    plansValidators.checkWithPlanType
 ];
 
 const deletePlanValidators = [plansValidators.id];
@@ -46,12 +48,13 @@ const createTemporaryPlanValidators = [
     plansValidators.startTime,
     plansValidators.endTime,
     plansValidators.processTime,
+    plansValidators.planType,
     plansValidators.travelTime,
     plansValidators.bufferTime,
-    plansValidators.planType,
     plansValidators.priority,
     plansValidators.place,
-    plansValidators.todoStartTime
+    plansValidators.todoStartTime,
+    plansValidators.checkWithPlanType
 ];
 
 const upsertTodoPriorityValidators = [todoOrdersValidators.todoOrders];
