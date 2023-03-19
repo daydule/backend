@@ -6,7 +6,7 @@ const pool = require('../db/pool');
 const { promisify } = require('util');
 const crypto = require('crypto');
 const guestCheck = require('../middlewares/guestCheck');
-const constant = require('../config/const');
+const { DAY_LIST } = require('../config/const');
 const { validationResult } = require('express-validator');
 const { errorMessageFormatter } = require('../helpers/validationHelper');
 const {
@@ -158,7 +158,7 @@ router.post('/password/update', [guestCheck].concat(updateUserPasswordValidators
  */
 router.get('/schedule/settings/read', guestCheck, async function (req, res) {
     const userId = req.user.id;
-    const dayListNum = constant.DAY_LIST.length;
+    const dayListNum = DAY_LIST.length;
 
     const client = await pool.connect();
     try {
