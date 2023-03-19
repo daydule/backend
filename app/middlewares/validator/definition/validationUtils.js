@@ -58,6 +58,14 @@ const validationChainWrappers = {
                 return 0 <= hour && hour <= 23 && 0 <= minute && minute <= 59;
             })
             .withMessage('should be a string of "HHMM" format (3)'),
+    checkDifferentStringWrapper: (validationChain, string2) =>
+        validationChain
+            .custom((string1, { req }) => string1 !== req.body[string2])
+            .withMessage('should be different string'),
+    checkSameStringWrapper: (validationChain, string2) =>
+        validationChain
+            .custom((string1, { req }) => string1 === req.body[string2])
+            .withMessage('should be same string'),
     checkBooleanWrapper: (validationChain) => validationChain.isBoolean().withMessage('should be a boolean'),
     checkInWrapper: (validationChain, array) => validationChain.isIn(array).withMessage('should be a set value'),
     checkEmailWrapper: (validationChain) => validationChain.isEmail().withMessage('should be in email address format'),

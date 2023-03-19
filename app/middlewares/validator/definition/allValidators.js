@@ -1,5 +1,6 @@
 'use strict';
 
+const { check } = require('express-validator');
 const { PLAN_TYPE, SCHEDULE_LOGIC_FILENAME } = require('../../../config/const');
 const {
     validationChainWrappers,
@@ -60,7 +61,11 @@ const userValidators = {
     id: validationChainWrappers.checkIntegerWithMinWrapper(checkNotEmpty('id'), 1),
     nickname: validationChainWrappers.checkLengthMinMaxWrapper(skipCheckIfFalsy('nickname'), 1, 20),
     email: validationChainWrappers.checkEmailWrapper(checkNotEmpty('email')),
-    password: (fields) => validationChainWrappers.checkPasswordWrapper(checkNotEmpty(fields))
+    password: (fields) => validationChainWrappers.checkPasswordWrapper(checkNotEmpty(fields)),
+    checkSamePassword: (password1, password2) =>
+        validationChainWrappers.checkSameStringWrapper(check(password1), password2),
+    checkDifferentPassword: (password1, password2) =>
+        validationChainWrappers.checkDifferentStringWrapper(check(password1), password2)
 };
 
 const scheduleValidators = {
