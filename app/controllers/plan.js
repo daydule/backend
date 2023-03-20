@@ -169,7 +169,7 @@ router.post('/:id/update', updatePlanValidators, async (req, res) => {
 /**
  * 予定削除
  */
-router.delete('/:id', deletePlanValidators, async (req, res) => {
+router.post('/:id/delete', deletePlanValidators, async (req, res) => {
     const result = validationResult(req);
     if (result.errors.length !== 0) {
         console.error(result);
