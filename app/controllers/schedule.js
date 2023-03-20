@@ -75,7 +75,7 @@ router.post('/create', async (req, res) => {
         );
 
         if (createScheduleResult.isError) {
-            throw new Error('Fail to create schedule.');
+            throw new Error('Fail to create schedule.' + createScheduleResult.errorMessage);
         }
 
         await client.query('INSERT INTO todo_orders(user_id, schedule_id, todo_orders) VALUES($1, $2, $3)', [
