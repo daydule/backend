@@ -14,8 +14,8 @@ CREATE TABLE "plans"
   "priority"         INTEGER      NOT NULL,
   "place"            VARCHAR(100),
   "is_scheduled"     BOOLEAN      DEFAULT FALSE,
-  "is_required_plan" BOOLEAN,
+  "is_required_plan" BOOLEAN      DEFAULT TRUE,
   "parent_plan_id"   INTEGER,
-  "is_parent_plan"   BOOLEAN,
+  "is_parent_plan"   BOOLEAN      DEFAULT FALSE,
   "todo_start_time"  TIMESTAMP
 );
