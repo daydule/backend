@@ -37,7 +37,7 @@ function transferSnakeCaseObjectToLowerCamelCaseObject(object) {
  *
  * @param {Client} client - DB接続
  * @param {string} sql - query文字列
- * @param {string} values - sql用の引数
+ * @param {Array} values - sql用の引数
  * @returns {object} sqlの実行結果（戻り値がある場合、keyの値はキャメルケースに変換）
  */
 async function query(client, sql, values) {
