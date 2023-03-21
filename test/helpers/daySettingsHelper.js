@@ -11,9 +11,9 @@ describe('daySettingsHelper.js', function () {
     describe('initDaySettings function', function () {
         it('should call pool.query function 7 times.', async function () {
             const stub = sinon.stub().returns({ rows: ['dummy'] });
-            const pool = { query: stub };
-            await daySettingsHelper.initDaySettings(pool, 'dummyUserId');
-            assert(stub.callCount, 7);
+            const client = { query: stub };
+            await daySettingsHelper.initDaySettings(client, 'dummyUserId');
+            assert.equal(stub.callCount, 10);
         });
     });
 });

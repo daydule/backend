@@ -1,17 +1,18 @@
 'use strict';
 
-const { Pool } = require('pg');
+const { Client } = require('pg');
 const DEFAULT = require('../config/const').DEFAULT;
 const DAY_LIST = require('../config/const').DAY_LIST;
+const dbHelper = require('../helpers/dbHelper');
 
 /**
  * 曜日別設定の初期設定をする
  *
- * @param {Pool} pool - DB接続
+ * @param {Client} client - DB接続
  * @param {string} userId - 初期設定をするユーザーのID
  * @returns {void}
  */
-async function initDaySettings(pool, userId) {
+async function initDaySettings(client, userId) {
     const sql =
         'INSERT INTO day_settings (user_id, setting_name, day, schedule_start_time, schedule_end_time, scheduling_logic)' +
         'VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
@@ -24,7 +25,7 @@ async function initDaySettings(pool, userId) {
             DEFAULT.DAY_SETTINGS.SCHEDULE_END_TIME,
             0
         ];
-        await pool.query(sql, params);
+        await dbHelper.query(client, sql, params);
     }
 }
 
