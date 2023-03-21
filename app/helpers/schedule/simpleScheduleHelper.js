@@ -1,8 +1,8 @@
 'use strict';
 
-const { Pool } = require('pg');
 const constant = require('../../config/const');
 const timeUtil = require('../../utils/time');
+const { Client } = require('pg');
 
 /**
  * 空き時間に予定を入れれるかチェックし、可能な場合は開始時間のインデックスを返す
@@ -29,16 +29,17 @@ function findAvailableSectionStartIndex(freeSections, sectionNum) {
 /**
  * シンプルスケジュールを作成する
  *
- * @param {Pool} pool - DB接続
+ * @param {Client} client - DB接続
  * @param {number} userId - ユーザーID
  * @param {number} scheduleId - スケジュールID
  * @param {string} startTimeStr - スケジュール開始時間
  * @param {string} endTimeStr - スケジュール終了時間
  * @param {Array} plans - 予定
  * @param {Array} todos - 優先度降順のTODO
+ * @param {string} date - 日付
  * @returns {object} - スケジュール作成結果
  */
-async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans, todos) {
+async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, plans, todos, date) {
     if (todos.length === 0) {
         return {
             isError: true,
@@ -93,7 +94,8 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
 
     const scheduledTodos = [];
     const notScheduledTodos = [];
-    await todos.forEach(async (todo) => {
+    for (let i = 0; i < todos.length; i++) {
+        const todo = todos[i];
         if (todo.process_time > remainingFreeTimeMin) {
             notScheduledTodos.push(todo);
         } else {
@@ -104,7 +106,7 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
                 freeSections.fill(1, availableTimeStartIndex, availableTimeStartIndex + needSectionNum);
                 remainingFreeTimeMin -= needSectionNum * constant.SECTION_MINUTES_LENGTH;
 
-                await pool.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
+                await client.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
                     todo.id,
                     scheduleId
                 ]);
@@ -113,23 +115,21 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
                     availableTimeStartIndex * constant.SECTION_MINUTES_LENGTH,
                     todo.process_time
                 );
-                await pool.query('UPDATE plans SET start_time = $1, end_time = $2, is_scheduled = $3 WHERE id = $4', [
-                    startAndEndTimeStr.startTime,
-                    startAndEndTimeStr.endTime,
-                    true,
-                    todo.id
-                ]);
+                const updatedTodo = await client.query(
+                    'UPDATE plans SET start_time = $1, end_time = $2, date = $3, is_scheduled = $4 WHERE id = $5 RETURNING *',
+                    [startAndEndTimeStr.startTime, startAndEndTimeStr.endTime, date, true, todo.id]
+                );
 
-                scheduledTodos.push(todo);
+                scheduledTodos.push(updatedTodo.rows[0]);
             } else {
                 const availableSectionIndex = [];
-                for (let i = 0; i < freeSections.length; i++) {
+                for (let j = 0; j < freeSections.length; j++) {
                     if (availableSectionIndex.length === needSectionNum) {
                         break;
                     }
 
-                    if (freeSections[i] === 0) {
-                        availableSectionIndex.push(i);
+                    if (freeSections[j] === 0) {
+                        availableSectionIndex.push(j);
                     }
                 }
 
@@ -139,11 +139,11 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
                 remainingFreeTimeMin -= needSectionNum * constant.SECTION_MINUTES_LENGTH;
 
                 const dividedTodoTime = [];
-                for (let i = 0; i < availableSectionIndex.length; i++) {
+                for (let j = 0; j < availableSectionIndex.length; j++) {
                     let processTimeMin = constant.SECTION_MINUTES_LENGTH;
                     let sequenceCount = 0;
-                    for (let j = i; j < availableSectionIndex.length - 1; j++) {
-                        let isSequence = availableSectionIndex[j] + 1 === availableSectionIndex[j + 1];
+                    for (let k = j; k < availableSectionIndex.length - 1; k++) {
+                        let isSequence = availableSectionIndex[k] + 1 === availableSectionIndex[k + 1];
                         if (isSequence) {
                             processTimeMin += constant.SECTION_MINUTES_LENGTH;
                             sequenceCount += 1;
@@ -154,21 +154,22 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
 
                     const startAndEndTimeStr = timeUtil.getStartAndEndTimeStr(
                         startTimeStr,
-                        availableSectionIndex[i] * constant.SECTION_MINUTES_LENGTH,
+                        availableSectionIndex[j] * constant.SECTION_MINUTES_LENGTH,
                         processTimeMin
                     );
 
                     dividedTodoTime.push({
-                        startIndex: availableSectionIndex[i],
+                        startIndex: availableSectionIndex[j],
                         startTime: startAndEndTimeStr.startTime,
                         endTime: startAndEndTimeStr.endTime,
                         processTime: processTimeMin
                     });
-                    i += sequenceCount;
+                    j += sequenceCount;
                 }
 
-                dividedTodoTime.forEach(async (todoTime, index) => {
-                    const dividedTodoCreateResult = await pool.query(
+                for (let j = 0; j < dividedTodoTime.length; j++) {
+                    const todoTime = dividedTodoTime[j];
+                    const dividedTodoCreateResult = await client.query(
                         'INSERT INTO plans (\
                             user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \
                             priority, place, is_scheduled, is_required_plan, parent_plan_id, todo_start_time) \
@@ -177,12 +178,12 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
                             userId,
                             todo.title,
                             todo.context,
-                            todo.date,
+                            date,
                             todoTime.startTime,
                             todoTime.endTime,
                             todoTime.processTime,
-                            index === 0 ? todo.travel_time : 0, // 最初だけ設定
-                            index === dividedTodoTime.length - 1 ? todoTime.buffer_time : 0, // 最後だけ設定
+                            j === 0 ? todo.travel_time : 0, // 最初だけ設定
+                            j === dividedTodoTime.length - 1 ? todoTime.buffer_time : 0, // 最後だけ設定
                             todo.plan_type,
                             todo.priority,
                             todo.place,
@@ -193,18 +194,22 @@ async function execute(pool, userId, scheduleId, startTimeStr, endTimeStr, plans
                         ]
                     );
 
-                    await pool.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
+                    await client.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
                         dividedTodoCreateResult.rows[0].id,
                         scheduleId
                     ]);
 
                     scheduledTodos.push(dividedTodoCreateResult.rows[0]);
-                });
+                }
 
-                await pool.query('UPDATE plans SET is_parent_plan = $1 WHERE id = $2', [true, todo.id]);
+                await client.query('UPDATE plans SET is_scheduled = $1, is_parent_plan = $2 WHERE id = $3', [
+                    true,
+                    true,
+                    todo.id
+                ]);
             }
         }
-    });
+    }
 
     return {
         isError: false,
