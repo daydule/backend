@@ -7,6 +7,7 @@ const { promisify } = require('util');
 const crypto = require('crypto');
 const guestCheck = require('../middlewares/guestCheck');
 const constant = require('../config/const');
+const dbHelper = require('../helpers/dbHelper');
 
 /**
  * ユーザー情報参照
@@ -49,7 +50,7 @@ router.post('/update', guestCheck, async function (req, res) {
         await client.query('BEGIN');
         const sql = 'UPDATE users SET nickname = $1, email = $2 WHERE id = $3 RETURNING *';
         const values = [nickname, email, req.user.id];
-        const result = await client.query(sql, values);
+        const result = await dbHelper.query(client, sql, values);
         await client.query('COMMIT');
         return res.status(200).json({
             isError: false,
@@ -105,7 +106,7 @@ router.post('/password/update', guestCheck, async function (req, res) {
         const hashedNewPassword = await promisify(crypto.pbkdf2)(newPassword, req.user.salt, 310000, 32, 'sha256');
         const sql = 'UPDATE users SET hashed_password = $1 WHERE id = $2 RETURNING *';
         const values = [hashedNewPassword.toString('base64'), req.user.id];
-        const result = await client.query(sql, values);
+        const result = await dbHelper.query(client, sql, values);
         await client.query('COMMIT');
         return res.status(200).json({
             isError: false,
@@ -139,7 +140,8 @@ router.get('/schedule/settings/read', guestCheck, async function (req, res) {
         await client.query('BEGIN');
         const daySettingInfo = [];
         for (let i = 0; i < dayListNum; i++) {
-            const getDaySettingResult = await client.query(
+            const getDaySettingResult = await dbHelper.query(
+                client,
                 'SELECT * FROM day_settings WHERE user_id = $1 AND day = $2',
                 [userId, i]
             );
@@ -149,7 +151,7 @@ router.get('/schedule/settings/read', guestCheck, async function (req, res) {
 
         const result = [];
         for (let i = 0; i < daySettingInfo.length; i++) {
-            const getFixPlansResult = await client.query('SELECT * FROM fix_plans WHERE day_id = $1', [
+            const getFixPlansResult = await dbHelper.query(client, 'SELECT * FROM fix_plans WHERE day_id = $1', [
                 daySettingInfo[i].id
             ]);
 
@@ -190,7 +192,7 @@ router.post('/schedule/settings/update', guestCheck, async function (req, res) {
 
     try {
         await client.query('BEGIN');
-        const selectResult = await client.query('SELECT * FROM day_settings WHERE id = $1', [id]);
+        const selectResult = await dbHelper.query(client, 'SELECT * FROM day_settings WHERE id = $1', [id]);
         if (selectResult.rows.length === 0) {
             throw new Error('There is not the record that has this id. id(' + id + ')');
         }
@@ -200,7 +202,7 @@ router.post('/schedule/settings/update', guestCheck, async function (req, res) {
                 SET schedule_start_time = $1, schedule_end_time = $2, scheduling_logic = $3 \
                 WHERE id = $4 RETURNING *';
         const values = [scheduleStartTime, scheduleEndTime, schedulingLogic, id];
-        const result = await client.query(sql, values);
+        const result = await dbHelper.query(client, sql, values);
         await client.query('COMMIT');
         return res.status(200).json({
             isError: false,
