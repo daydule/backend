@@ -180,12 +180,12 @@ router.post('/delete', async (req, res) => {
         const result = await dbHelper.query(client, 'SELECT * FROM fix_plans WHERE id = ANY($1::INTEGER[])', [ids]);
         if (result.rows.length !== ids.length) {
             throw new Error('There is some ids that is not existing in fix_plans. ids(' + ids.join(', ') + ')');
-        } else if (result.rows.some((row) => result.rows[0].set_id !== row.set_id)) {
+        } else if (result.rows.some((row) => result.rows[0].setId !== row.setId)) {
             throw new Error(
                 'There is some records that has another set_id. ids(' +
                     ids.join(', ') +
                     '), set_ids(' +
-                    result.rows.map((row) => row.set_id).join(', ') +
+                    result.rows.map((row) => row.setId).join(', ') +
                     ')'
             );
         }
