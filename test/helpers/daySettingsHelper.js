@@ -13,7 +13,7 @@ describe('daySettingsHelper.js', function () {
             const stub = sinon.stub().returns({ rows: ['dummy'] });
             const client = { query: stub };
             await daySettingsHelper.initDaySettings(client, 'dummyUserId');
-            assert.equal(stub.callCount, 10);
+            assert.equal(stub.callCount, 7);
         });
     });
 });
