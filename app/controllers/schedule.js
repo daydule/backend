@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
 const constant = require('../config/const');
-const { transferSnakeCaseObjectToLowerCamelCaseObject } = require('../helpers/scheduleHelper');
+const { transferSnakeCaseObjectToLowerCamelCaseObject } = require('../helpers/dbHelper');
 
 /**
  * スケジュール参照
