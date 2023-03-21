@@ -5,6 +5,7 @@ const router = express.Router();
 const pool = require('../db/pool');
 const constant = require('../config/const');
 const { transferSnakeCaseObjectToLowerCamelCaseObject } = require('../helpers/dbHelper');
+const dbHelper = require('../helpers/dbHelper');
 
 /**
  * スケジュール参照
@@ -21,21 +22,27 @@ router.get('/read/:date', async (req, res) => {
     let isCreated = false;
     let scheduleId = null;
 
+    const client = await pool.connect();
+
     try {
-        const getSchedulesResult = await pool.query('SELECT * FROM schedules WHERE user_id = $1 AND date = $2', [
-            userId,
-            date
-        ]);
+        client.query('BEGIN');
+
+        const getSchedulesResult = await dbHelper.query(
+            client,
+            'SELECT * FROM schedules WHERE user_id = $1 AND date = $2',
+            [userId, date]
+        );
 
         if (getSchedulesResult.rows.length > 0) {
-            isCreated = getSchedulesResult.rows[0].is_created;
+            isCreated = getSchedulesResult.rows[0].isCreated;
             scheduleId = getSchedulesResult.rows[0].id;
         } else {
             let startTime = constant.DEFAULT.SCHEDULE.SCHEDULE_START_TIME;
             let endTime = constant.DEFAULT.SCHEDULE.SCHEDULE_END_TIME;
 
             if (!req.user.is_guest) {
-                const getDaySettingsResult = await pool.query(
+                const getDaySettingsResult = await dbHelper.query(
+                    client,
                     'SELECT * FROM day_settings WHERE user_id = $1 AND day = $2',
                     [userId, day]
                 );
@@ -44,15 +51,16 @@ router.get('/read/:date', async (req, res) => {
                     throw new Error('There is no day setting info.');
                 }
 
-                startTime = getDaySettingsResult.rows[0].schedule_start_time;
-                endTime = getDaySettingsResult.rows[0].schedule_end_time;
+                startTime = getDaySettingsResult.rows[0].scheduleStartTime;
+                endTime = getDaySettingsResult.rows[0].scheduleEndTime;
 
-                const getFixPlansResult = await pool.query('SELECT * FROM fix_plans WHERE day_id = $1', [
+                const getFixPlansResult = await dbHelper.query(client, 'SELECT * FROM fix_plans WHERE day_id = $1', [
                     getDaySettingsResult.rows[0].id
                 ]);
 
                 await getFixPlansResult.rows.forEach((plan) => {
-                    pool.query(
+                    dbHelper.query(
+                        client,
                         'INSERT INTO plans (\
                                 user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \
                                 priority, place, is_required_plan) \
@@ -76,30 +84,33 @@ router.get('/read/:date', async (req, res) => {
                 });
             }
 
-            await pool.query('INSERT INTO schedules (user_id, date, start_time, end_time) VALUES ($1, $2, $3, $4)', [
-                userId,
-                date,
-                startTime,
-                endTime
-            ]);
+            await dbHelper.query(
+                client,
+                'INSERT INTO schedules (user_id, date, start_time, end_time) VALUES ($1, $2, $3, $4)',
+                [userId, date, startTime, endTime]
+            );
         }
 
         if (isCreated) {
-            const getPlansResult = await pool.query(
+            const getPlansResult = await dbHelper.query(
+                client,
                 'SELECT * FROM schedule_plan_inclusion\
                 JOIN plans ON schedule_plan_inclusion.plan_id = plans.id \
                 WHERE schedule_id = $1',
                 [scheduleId]
             );
 
-            const getTodosResult = await pool.query(
+            const getTodosResult = await dbHelper.query(
+                client,
                 'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3 AND parent_plan_id IS NULL',
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
 
-            const getTemporaryPlansResult = await pool.query('SELECT * FROM temporary_plans WHERE user_id = $1', [
-                userId
-            ]);
+            const getTemporaryPlansResult = await dbHelper.query(
+                client,
+                'SELECT * FROM temporary_plans WHERE user_id = $1',
+                [userId]
+            );
 
             const getTemporaryPlans = (temporaryPlans, planId) => {
                 for (let i = 0; i < temporaryPlans.length; i++) {
@@ -136,6 +147,7 @@ router.get('/read/:date', async (req, res) => {
                 return plan;
             });
 
+            await client.query('COMMIT');
             return res.status(200).json({
                 isError: false,
                 schedule: {
@@ -145,11 +157,13 @@ router.get('/read/:date', async (req, res) => {
                 todos: getTodosResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
             });
         } else {
-            const getPlansResult = await pool.query(
+            const getPlansResult = await dbHelper.query(
+                client,
                 'SELECT * FROM plans WHERE user_id = $1 AND date = $2 AND plan_type != $3',
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
-            const getTodosResult = await pool.query(
+            const getTodosResult = await dbHelper.query(
+                client,
                 'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3',
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
@@ -163,13 +177,15 @@ router.get('/read/:date', async (req, res) => {
             });
         }
     } catch (e) {
+        client.query('ROLLBACK');
         console.error(e);
-
         return res.status(500).json({
             isError: true,
             errorId: 'errorId',
             errorMessage: 'システムエラー'
         });
+    } finally {
+        client.release();
     }
 });
 
@@ -182,29 +198,35 @@ router.post('/:date/update', async (req, res) => {
     const date = req.params.date;
     const userId = req.user.id;
 
+    const client = await pool.connect();
+
     try {
+        client.query('BEGIN');
+
         // TODO バリデーションチェックを行う
 
         // TODO並び順の取得（履歴用ではなく、ユーザーに一つだけ紐づく並び順を取得）
-        const result = await pool.query(
+        const result = await dbHelper.query(
+            client,
             'UPDATE schedules SET start_time = $1, end_time = $2 WHERE user_id = $3 AND date = $4 RETURNING *',
             [startTime, endTime, userId, date]
         );
 
+        await client.query('COMMIT');
         return res.status(200).json({
             isError: false,
             schedule: result.rows[0]
         });
     } catch (e) {
+        client.query('ROLLBACK');
         console.error(e);
-
-        // TODO バリデーションエラーはHTTPステータスコード400で返却する
-
         return res.status(500).json({
             isError: true,
             errorId: 'errorId',
             errorMessage: 'システムエラー'
         });
+    } finally {
+        client.release();
     }
 });
 
