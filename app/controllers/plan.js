@@ -147,11 +147,10 @@ router.post('/:id/update', updatePlanValidators, async (req, res) => {
 /**
  * 予定削除
  */
-router.delete('/:id', deletePlanValidators, async (req, res) => {
+router.post('/:id/delete', deletePlanValidators, async (req, res) => {
     const id = req.params.id;
 
     const client = await pool.connect();
-
     try {
         await client.query('BEGIN');
         const getPlanResult = await client.query('SELECT * from plans where id = $1', [id]);

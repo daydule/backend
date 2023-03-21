@@ -172,7 +172,8 @@ router.post('/update', updateFixPlanValidators, async (req, res) => {
 /**
  * 固定予定削除
  */
-router.delete('/delete', deleteFixPlanValidators, async (req, res) => {
+
+router.post('/delete', deleteFixPlanValidators, async (req, res) => {
     const ids = req.body.ids;
 
     const client = await pool.connect();
