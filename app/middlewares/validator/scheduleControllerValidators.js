@@ -3,10 +3,14 @@
 const { scheduleValidators } = require('./definition/allValidators');
 const validationResultCheck = require('./definition/validationResultCheck');
 
-const readScheduleValidators = [scheduleValidators.date];
-const updateScheduleValidators = [scheduleValidators.date, scheduleValidators.startTime, scheduleValidators.endTime];
+const readScheduleValidators = [scheduleValidators.date].concat(validationResultCheck);
+const updateScheduleValidators = [
+    scheduleValidators.date,
+    scheduleValidators.startTime,
+    scheduleValidators.endTime
+].concat(validationResultCheck);
 
 module.exports = {
-    readScheduleValidators: readScheduleValidators.concat(validationResultCheck),
-    updateScheduleValidators: updateScheduleValidators.concat(validationResultCheck)
+    readScheduleValidators,
+    updateScheduleValidators
 };

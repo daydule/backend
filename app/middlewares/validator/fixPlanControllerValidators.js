@@ -16,7 +16,7 @@ const createFixPlanValidators = [
     plansValidators.planType,
     plansValidators.priority,
     plansValidators.place
-];
+].concat(validationResultCheck);
 const updateFixPlanValidators = [
     fixPlansValidators.setId({ isNotEmpty: true }),
     plansValidators.title,
@@ -29,11 +29,11 @@ const updateFixPlanValidators = [
     plansValidators.planType,
     plansValidators.priority,
     plansValidators.place
-];
-const deleteFixPlanValidators = [plansValidators.ids];
+].concat(validationResultCheck);
+const deleteFixPlanValidators = [plansValidators.ids].concat(validationResultCheck);
 
 module.exports = {
-    createFixPlanValidators: createFixPlanValidators.concat(validationResultCheck),
-    updateFixPlanValidators: updateFixPlanValidators.concat(validationResultCheck),
-    deleteFixPlanValidators: deleteFixPlanValidators.concat(validationResultCheck)
+    createFixPlanValidators,
+    updateFixPlanValidators,
+    deleteFixPlanValidators
 };

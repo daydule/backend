@@ -18,7 +18,7 @@ const createPlanValidators = [
     plansValidators.isRequiredPlan,
     plansValidators.todoStartTime,
     plansValidators.checkWithPlanType
-];
+].concat(validationResultCheck);
 
 const updatePlanValidators = [
     plansValidators.id,
@@ -38,9 +38,9 @@ const updatePlanValidators = [
     plansValidators.isParentPlan,
     plansValidators.todoStartTime,
     plansValidators.checkWithPlanType
-];
+].concat(validationResultCheck);
 
-const deletePlanValidators = [plansValidators.id];
+const deletePlanValidators = [plansValidators.id].concat(validationResultCheck);
 
 const createTemporaryPlanValidators = [
     plansValidators.title,
@@ -56,14 +56,14 @@ const createTemporaryPlanValidators = [
     plansValidators.place,
     plansValidators.todoStartTime,
     plansValidators.checkWithPlanType
-];
+].concat(validationResultCheck);
 
-const upsertTodoPriorityValidators = [todoOrdersValidators.todoOrders];
+const upsertTodoPriorityValidators = [todoOrdersValidators.todoOrders].concat(validationResultCheck);
 
 module.exports = {
-    createPlanValidators: createPlanValidators.concat(validationResultCheck),
-    updatePlanValidators: updatePlanValidators.concat(validationResultCheck),
-    upsertTodoPriorityValidators: upsertTodoPriorityValidators.concat(validationResultCheck),
-    deletePlanValidators: deletePlanValidators.concat(validationResultCheck),
-    createTemporaryPlanValidators: createTemporaryPlanValidators.concat(validationResultCheck)
+    createPlanValidators,
+    updatePlanValidators,
+    upsertTodoPriorityValidators,
+    deletePlanValidators,
+    createTemporaryPlanValidators
 };
