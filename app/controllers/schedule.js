@@ -6,6 +6,10 @@ const pool = require('../db/pool');
 const constant = require('../config/const');
 const scheduleHelper = require('../helpers/scheduleHelper');
 const { transferSnakeCaseObjectToLowerCamelCaseObject } = require('../helpers/scheduleHelper');
+const {
+    readScheduleValidators,
+    updateScheduleValidators
+} = require('../middlewares/validator/scheduleControllerValidators');
 
 /**
  * スケジュール作成
@@ -108,10 +112,7 @@ router.post('/create', async (req, res) => {
 /**
  * スケジュール参照
  */
-router.get('/read/:date', async (req, res) => {
-    // TODO バリデーションチェック
-
-    // NOTE req.body.dateはYYYY-MM-DDの形
+router.get('/read/:date', readScheduleValidators, async (req, res) => {
     const dateStr = req.params.date;
     const userId = req.user.id;
 
@@ -275,10 +276,10 @@ router.get('/read/:date', async (req, res) => {
 /**
  * スケジュールレコード更新
  */
-router.post('/:date/update', async (req, res) => {
+router.post('/:date/update', updateScheduleValidators, async (req, res) => {
+    const date = req.params.date;
     const startTime = req.body.startTime;
     const endTime = req.body.endTime;
-    const date = req.params.date;
     const userId = req.user.id;
 
     try {

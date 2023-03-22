@@ -6,7 +6,7 @@
     "start": "node app.js;",
     "start:nodemon": "nodemon ./app/app.js",
     "start:debug": "nodemon -L --inspect-brk=0.0.0.0:9229 ./app/app.js",
-    "test": "./node_modules/.bin/mocha --recursive"
+    "test": "./node_modules/.bin/mocha appTest --recursive"
   },
   "repository": {
     "type": "git",
