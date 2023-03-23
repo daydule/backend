@@ -14,7 +14,7 @@ const {
 router.use(guestCheck);
 
 /**
- * 固定予定作成
+ * 繰り返し予定作成
  */
 router.post('/create', createRecurringPlanValidators, async (req, res) => {
     const dayIds = req.body.dayIds;
@@ -100,7 +100,7 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
 
             const ids = insertResult.rows.map((row) => row.id);
 
-            // INSERTした固定予定の先頭のidをset_idとして利用する
+            // INSERTした繰り返し予定の先頭のidをset_idとして利用する
             result = await client.query(
                 'UPDATE recurring_plans SET set_id = $1 WHERE id = ANY($2::INTEGER[]) RETURNING *',
                 [ids[0], ids]
@@ -126,7 +126,7 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
 });
 
 /**
- * 固定予定更新
+ * 繰り返し予定更新
  */
 router.post('/update', updateRecurringPlanValidators, async (req, res) => {
     const setId = req.body.setId;
@@ -170,7 +170,7 @@ router.post('/update', updateRecurringPlanValidators, async (req, res) => {
 });
 
 /**
- * 固定予定削除
+ * 繰り返し予定削除
  */
 
 router.post('/delete', deleteRecurringPlanValidators, async (req, res) => {
