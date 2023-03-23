@@ -29,7 +29,7 @@ const plansValidators = {
     isParentPlan: validationChainWrappers.checkBooleanWrapper(skipCheckIfUndefined('isParentPlan')),
     todoStartTime: validationChainWrappers.checkDateWrapper(skipCheckIfUndefined('todoStartTime')),
     checkWithPlanType: check('planType').custom((planType, { req }) => {
-        if (planType === PLAN_TYPE.PLAN || planType === PLAN_TYPE.FIX_PLAN) {
+        if (planType === PLAN_TYPE.PLAN || planType === PLAN_TYPE.RECURRING_PLAN) {
             if (req.body.startTime === undefined || req.body.endTime === undefined) {
                 throw new Error('should contain startTime and endTime');
             }
@@ -42,7 +42,7 @@ const plansValidators = {
     })
 };
 
-const fixPlansValidators = {
+const recurringPlansValidators = {
     setId: ({ isNotEmpty }) =>
         validationChainWrappers.checkIntegerWithMinWrapper(
             isNotEmpty ? checkNotEmpty('setId') : skipCheckIfUndefined('setId'),
@@ -86,7 +86,7 @@ const daySettingsValidators = {
 
 module.exports = {
     plansValidators,
-    fixPlansValidators,
+    recurringPlansValidators,
     todoOrdersValidators,
     userValidators,
     daySettingsValidators,

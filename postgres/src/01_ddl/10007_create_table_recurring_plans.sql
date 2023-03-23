@@ -1,4 +1,4 @@
-CREATE TABLE "fix_plans"
+CREATE TABLE "recurring_plans"
 (
   "id"               SERIAL       NOT NULL PRIMARY KEY,
   "day_id"           INTEGER      NOT NULL REFERENCES "day_settings" ("id"),

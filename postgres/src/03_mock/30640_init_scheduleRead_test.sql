@@ -388,7 +388,7 @@ VALUES
   null
 );
 
-INSERT INTO "fix_plans" 
+INSERT INTO "recurring_plans" 
 (
   "id",
   "day_id",

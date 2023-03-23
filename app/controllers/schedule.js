@@ -147,11 +147,11 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 startTime = getDaySettingsResult.rows[0].schedule_start_time;
                 endTime = getDaySettingsResult.rows[0].schedule_end_time;
 
-                const getFixPlansResult = await pool.query('SELECT * FROM fix_plans WHERE day_id = $1', [
+                const getRecurringPlansResult = await pool.query('SELECT * FROM recurring_plans WHERE day_id = $1', [
                     getDaySettingsResult.rows[0].id
                 ]);
 
-                await getFixPlansResult.rows.forEach((plan) => {
+                await getRecurringPlansResult.rows.forEach((plan) => {
                     pool.query(
                         'INSERT INTO plans (\
                                 user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \

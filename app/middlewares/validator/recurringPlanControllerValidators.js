@@ -1,15 +1,15 @@
 'use strict';
 
-const { plansValidators, daySettingsValidators, fixPlansValidators } = require('./definition/allValidators');
+const { plansValidators, daySettingsValidators, recurringPlansValidators } = require('./definition/allValidators');
 const validationResultCheck = require('./definition/validationResultCheck');
 
-const createFixPlanValidators = [
+const createRecurringPlanValidators = [
     daySettingsValidators.dayIds,
-    fixPlansValidators.setId({ isNotEmpty: false }),
+    recurringPlansValidators.setId({ isNotEmpty: false }),
     plansValidators.title,
     plansValidators.context,
-    fixPlansValidators.startTime,
-    fixPlansValidators.endTime,
+    recurringPlansValidators.startTime,
+    recurringPlansValidators.endTime,
     plansValidators.processTime,
     plansValidators.travelTime,
     plansValidators.bufferTime,
@@ -17,12 +17,12 @@ const createFixPlanValidators = [
     plansValidators.priority,
     plansValidators.place
 ].concat(validationResultCheck);
-const updateFixPlanValidators = [
-    fixPlansValidators.setId({ isNotEmpty: true }),
+const updateRecurringPlanValidators = [
+    recurringPlansValidators.setId({ isNotEmpty: true }),
     plansValidators.title,
     plansValidators.context,
-    fixPlansValidators.startTime,
-    fixPlansValidators.endTime,
+    recurringPlansValidators.startTime,
+    recurringPlansValidators.endTime,
     plansValidators.processTime,
     plansValidators.travelTime,
     plansValidators.bufferTime,
@@ -30,10 +30,10 @@ const updateFixPlanValidators = [
     plansValidators.priority,
     plansValidators.place
 ].concat(validationResultCheck);
-const deleteFixPlanValidators = [plansValidators.ids].concat(validationResultCheck);
+const deleteRecurringPlanValidators = [plansValidators.ids].concat(validationResultCheck);
 
 module.exports = {
-    createFixPlanValidators,
-    updateFixPlanValidators,
-    deleteFixPlanValidators
+    createRecurringPlanValidators,
+    updateRecurringPlanValidators,
+    deleteRecurringPlanValidators
 };

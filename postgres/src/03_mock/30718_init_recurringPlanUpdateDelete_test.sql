@@ -85,7 +85,7 @@ INSERT INTO "day_settings" (
 );
 
 
-INSERT INTO "fix_plans" (
+INSERT INTO "recurring_plans" (
   "id",
   "day_id",
   "set_id",
