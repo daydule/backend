@@ -89,10 +89,12 @@ router.post('/create', async (req, res) => {
             getTodoOrdersResult.rows[0].todo_orders
         ]);
 
-        await client.query(
-            'UPDATE schedules SET start_time_at_schedule = $1, end_time_at_schedule = $2, is_created = $3 WHERE id = $4',
-            [startTime, endTime, true, scheduleId]
-        );
+        await client.query('UPDATE schedules SET start_time = $1, end_time = $2, is_created = $3 WHERE id = $4', [
+            startTime,
+            endTime,
+            true,
+            scheduleId
+        ]);
 
         await client.query('COMMIT');
 

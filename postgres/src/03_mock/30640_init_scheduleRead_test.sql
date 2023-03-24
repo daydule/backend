@@ -61,8 +61,6 @@ INSERT INTO "schedules"
   "date",
   "start_time",
   "end_time",
-  "start_time_at_schedule",
-  "end_time_at_schedule",
   "is_created"
 )
 VALUES
@@ -72,8 +70,6 @@ VALUES
   '2022-12-12',
   '0900',
   '1800',
-  '1000',
-  '1900',
   true
 ),
 (
@@ -82,8 +78,6 @@ VALUES
   '2022-12-12',
   '0900',
   '1800',
-  '1000',
-  '1900',
   false
 );
 
