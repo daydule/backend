@@ -101,10 +101,8 @@ INSERT INTO "recurring_plans"
   "context",
   "start_time",
   "end_time",
-  "process_time",
   "travel_time",
   "buffer_time",
-  "plan_type",
   "priority",
   "place"
 )
@@ -117,10 +115,8 @@ VALUES
   null,
   '1000',
   '1200',
-  120,
   15,
   15,
-  1,
   5,
   null
 ),
@@ -132,10 +128,8 @@ VALUES
   null,
   '1000',
   '1200',
-  120,
   15,
   15,
-  1,
   5,
   null
 ),
@@ -147,10 +141,8 @@ VALUES
   null,
   '1000',
   '1200',
-  120,
   15,
   15,
-  1,
   5,
   null
 );

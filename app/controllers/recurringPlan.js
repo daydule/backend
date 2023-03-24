@@ -23,10 +23,8 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
     const context = req.body.context;
     const startTime = req.body.startTime;
     const endTime = req.body.endTime;
-    const processTime = req.body.processTime;
     const travelTime = req.body.travelTime;
     const bufferTime = req.body.bufferTime;
-    const planType = req.body.planType;
     const priority = req.body.priority;
     const place = req.body.place;
 
@@ -47,10 +45,8 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
                 'context',
                 'start_time',
                 'end_time',
-                'process_time',
                 'travel_time',
                 'buffer_time',
-                'plan_type',
                 'priority',
                 'place'
             ];
@@ -61,10 +57,8 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
                 context,
                 startTime,
                 endTime,
-                processTime,
                 travelTime,
                 bufferTime,
-                planType,
                 priority,
                 place
             ]);
@@ -76,10 +70,8 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
                 'context',
                 'start_time',
                 'end_time',
-                'process_time',
                 'travel_time',
                 'buffer_time',
-                'plan_type',
                 'priority',
                 'place'
             ];
@@ -89,10 +81,8 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
                 context,
                 startTime,
                 endTime,
-                processTime,
                 travelTime,
                 bufferTime,
-                planType,
                 priority,
                 place
             ]);
@@ -134,7 +124,6 @@ router.post('/update', updateRecurringPlanValidators, async (req, res) => {
     const context = req.body.context;
     const startTime = req.body.startTime;
     const endTime = req.body.endTime;
-    const processTime = req.body.processTime;
     const travelTime = req.body.travelTime;
     const bufferTime = req.body.bufferTime;
     const priority = req.body.priority;
@@ -146,9 +135,9 @@ router.post('/update', updateRecurringPlanValidators, async (req, res) => {
         client.query('BEGIN');
 
         const result = await client.query(
-            'UPDATE recurring_plans SET title = $1, context = $2, start_time = $3, end_time = $4, process_time = $5, travel_time = $6, buffer_time = $7, priority = $8, place = $9 \
-            WHERE set_id = $10 RETURNING *',
-            [title, context, startTime, endTime, processTime, travelTime, bufferTime, priority, place, setId]
+            'UPDATE recurring_plans SET title = $1, context = $2, start_time = $3, end_time = $4, travel_time = $5, buffer_time = $6, priority = $7, place = $8 \
+            WHERE set_id = $9 RETURNING *',
+            [title, context, startTime, endTime, travelTime, bufferTime, priority, place, setId]
         );
 
         client.query('COMMIT');

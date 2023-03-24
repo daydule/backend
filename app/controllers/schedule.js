@@ -10,6 +10,7 @@ const {
     readScheduleValidators,
     updateScheduleValidators
 } = require('../middlewares/validator/scheduleControllerValidators');
+const { PLAN_TYPE } = require('../config/const');
 
 /**
  * スケジュール作成
@@ -151,25 +152,24 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                     getDaySettingsResult.rows[0].id
                 ]);
 
-                await getRecurringPlansResult.rows.forEach((plan) => {
+                await getRecurringPlansResult.rows.forEach((recurringPlan) => {
                     pool.query(
                         'INSERT INTO plans (\
-                                user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \
+                                user_id, title, context, date, start_time, end_time, travel_time, buffer_time, plan_type, \
                                 priority, place, is_required_plan) \
-                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *',
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
                         [
                             userId,
-                            plan.title,
-                            plan.context,
+                            recurringPlan.title,
+                            recurringPlan.context,
                             date,
-                            plan.start_time,
-                            plan.end_time,
-                            plan.process_time,
-                            plan.travel_time,
-                            plan.buffer_time,
-                            plan.plan_type,
-                            plan.priority,
-                            plan.place,
+                            recurringPlan.start_time,
+                            recurringPlan.end_time,
+                            recurringPlan.travel_time,
+                            recurringPlan.buffer_time,
+                            PLAN_TYPE.PLAN,
+                            recurringPlan.priority,
+                            recurringPlan.place,
                             true
                         ]
                     );
