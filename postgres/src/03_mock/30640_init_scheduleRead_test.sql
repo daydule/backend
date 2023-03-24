@@ -135,8 +135,7 @@ INSERT INTO "plans"
   "is_scheduled",
   "is_required_plan",
   "parent_plan_id",
-  "is_parent_plan",
-  "todo_start_time"
+  "is_parent_plan"
 )
 VALUES
 (
@@ -157,8 +156,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(dateがnull)
@@ -178,8 +176,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(dateが2022-12-12)
@@ -199,8 +196,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(dateが2022-12-13)
@@ -220,8 +216,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(分割後のTODO)
@@ -241,8 +236,7 @@ VALUES
   true,
   true,
   '306401',
-  false,
-  null
+  false
 ),
 (
   -- 予定（日程が合っている）
@@ -262,8 +256,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO（日程なし）
@@ -283,8 +276,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- 予定（日程が異なる）
@@ -304,8 +296,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(日程が合っている)
@@ -325,8 +316,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO（日程が異なる）
@@ -346,8 +336,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 );
 
 INSERT INTO "temporary_plans" 
@@ -365,8 +354,7 @@ INSERT INTO "temporary_plans"
   "buffer_time",
   "plan_type",
   "priority",
-  "place",
-  "todo_start_time"
+  "place"
 )
 VALUES
 (
@@ -384,7 +372,6 @@ VALUES
   15,
   0,
   5,
-  null,
   null
 );
 

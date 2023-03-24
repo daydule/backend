@@ -97,8 +97,7 @@ INSERT INTO "plans"
   "is_scheduled",
   "is_required_plan",
   "parent_plan_id",
-  "is_parent_plan",
-  "todo_start_time"
+  "is_parent_plan"
 )
 VALUES
 (
@@ -119,8 +118,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(dateがnull)
@@ -140,8 +138,7 @@ VALUES
   false,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(dateがnull)
@@ -161,8 +158,7 @@ VALUES
   false,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- 予定
@@ -182,8 +178,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(dateがnull)
@@ -203,8 +198,7 @@ VALUES
   false,
   true,
   null,
-  false,
-  null
+  false
 );
 
 INSERT INTO "todo_orders" 

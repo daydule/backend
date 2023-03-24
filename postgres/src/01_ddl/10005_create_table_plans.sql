@@ -16,6 +16,5 @@ CREATE TABLE "plans"
   "is_scheduled"     BOOLEAN      DEFAULT FALSE,
   "is_required_plan" BOOLEAN      DEFAULT TRUE,
   "parent_plan_id"   INTEGER,
-  "is_parent_plan"   BOOLEAN      DEFAULT FALSE,
-  "todo_start_time"  TIMESTAMP
+  "is_parent_plan"   BOOLEAN      DEFAULT FALSE
 );
