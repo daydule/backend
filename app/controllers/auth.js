@@ -9,11 +9,12 @@ const pool = require('../db/pool');
 const loginCheck = require('../middlewares/loginCheck');
 const daySettingsHelper = require('../helpers/daySettingsHelper');
 const dbHelper = require('../helpers/dbHelper');
+const { signupValidators } = require('../middlewares/validator/authControllerValidators');
 
 /**
  * サインアップ
  */
-router.post('/signup', async (req, res) => {
+router.post('/signup', signupValidators, async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const salt = crypto.randomBytes(16).toString('base64');

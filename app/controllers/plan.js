@@ -3,30 +3,19 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
-const { validationResult } = require('express-validator');
-const { errorMessageFormatter } = require('../middlewares/validation/generalValidators');
 const {
     createPlanValidators,
     upsertTodoPriorityValidators,
     updatePlanValidators,
-    deletePlanValidators
-} = require('../middlewares/validation/planControllerValidators');
+    deletePlanValidators,
+    createTemporaryPlanValidators
+} = require('../middlewares/validator/planControllerValidators');
 const dbHelper = require('../helpers/dbHelper');
 
 /**
  * 予定作成
  */
 router.post('/create', createPlanValidators, async (req, res) => {
-    const result = validationResult(req);
-    if (result.errors.length !== 0) {
-        console.error(result);
-        return res.status(400).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: errorMessageFormatter(result.errors)
-        });
-    }
-
     const userId = req.user.id;
     const title = req.body.title;
     const context = req.body.context;
@@ -91,16 +80,6 @@ router.post('/create', createPlanValidators, async (req, res) => {
  * 予定更新
  */
 router.post('/:id/update', updatePlanValidators, async (req, res) => {
-    const result = validationResult(req);
-    if (result.errors.length !== 0) {
-        console.error(result);
-        return res.status(400).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: errorMessageFormatter(result.errors)
-        });
-    }
-
     const userId = req.user.id;
     const id = req.params.id;
 
@@ -178,20 +157,9 @@ router.post('/:id/update', updatePlanValidators, async (req, res) => {
  * 予定削除
  */
 router.post('/:id/delete', deletePlanValidators, async (req, res) => {
-    const result = validationResult(req);
-    if (result.errors.length !== 0) {
-        console.error(result);
-        return res.status(400).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: errorMessageFormatter(result.errors)
-        });
-    }
-
     const id = req.params.id;
 
     const client = await pool.connect();
-
     try {
         await client.query('BEGIN');
         const getPlanResult = await dbHelper.query(client, 'SELECT * from plans where id = $1', [id]);
@@ -221,16 +189,6 @@ router.post('/:id/delete', deletePlanValidators, async (req, res) => {
  * TODO並び順の作成/更新処理
  */
 router.post('/upsertTodoPriority', upsertTodoPriorityValidators, async (req, res) => {
-    const result = validationResult(req);
-    if (result.errors.length !== 0) {
-        console.error(result);
-        return res.status(400).json({
-            isError: true,
-            errorId: 'errorId',
-            errorMessage: errorMessageFormatter(result.errors)
-        });
-    }
-
     const todoOrders = req.body.todoOrders; // TODOのIDをカンマ区切りにした文字列
     let upsertResult;
 

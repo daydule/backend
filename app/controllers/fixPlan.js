@@ -6,13 +6,18 @@ const pool = require('../db/pool');
 const guestCheck = require('../middlewares/guestCheck');
 const { bulkInsert } = require('../utils/dbOperation');
 const dbHelper = require('../helpers/dbHelper');
+const {
+    createFixPlanValidators,
+    updateFixPlanValidators,
+    deleteFixPlanValidators
+} = require('../middlewares/validator/fixPlanControllerValidators');
 
 router.use(guestCheck);
 
 /**
  * 固定予定作成
  */
-router.post('/create', async (req, res) => {
+router.post('/create', createFixPlanValidators, async (req, res) => {
     const dayIds = req.body.dayIds;
     const setId = req.body.setId;
     const title = req.body.title;
@@ -125,7 +130,7 @@ router.post('/create', async (req, res) => {
 /**
  * 固定予定更新
  */
-router.post('/update', async (req, res) => {
+router.post('/update', updateFixPlanValidators, async (req, res) => {
     const setId = req.body.setId;
     const title = req.body.title;
     const context = req.body.context;
@@ -170,7 +175,8 @@ router.post('/update', async (req, res) => {
 /**
  * 固定予定削除
  */
-router.post('/delete', async (req, res) => {
+
+router.post('/delete', deleteFixPlanValidators, async (req, res) => {
     const ids = req.body.ids;
 
     const client = await pool.connect();
