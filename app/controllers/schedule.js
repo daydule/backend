@@ -55,7 +55,7 @@ router.post('/create', async (req, res) => {
 
         const sortedTodos = [];
         if (getTodoResult.rows.length !== 0 && getTodoOrdersResult.rows.length !== 0) {
-            const todoOrders = getTodoOrdersResult.rows[0].todo_orders.split(',');
+            const todoOrders = getTodoOrdersResult.rows[0].todoOrders.split(',');
             const todos = getTodoResult.rows;
 
             todoOrders.map((todoId) => {
@@ -90,7 +90,7 @@ router.post('/create', async (req, res) => {
         await dbHelper.query(client, 'INSERT INTO todo_orders(user_id, schedule_id, todo_orders) VALUES($1, $2, $3)', [
             userId,
             scheduleId,
-            getTodoOrdersResult.rows[0].todo_orders
+            getTodoOrdersResult.rows[0].todoOrders
         ]);
 
         await dbHelper.query(
@@ -219,7 +219,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
 
             const getTemporaryPlans = (temporaryPlans, planId) => {
                 for (let i = 0; i < temporaryPlans.length; i++) {
-                    if (temporaryPlans[i].original_plan_id === planId) {
+                    if (temporaryPlans[i].originalPlanId === planId) {
                         return temporaryPlans[i];
                     }
                 }
@@ -230,23 +230,23 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 if (temporaryPlan) {
                     return {
                         id: plan.id,
-                        user_id: temporaryPlan.user_id,
+                        userId: temporaryPlan.userId,
                         title: temporaryPlan.title,
                         context: temporaryPlan.context,
                         date: temporaryPlan.date,
-                        start_time: temporaryPlan.start_time,
-                        end_time: temporaryPlan.end_time,
-                        process_time: temporaryPlan.process_time,
-                        travel_time: temporaryPlan.travel_time,
-                        buffer_time: temporaryPlan.buffer_time,
-                        plan_type: temporaryPlan.plan_type,
+                        startTime: temporaryPlan.startTime,
+                        endTime: temporaryPlan.endTime,
+                        processTime: temporaryPlan.processTime,
+                        travelTime: temporaryPlan.travelTime,
+                        bufferTime: temporaryPlan.bufferTime,
+                        planType: temporaryPlan.planType,
                         priority: temporaryPlan.priority,
                         place: temporaryPlan.place,
-                        is_scheduled: plan.is_scheduled,
-                        is_required_plan: plan.is_required_plan,
-                        parent_plan_id: plan.parent_plan_id,
-                        is_parent_plan: plan.is_parent_plan,
-                        todo_start_time: temporaryPlan.todo_start_time
+                        isScheduled: plan.isScheduled,
+                        isRequiredPlan: plan.isRequiredPlan,
+                        parentPlanId: plan.parentPlanId,
+                        isParentPlan: plan.isParentPlan,
+                        todoStartTime: temporaryPlan.todoStartTime
                     };
                 }
                 return plan;
