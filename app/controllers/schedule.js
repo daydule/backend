@@ -26,25 +26,29 @@ router.post('/create', async (req, res) => {
         // TODO: バリデーションチェック
         // TODO: 日付はYYYY-MM-DDの書式でチェックするように修正
 
-        const getScheduleResult = await client.query('SELECT * FROM schedules WHERE user_id = $1 AND date = $2', [
-            userId,
-            dateStr
-        ]);
+        const getScheduleResult = await dbHelper.query(
+            client,
+            'SELECT * FROM schedules WHERE user_id = $1 AND date = $2',
+            [userId, dateStr]
+        );
         const scheduleId = getScheduleResult.rows[0].id;
         const startTime = getScheduleResult.rows[0].start_time;
         const endTime = getScheduleResult.rows[0].end_time;
 
-        const getPlansResult = await client.query(
+        const getPlansResult = await dbHelper.query(
+            client,
             'SELECT * FROM plans WHERE user_id = $1 AND date = $2 AND plan_type != $3',
             [userId, dateStr, constant.PLAN_TYPE.TODO]
         );
 
-        const getTodoResult = await client.query(
+        const getTodoResult = await dbHelper.query(
+            client,
             'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3 AND is_scheduled = $4',
             [userId, dateStr, constant.PLAN_TYPE.TODO, false]
         );
 
-        const getTodoOrdersResult = await client.query(
+        const getTodoOrdersResult = await dbHelper.query(
+            client,
             'SELECT * FROM todo_orders WHERE user_id = $1 AND schedule_id IS NULL',
             [userId]
         );
@@ -83,13 +87,14 @@ router.post('/create', async (req, res) => {
             throw new Error('Fail to create schedule.' + createScheduleResult.errorMessage);
         }
 
-        await client.query('INSERT INTO todo_orders(user_id, schedule_id, todo_orders) VALUES($1, $2, $3)', [
+        await dbHelper.query(client, 'INSERT INTO todo_orders(user_id, schedule_id, todo_orders) VALUES($1, $2, $3)', [
             userId,
             scheduleId,
             getTodoOrdersResult.rows[0].todo_orders
         ]);
 
-        await client.query(
+        await dbHelper.query(
+            client,
             'UPDATE schedules SET start_time_at_schedule = $1, end_time_at_schedule = $2, is_created = $3 WHERE id = $4',
             [startTime, endTime, true, scheduleId]
         );

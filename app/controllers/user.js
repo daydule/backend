@@ -200,7 +200,7 @@ router.post(
 
         try {
             await client.query('BEGIN');
-            const selectResult = await client.query('SELECT * FROM day_settings WHERE id = $1', [id]);
+            const selectResult = await dbHelper.query(client, 'SELECT * FROM day_settings WHERE id = $1', [id]);
             if (selectResult.rows.length === 0) {
                 throw new Error('There is not the record that has this id. id(' + id + ')');
             }
