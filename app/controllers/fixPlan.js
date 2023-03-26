@@ -5,6 +5,7 @@ const router = express.Router();
 const pool = require('../db/pool');
 const guestCheck = require('../middlewares/guestCheck');
 const { bulkInsert } = require('../utils/dbOperation');
+const dbHelper = require('../helpers/dbHelper');
 const {
     createFixPlanValidators,
     updateFixPlanValidators,
@@ -101,10 +102,11 @@ router.post('/create', createFixPlanValidators, async (req, res) => {
             const ids = insertResult.rows.map((row) => row.id);
 
             // INSERTした固定予定の先頭のidをset_idとして利用する
-            result = await client.query('UPDATE fix_plans SET set_id = $1 WHERE id = ANY($2::INTEGER[]) RETURNING *', [
-                ids[0],
-                ids
-            ]);
+            result = await dbHelper.query(
+                client,
+                'UPDATE fix_plans SET set_id = $1 WHERE id = ANY($2::INTEGER[]) RETURNING *',
+                [ids[0], ids]
+            );
         }
 
         client.query('COMMIT');
@@ -145,7 +147,8 @@ router.post('/update', updateFixPlanValidators, async (req, res) => {
         // TODO: バリデーションチェックを行う
         client.query('BEGIN');
 
-        const result = await client.query(
+        const result = await dbHelper.query(
+            client,
             'UPDATE fix_plans SET title = $1, context = $2, start_time = $3, end_time = $4, process_time = $5, travel_time = $6, buffer_time = $7, priority = $8, place = $9 \
             WHERE set_id = $10 RETURNING *',
             [title, context, startTime, endTime, processTime, travelTime, bufferTime, priority, place, setId]
@@ -180,20 +183,20 @@ router.post('/delete', deleteFixPlanValidators, async (req, res) => {
     try {
         // TODO: バリデーションチェックを行う
         client.query('BEGIN');
-        const result = await client.query('SELECT * FROM fix_plans WHERE id = ANY($1::INTEGER[])', [ids]);
+        const result = await dbHelper.query(client, 'SELECT * FROM fix_plans WHERE id = ANY($1::INTEGER[])', [ids]);
         if (result.rows.length !== ids.length) {
             throw new Error('There is some ids that is not existing in fix_plans. ids(' + ids.join(', ') + ')');
-        } else if (result.rows.some((row) => result.rows[0].set_id !== row.set_id)) {
+        } else if (result.rows.some((row) => result.rows[0].setId !== row.setId)) {
             throw new Error(
                 'There is some records that has another set_id. ids(' +
                     ids.join(', ') +
                     '), set_ids(' +
-                    result.rows.map((row) => row.set_id).join(', ') +
+                    result.rows.map((row) => row.setId).join(', ') +
                     ')'
             );
         }
 
-        await client.query('DELETE FROM fix_plans WHERE id = ANY($1::INTEGER[])', [ids]);
+        await dbHelper.query(client, 'DELETE FROM fix_plans WHERE id = ANY($1::INTEGER[])', [ids]);
         client.query('COMMIT');
         return res.status(200).json({
             isError: false

@@ -40,22 +40,4 @@ describe('scheduleHelper.js', function () {
             assert.deepStrictEqual(result, expect);
         });
     });
-
-    describe('transferSnakeCaseToLowerCamelCase function', function () {
-        it('should return camel case string transferred from input string.', async function () {
-            const input = 'lower_camel_case';
-            const expect = 'lowerCamelCase';
-            const result = scheduleHelper.transferSnakeCaseToLowerCamelCase(input);
-            assert.equal(result, expect);
-        });
-    });
-
-    describe('transferSnakeCaseObjectToLowerCamelCaseObject function', function () {
-        it('should return camel case keys object transferred from input object.', async function () {
-            const input = { lower_camel_case: 1, snake_case: 'string' };
-            const expect = { lowerCamelCase: 1, snakeCase: 'string' };
-            const result = scheduleHelper.transferSnakeCaseObjectToLowerCamelCaseObject(input);
-            assert.deepStrictEqual(result, expect);
-        });
-    });
 });

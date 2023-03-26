@@ -20,7 +20,7 @@ describe('simpleScheduleHelper.js', function () {
                 return {
                     rows: [
                         {
-                            start_time: params[0]
+                            startTime: params[0]
                         }
                     ]
                 };
@@ -29,7 +29,7 @@ describe('simpleScheduleHelper.js', function () {
                     rows: [
                         {
                             title: 'test',
-                            process_time: params[6]
+                            processTime: params[6]
                         }
                     ]
                 };
@@ -58,8 +58,8 @@ describe('simpleScheduleHelper.js', function () {
 
             const plans = [
                 {
-                    start_time: '0800',
-                    end_time: '1000'
+                    startTime: '0800',
+                    endTime: '1000'
                 }
             ];
 
@@ -77,8 +77,8 @@ describe('simpleScheduleHelper.js', function () {
 
             const plans = [
                 {
-                    start_time: '0900',
-                    end_time: '1900'
+                    startTime: '0900',
+                    endTime: '1900'
                 }
             ];
 
@@ -90,33 +90,33 @@ describe('simpleScheduleHelper.js', function () {
         it('should register 35m 1st TODO to schedule and NOT register 60m 2nd TODO to schedule.', async function () {
             const plans = [
                 {
-                    is_required_plan: true,
+                    isRequiredPlan: true,
                     title: 'test1',
-                    start_time: '0900',
-                    end_time: '1000'
+                    startTime: '0900',
+                    endTime: '1000'
                 },
                 {
-                    is_required_plan: true,
+                    isRequiredPlan: true,
                     title: 'test2',
-                    start_time: '1100',
-                    end_time: '1130'
+                    startTime: '1100',
+                    endTime: '1130'
                 },
                 {
-                    is_required_plan: false,
+                    isRequiredPlan: false,
                     title: 'test3',
-                    start_time: '0930',
-                    end_time: '1145'
+                    startTime: '0930',
+                    endTime: '1145'
                 }
             ];
 
             const todos = [
                 {
                     title: 'test4',
-                    process_time: 35
+                    processTime: 35
                 },
                 {
                     title: 'test5',
-                    process_time: 60
+                    processTime: 60
                 }
             ];
 
@@ -127,7 +127,7 @@ describe('simpleScheduleHelper.js', function () {
             assert.equal(result.schedule.requiredPlans[1].title, 'test2');
             assert.equal(result.schedule.requiredPlans.length, 2);
             assert.equal(result.schedule.todos.length, 1);
-            assert.equal(result.schedule.todos[0].start_time, '1000');
+            assert.equal(result.schedule.todos[0].startTime, '1000');
             assert.equal(result.schedule.optionalPlans.length, 1);
             assert.equal(result.schedule.optionalPlans[0].title, 'test3');
             assert.equal(result.other.todos.length, 1);
@@ -137,44 +137,44 @@ describe('simpleScheduleHelper.js', function () {
         it('should register 60m 1st TODO and 30m 3rd TODO to schedule and NOT register 35m 2nd TODO to schedule.', async function () {
             const plans = [
                 {
-                    is_required_plan: true,
+                    isRequiredPlan: true,
                     title: 'test1',
-                    start_time: '0900',
-                    end_time: '1000'
+                    startTime: '0900',
+                    endTime: '1000'
                 },
                 {
-                    is_required_plan: true,
+                    isRequiredPlan: true,
                     title: 'test2',
-                    start_time: '1100',
-                    end_time: '1130'
+                    startTime: '1100',
+                    endTime: '1130'
                 },
                 {
-                    is_required_plan: false,
+                    isRequiredPlan: false,
                     title: 'test3',
-                    start_time: '0930',
-                    end_time: '1145'
+                    startTime: '0930',
+                    endTime: '1145'
                 }
             ];
 
             const todos = [
                 {
                     title: 'test4',
-                    process_time: 60
+                    processTime: 60
                 },
                 {
                     title: 'test5',
-                    process_time: 35
+                    processTime: 35
                 },
                 {
                     title: 'test6',
-                    process_time: 30
+                    processTime: 30
                 }
             ];
 
             const result = await simpleScheduleHelper.execute(pool, '', '', '0900', '1200', plans, todos);
             assert.equal(result.schedule.todos.length, 2);
-            assert.equal(result.schedule.todos[0].start_time, '1000');
-            assert.equal(result.schedule.todos[1].start_time, '1130');
+            assert.equal(result.schedule.todos[0].startTime, '1000');
+            assert.equal(result.schedule.todos[1].startTime, '1130');
             assert.equal(result.other.todos.length, 1);
             assert.equal(result.other.todos[0].title, 'test5');
         });
@@ -182,29 +182,29 @@ describe('simpleScheduleHelper.js', function () {
         it('should register 90m TODO to schedule by dividing.', async function () {
             const plans = [
                 {
-                    is_required_plan: true,
+                    isRequiredPlan: true,
                     title: 'test1',
-                    start_time: '0900',
-                    end_time: '1000'
+                    startTime: '0900',
+                    endTime: '1000'
                 },
                 {
-                    is_required_plan: true,
+                    isRequiredPlan: true,
                     title: 'test2',
-                    start_time: '1100',
-                    end_time: '1130'
+                    startTime: '1100',
+                    endTime: '1130'
                 },
                 {
-                    is_required_plan: false,
+                    isRequiredPlan: false,
                     title: 'test3',
-                    start_time: '0930',
-                    end_time: '1145'
+                    startTime: '0930',
+                    endTime: '1145'
                 }
             ];
 
             const todos = [
                 {
                     title: 'test4',
-                    process_time: 90
+                    processTime: 90
                 }
             ];
 
@@ -212,8 +212,8 @@ describe('simpleScheduleHelper.js', function () {
             assert.equal(result.schedule.todos.length, 2);
             assert.equal(result.schedule.todos[0].title, 'test');
             assert.equal(result.schedule.todos[1].title, 'test');
-            assert.equal(result.schedule.todos[0].process_time, 60);
-            assert.equal(result.schedule.todos[1].process_time, 30);
+            assert.equal(result.schedule.todos[0].processTime, 60);
+            assert.equal(result.schedule.todos[1].processTime, 30);
             assert.equal(result.other.todos.length, 0);
             assert.equal(updateFunction.callCount, 1);
         });
