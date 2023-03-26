@@ -3,6 +3,7 @@
 // eslint-disable-next-line no-unused-vars
 const { PoolClient } = require('pg');
 const format = require('pg-format');
+const dbHelper = require('../helpers/dbHelper');
 
 /**
  * 一括INSERTする
@@ -15,7 +16,7 @@ const format = require('pg-format');
  */
 async function bulkInsert(client, tableName, tableColumns, values) {
     const sql = format('INSERT INTO ' + tableName + ' (' + tableColumns.join(', ') + ') VALUES %L RETURNING *', values);
-    return await client.query(sql);
+    return await dbHelper.query(client, sql);
 }
 
 module.exports = {

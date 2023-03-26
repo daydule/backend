@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const pool = require('../db/pool');
 const loginCheck = require('../middlewares/loginCheck');
 const daySettingsHelper = require('../helpers/daySettingsHelper');
+const dbHelper = require('../helpers/dbHelper');
 const { signupValidators } = require('../middlewares/validator/authControllerValidators');
 
 /**
@@ -19,10 +20,14 @@ router.post('/signup', signupValidators, async (req, res) => {
     const salt = crypto.randomBytes(16).toString('base64');
     let isClientError = false;
 
+    const client = await pool.connect();
+
     try {
         // TODO バリデーションチェックを行う
 
-        const checkEmailExistenceResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        client.query('BEGIN');
+
+        const checkEmailExistenceResult = await dbHelper.query(client, 'SELECT * FROM users WHERE email = $1', [email]);
         if (checkEmailExistenceResult.rows.length > 0) {
             isClientError = true;
             throw new Error('そのメールアドレスは既に使用されています。');
@@ -38,15 +43,17 @@ router.post('/signup', signupValidators, async (req, res) => {
             ? [email, hashedPassword.toString('base64'), salt, false, req.user.id]
             : [email, hashedPassword.toString('base64'), salt, false];
 
-        const signupUserResult = await pool.query(sql, values);
+        const signupUserResult = await dbHelper.query(client, sql, values);
 
         const userId = signupUserResult.rows[0].id;
-        await daySettingsHelper.initDaySettings(pool, userId);
+        await daySettingsHelper.initDaySettings(client, userId);
 
+        await client.query('COMMIT');
         return res.status(200).json({
             isError: false
         });
     } catch (e) {
+        client.query('ROLLBACK');
         console.error(e);
         if (isClientError) {
             return res.status(400).json({
@@ -61,6 +68,8 @@ router.post('/signup', signupValidators, async (req, res) => {
                 errorMessage: 'サインアップエラー'
             });
         }
+    } finally {
+        client.release();
     }
 });
 

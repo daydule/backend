@@ -51,8 +51,8 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
     const hasInvalidRequiredPlan = plans.some((plan) => {
         // 必須予定の開始時間がスケジュール開始時間より早い、または必須予定の終了時間がスケジュール終了時間より遅いか
         return (
-            timeUtil.compareTimeStr(plan.start_time, startTimeStr) === -1 ||
-            timeUtil.compareTimeStr(plan.end_time, endTimeStr) === 1
+            timeUtil.compareTimeStr(plan.startTime, startTimeStr) === -1 ||
+            timeUtil.compareTimeStr(plan.endTime, endTimeStr) === 1
         );
     });
     if (hasInvalidRequiredPlan) {
@@ -77,12 +77,12 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
     const optionalPlans = [];
     plans.forEach((plan) => {
         // 呼び出し元に必須予定と仮の予定を分けて返すため、別配列にPUSH
-        if (plan.is_required_plan) {
+        if (plan.isRequiredPlan) {
             requiredPlans.push(plan);
 
             // 空き時間のうち予定が入っている箇所を1で埋める
-            let processTimeMin = timeUtil.subtractTimeStr(plan.end_time, plan.start_time);
-            let startIndex = timeUtil.subtractTimeStr(plan.start_time, startTimeStr) / constant.SECTION_MINUTES_LENGTH;
+            let processTimeMin = timeUtil.subtractTimeStr(plan.endTime, plan.startTime);
+            let startIndex = timeUtil.subtractTimeStr(plan.startTime, startTimeStr) / constant.SECTION_MINUTES_LENGTH;
             let endIndex = startIndex + processTimeMin / constant.SECTION_MINUTES_LENGTH;
 
             freeSections.fill(1, startIndex, endIndex);
@@ -96,10 +96,10 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
     const notScheduledTodos = [];
     for (let i = 0; i < todos.length; i++) {
         const todo = todos[i];
-        if (todo.process_time > remainingFreeTimeMin) {
+        if (todo.processTime > remainingFreeTimeMin) {
             notScheduledTodos.push(todo);
         } else {
-            const needSectionNum = todo.process_time / constant.SECTION_MINUTES_LENGTH;
+            const needSectionNum = todo.processTime / constant.SECTION_MINUTES_LENGTH;
             const availableTimeStartIndex = findAvailableSectionStartIndex(freeSections, needSectionNum);
 
             if (availableTimeStartIndex !== -1) {
@@ -113,7 +113,7 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
                 const startAndEndTimeStr = timeUtil.getStartAndEndTimeStr(
                     startTimeStr,
                     availableTimeStartIndex * constant.SECTION_MINUTES_LENGTH,
-                    todo.process_time
+                    todo.processTime
                 );
                 const updatedTodo = await client.query(
                     'UPDATE plans SET start_time = $1, end_time = $2, date = $3, is_scheduled = $4 WHERE id = $5 RETURNING *',
@@ -182,15 +182,15 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
                             todoTime.startTime,
                             todoTime.endTime,
                             todoTime.processTime,
-                            j === 0 ? todo.travel_time : 0, // 最初だけ設定
-                            j === dividedTodoTime.length - 1 ? todoTime.buffer_time : 0, // 最後だけ設定
-                            todo.plan_type,
+                            j === 0 ? todo.travelTime : 0, // 最初だけ設定
+                            j === dividedTodoTime.length - 1 ? todoTime.bufferTime : 0, // 最後だけ設定
+                            todo.planType,
                             todo.priority,
                             todo.place,
                             true,
-                            todo.is_required_plan,
+                            todo.isRequiredPlan,
                             todo.id,
-                            todo.todo_start_time
+                            todo.todoStartTime
                         ]
                     );
 

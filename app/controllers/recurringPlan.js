@@ -5,6 +5,7 @@ const router = express.Router();
 const pool = require('../db/pool');
 const guestCheck = require('../middlewares/guestCheck');
 const { bulkInsert } = require('../utils/dbOperation');
+const dbHelper = require('../helpers/dbHelper');
 const {
     createRecurringPlanValidators,
     updateRecurringPlanValidators,
@@ -91,7 +92,8 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
             const ids = insertResult.rows.map((row) => row.id);
 
             // INSERTした繰り返し予定の先頭のidをset_idとして利用する
-            result = await client.query(
+            result = await dbHelper.query(
+                client,
                 'UPDATE recurring_plans SET set_id = $1 WHERE id = ANY($2::INTEGER[]) RETURNING *',
                 [ids[0], ids]
             );
@@ -134,7 +136,8 @@ router.post('/update', updateRecurringPlanValidators, async (req, res) => {
         // TODO: バリデーションチェックを行う
         client.query('BEGIN');
 
-        const result = await client.query(
+        const result = await dbHelper.query(
+            client,
             'UPDATE recurring_plans SET title = $1, context = $2, start_time = $3, end_time = $4, travel_time = $5, buffer_time = $6, priority = $7, place = $8 \
             WHERE set_id = $9 RETURNING *',
             [title, context, startTime, endTime, travelTime, bufferTime, priority, place, setId]
@@ -169,20 +172,22 @@ router.post('/delete', deleteRecurringPlanValidators, async (req, res) => {
     try {
         // TODO: バリデーションチェックを行う
         client.query('BEGIN');
-        const result = await client.query('SELECT * FROM recurring_plans WHERE id = ANY($1::INTEGER[])', [ids]);
+        const result = await dbHelper.query(client, 'SELECT * FROM recurring_plans WHERE id = ANY($1::INTEGER[])', [
+            ids
+        ]);
         if (result.rows.length !== ids.length) {
             throw new Error('There is some ids that is not existing in recurring_plans. ids(' + ids.join(', ') + ')');
-        } else if (result.rows.some((row) => result.rows[0].set_id !== row.set_id)) {
+        } else if (result.rows.some((row) => result.rows[0].setId !== row.setId)) {
             throw new Error(
                 'There is some records that has another set_id. ids(' +
                     ids.join(', ') +
                     '), set_ids(' +
-                    result.rows.map((row) => row.set_id).join(', ') +
+                    result.rows.map((row) => row.setId).join(', ') +
                     ')'
             );
         }
 
-        await client.query('DELETE FROM recurring_plans WHERE id = ANY($1::INTEGER[])', [ids]);
+        await dbHelper.query(client, 'DELETE FROM recurring_plans WHERE id = ANY($1::INTEGER[])', [ids]);
         client.query('COMMIT');
         return res.status(200).json({
             isError: false
