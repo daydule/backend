@@ -7,8 +7,7 @@ const {
     createPlanValidators,
     upsertTodoPriorityValidators,
     updatePlanValidators,
-    deletePlanValidators,
-    createTemporaryPlanValidators
+    deletePlanValidators
 } = require('../middlewares/validator/planControllerValidators');
 const dbHelper = require('../helpers/dbHelper');
 
