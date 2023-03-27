@@ -1,6 +1,6 @@
 'use strict';
 
-const { plansValidators, todoOrdersValidators } = require('./definition/allValidators');
+const { plansValidators } = require('./definition/allValidators');
 const validationResultCheck = require('./definition/validationResultCheck');
 
 const createPlanValidators = [
@@ -55,7 +55,7 @@ const createTemporaryPlanValidators = [
     plansValidators.checkWithPlanType
 ].concat(validationResultCheck);
 
-const upsertTodoPriorityValidators = [todoOrdersValidators.todoOrders].concat(validationResultCheck);
+const upsertTodoPriorityValidators = [plansValidators.ids].concat(validationResultCheck);
 
 module.exports = {
     createPlanValidators,
