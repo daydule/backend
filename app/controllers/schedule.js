@@ -247,8 +247,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                         isScheduled: plan.isScheduled,
                         isRequiredPlan: plan.isRequiredPlan,
                         parentPlanId: plan.parentPlanId,
-                        isParentPlan: plan.isParentPlan,
-                        todoStartTime: temporaryPlan.todoStartTime
+                        isParentPlan: plan.isParentPlan
                     };
                 }
                 return plan;
