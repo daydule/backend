@@ -4,7 +4,6 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
 const constant = require('../config/const');
-const { transferSnakeCaseObjectToLowerCamelCaseObject } = require('../helpers/dbHelper');
 const dbHelper = require('../helpers/dbHelper');
 const scheduleHelper = require('../helpers/scheduleHelper');
 const {
@@ -259,8 +258,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                         isScheduled: plan.isScheduled,
                         isRequiredPlan: plan.isRequiredPlan,
                         parentPlanId: plan.parentPlanId,
-                        isParentPlan: plan.isParentPlan,
-                        todoStartTime: temporaryPlan.todoStartTime
+                        isParentPlan: plan.isParentPlan
                     };
                 }
                 return plan;
@@ -271,7 +269,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 isError: false,
                 schedule: {
                     isScheduled: true,
-                    plans: mixedPlans.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
+                    plans: mixedPlans
                 },
                 todos: sortedTodos
             });
@@ -302,7 +300,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 isError: false,
                 schedule: {
                     isScheduled: false,
-                    plans: getPlansResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
+                    plans: getPlansResult.rows
                 },
                 todos: sortedTodos
             });

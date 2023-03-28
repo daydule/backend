@@ -37,8 +37,8 @@ router.post('/create', createPlanValidators, async (req, res) => {
         const sql =
             'INSERT INTO plans (\
             user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \
-            priority, place, is_required_plan, todo_start_time) \
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *';
+            priority, place, is_required_plan) \
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *';
         const values = [
             userId,
             title,
