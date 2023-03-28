@@ -222,7 +222,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
             const sortedTodos =
                 todoOrders.length === 0 || todos.length === 0
                     ? todos
-                    : todoOrders.map((id) => getTodosResult.rows.filter((todo) => todo.id === id)[0]);
+                    : todoOrders.map((id) => todos.find((todo) => todo.id === Number(id)));
 
             const getTemporaryPlansResult = await dbHelper.query(
                 client,
@@ -294,7 +294,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
             const sortedTodos =
                 todoOrders.length === 0 || todos.length === 0
                     ? todos
-                    : todoOrders.map((id) => todos.filter((todo) => todo.id === Number(id))[0]);
+                    : todoOrders.map((id) => todos.find((todo) => todo.id === Number(id)));
 
             return res.status(200).json({
                 isError: false,
