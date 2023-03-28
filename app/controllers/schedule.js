@@ -213,6 +213,18 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
 
+            const getTodoOrdersResult = await dbHelper.query(client, 'SELECT * FROM todo_orders WHERE user_id = $1', [
+                userId
+            ]);
+
+            const todoOrders = getTodoOrdersResult.rows[0].todoOrders.split(',');
+            const todos = getTodosResult.rows;
+
+            const sortedTodos =
+                todoOrders.length === 0 || todos.length === 0
+                    ? todos
+                    : todoOrders.map((id) => getTodosResult.rows.filter((todo) => todo.id === id)[0]);
+
             const getTemporaryPlansResult = await dbHelper.query(
                 client,
                 'SELECT * FROM temporary_plans WHERE user_id = $1',
@@ -261,7 +273,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                     isScheduled: true,
                     plans: mixedPlans.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
                 },
-                todos: getTodosResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
+                todos: sortedTodos
             });
         } else {
             const getPlansResult = await dbHelper.query(
@@ -274,13 +286,25 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3',
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
+            const getTodoOrdersResult = await dbHelper.query(client, 'SELECT * FROM todo_orders WHERE user_id = $1', [
+                userId
+            ]);
+
+            const todoOrders = getTodoOrdersResult.rows[0].todoOrders.split(',');
+            const todos = getTodosResult.rows;
+
+            const sortedTodos =
+                todoOrders.length === 0 || todos.length === 0
+                    ? todos
+                    : todoOrders.map((id) => todos.filter((todo) => todo.id === Number(id))[0]);
+
             return res.status(200).json({
                 isError: false,
                 schedule: {
                     isScheduled: false,
                     plans: getPlansResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
                 },
-                todos: getTodosResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
+                todos: sortedTodos
             });
         }
     } catch (e) {
