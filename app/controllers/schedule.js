@@ -312,7 +312,6 @@ router.post('/:date/update', updateScheduleValidators, async (req, res) => {
 
         // TODO バリデーションチェックを行う
 
-        // TODO並び順の取得（履歴用ではなく、ユーザーに一つだけ紐づく並び順を取得）
         const result = await dbHelper.query(
             client,
             'UPDATE schedules SET start_time = $1, end_time = $2 WHERE user_id = $3 AND date = $4 RETURNING *',
