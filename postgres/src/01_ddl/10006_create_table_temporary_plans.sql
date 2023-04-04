@@ -14,6 +14,5 @@ CREATE TABLE "temporary_plans"
   "plan_type"        INTEGER,
   "priority"         INTEGER             NOT NULL,
   "place"            VARCHAR(100),
-  "is_deleted"       BOOLEAN             NOT NULL DEFAULT false,
-  "todo_start_time"  TIMESTAMP
+  "is_deleted"       BOOLEAN             NOT NULL DEFAULT false
 );

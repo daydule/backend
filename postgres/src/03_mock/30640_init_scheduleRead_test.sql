@@ -36,7 +36,7 @@ VALUES
   true
 ),
 (
-  -- スケジュールレコードなし＆曜日設定レコードあり&固定予定あり
+  -- スケジュールレコードなし＆曜日設定レコードあり&繰り返し予定あり
   306404,
   'test306404',
   'test306404@example.com',
@@ -61,8 +61,6 @@ INSERT INTO "schedules"
   "date",
   "start_time",
   "end_time",
-  "start_time_at_schedule",
-  "end_time_at_schedule",
   "is_created"
 )
 VALUES
@@ -72,8 +70,6 @@ VALUES
   '2022-12-12',
   '0900',
   '1800',
-  '1000',
-  '1900',
   true
 ),
 (
@@ -82,8 +78,6 @@ VALUES
   '2022-12-12',
   '0900',
   '1800',
-  '1000',
-  '1900',
   false
 );
 
@@ -135,8 +129,7 @@ INSERT INTO "plans"
   "is_scheduled",
   "is_required_plan",
   "parent_plan_id",
-  "is_parent_plan",
-  "todo_start_time"
+  "is_parent_plan"
 )
 VALUES
 (
@@ -157,8 +150,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(dateがnull)
@@ -178,8 +170,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(dateが2022-12-12)
@@ -199,8 +190,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(dateが2022-12-13)
@@ -220,8 +210,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(分割後のTODO)
@@ -241,8 +230,7 @@ VALUES
   true,
   true,
   '306401',
-  false,
-  null
+  false
 ),
 (
   -- 予定（日程が合っている）
@@ -262,8 +250,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO（日程なし）
@@ -283,8 +270,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- 予定（日程が異なる）
@@ -304,8 +290,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(日程が合っている)
@@ -325,8 +310,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO（日程が異なる）
@@ -346,8 +330,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 );
 
 INSERT INTO "temporary_plans" 
@@ -365,8 +348,7 @@ INSERT INTO "temporary_plans"
   "buffer_time",
   "plan_type",
   "priority",
-  "place",
-  "todo_start_time"
+  "place"
 )
 VALUES
 (
@@ -384,11 +366,10 @@ VALUES
   15,
   0,
   5,
-  null,
   null
 );
 
-INSERT INTO "fix_plans" 
+INSERT INTO "recurring_plans" 
 (
   "id",
   "day_id",
@@ -397,10 +378,8 @@ INSERT INTO "fix_plans"
   "context",
   "start_time",
   "end_time",
-  "process_time",
   "travel_time",
   "buffer_time",
-  "plan_type",
   "priority",
   "place"
 )
@@ -409,14 +388,12 @@ VALUES
   306404,
   306404,
   null,
-  '固定予定306404',
+  '繰り返し予定306404',
   null,
   '1000',
   '1200',
-  120,
   15,
   15,
-  1,
   5,
   null
 );

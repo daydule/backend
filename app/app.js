@@ -25,7 +25,7 @@ const pool = require('./db/pool');
 const auth = require('./controllers/auth');
 const user = require('./controllers/user');
 const plan = require('./controllers/plan');
-const fixPlan = require('./controllers/fixPlan');
+const recurringPlan = require('./controllers/recurringPlan');
 const schedule = require('./controllers/schedule');
 const loginCheck = require('./middlewares/loginCheck');
 const port = secret.port;
@@ -57,7 +57,7 @@ app.use(loginCheck);
 
 app.use('/user', user);
 app.use('/plan', plan);
-app.use('/fixPlan', fixPlan);
+app.use('/recurringPlan', recurringPlan);
 app.use('/schedule', schedule);
 
 app.use((req, res) => {

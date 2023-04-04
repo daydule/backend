@@ -28,7 +28,6 @@ router.post('/create', createPlanValidators, async (req, res) => {
     const priority = req.body.priority;
     const place = req.body.place;
     const isRequiredPlan = req.body.isRequiredPlan;
-    const todoStartTime = req.body.todoStartTime;
 
     const client = await pool.connect();
 
@@ -38,8 +37,8 @@ router.post('/create', createPlanValidators, async (req, res) => {
         const sql =
             'INSERT INTO plans (\
             user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \
-            priority, place, is_required_plan, todo_start_time) \
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *';
+            priority, place, is_required_plan) \
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *';
         const values = [
             userId,
             title,
@@ -53,8 +52,7 @@ router.post('/create', createPlanValidators, async (req, res) => {
             planType,
             priority,
             place,
-            isRequiredPlan,
-            todoStartTime
+            isRequiredPlan
         ];
         const result = await dbHelper.query(client, sql, values);
         await client.query('COMMIT');
@@ -96,7 +94,6 @@ router.post('/:id/update', updatePlanValidators, async (req, res) => {
     const isRequiredPlan = req.body.isRequiredPlan;
     const parentPlanId = req.body.parentPlanId;
     const isParentPlan = req.body.isParentPlan;
-    const todoStartTime = req.body.todoStartTime;
 
     const client = await pool.connect();
 
@@ -112,7 +109,7 @@ router.post('/:id/update', updatePlanValidators, async (req, res) => {
                 SET user_id = $1, title = $2, context = $3, date = $4, start_time = $5, end_time = $6, \
                 process_time = $7, travel_time = $8, buffer_time = $9, plan_type = $10, \
                 priority = $11, place = $12, is_required_plan = $13, parent_plan_id = $14, \
-                is_parent_plan = $15, todo_start_time = $16 \
+                is_parent_plan = $15 \
                 WHERE id = $17 RETURNING *';
         const values = [
             userId,
@@ -130,7 +127,6 @@ router.post('/:id/update', updatePlanValidators, async (req, res) => {
             isRequiredPlan,
             parentPlanId,
             isParentPlan,
-            todoStartTime,
             id
         ];
         const result = await dbHelper.query(client, sql, values);

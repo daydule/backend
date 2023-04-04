@@ -7,27 +7,25 @@ const guestCheck = require('../middlewares/guestCheck');
 const { bulkInsert } = require('../utils/dbOperation');
 const dbHelper = require('../helpers/dbHelper');
 const {
-    createFixPlanValidators,
-    updateFixPlanValidators,
-    deleteFixPlanValidators
-} = require('../middlewares/validator/fixPlanControllerValidators');
+    createRecurringPlanValidators,
+    updateRecurringPlanValidators,
+    deleteRecurringPlanValidators
+} = require('../middlewares/validator/recurringPlanControllerValidators');
 
 router.use(guestCheck);
 
 /**
- * 固定予定作成
+ * 繰り返し予定作成
  */
-router.post('/create', createFixPlanValidators, async (req, res) => {
+router.post('/create', createRecurringPlanValidators, async (req, res) => {
     const dayIds = req.body.dayIds;
     const setId = req.body.setId;
     const title = req.body.title;
     const context = req.body.context;
     const startTime = req.body.startTime;
     const endTime = req.body.endTime;
-    const processTime = req.body.processTime;
     const travelTime = req.body.travelTime;
     const bufferTime = req.body.bufferTime;
-    const planType = req.body.planType;
     const priority = req.body.priority;
     const place = req.body.place;
 
@@ -37,7 +35,7 @@ router.post('/create', createFixPlanValidators, async (req, res) => {
         // TODO: バリデーションチェックを行う
         client.query('BEGIN');
 
-        const tableName = 'fix_plans';
+        const tableName = 'recurring_plans';
         let result;
 
         if (setId) {
@@ -48,10 +46,8 @@ router.post('/create', createFixPlanValidators, async (req, res) => {
                 'context',
                 'start_time',
                 'end_time',
-                'process_time',
                 'travel_time',
                 'buffer_time',
-                'plan_type',
                 'priority',
                 'place'
             ];
@@ -62,10 +58,8 @@ router.post('/create', createFixPlanValidators, async (req, res) => {
                 context,
                 startTime,
                 endTime,
-                processTime,
                 travelTime,
                 bufferTime,
-                planType,
                 priority,
                 place
             ]);
@@ -77,10 +71,8 @@ router.post('/create', createFixPlanValidators, async (req, res) => {
                 'context',
                 'start_time',
                 'end_time',
-                'process_time',
                 'travel_time',
                 'buffer_time',
-                'plan_type',
                 'priority',
                 'place'
             ];
@@ -90,10 +82,8 @@ router.post('/create', createFixPlanValidators, async (req, res) => {
                 context,
                 startTime,
                 endTime,
-                processTime,
                 travelTime,
                 bufferTime,
-                planType,
                 priority,
                 place
             ]);
@@ -101,10 +91,10 @@ router.post('/create', createFixPlanValidators, async (req, res) => {
 
             const ids = insertResult.rows.map((row) => row.id);
 
-            // INSERTした固定予定の先頭のidをset_idとして利用する
+            // INSERTした繰り返し予定の先頭のidをset_idとして利用する
             result = await dbHelper.query(
                 client,
-                'UPDATE fix_plans SET set_id = $1 WHERE id = ANY($2::INTEGER[]) RETURNING *',
+                'UPDATE recurring_plans SET set_id = $1 WHERE id = ANY($2::INTEGER[]) RETURNING *',
                 [ids[0], ids]
             );
         }
@@ -112,7 +102,7 @@ router.post('/create', createFixPlanValidators, async (req, res) => {
         client.query('COMMIT');
         return res.status(200).json({
             isError: false,
-            fixPlans: result.rows
+            recurringPlans: result.rows
         });
     } catch (e) {
         client.query('ROLLBACK');
@@ -128,15 +118,14 @@ router.post('/create', createFixPlanValidators, async (req, res) => {
 });
 
 /**
- * 固定予定更新
+ * 繰り返し予定更新
  */
-router.post('/update', updateFixPlanValidators, async (req, res) => {
+router.post('/update', updateRecurringPlanValidators, async (req, res) => {
     const setId = req.body.setId;
     const title = req.body.title;
     const context = req.body.context;
     const startTime = req.body.startTime;
     const endTime = req.body.endTime;
-    const processTime = req.body.processTime;
     const travelTime = req.body.travelTime;
     const bufferTime = req.body.bufferTime;
     const priority = req.body.priority;
@@ -149,15 +138,15 @@ router.post('/update', updateFixPlanValidators, async (req, res) => {
 
         const result = await dbHelper.query(
             client,
-            'UPDATE fix_plans SET title = $1, context = $2, start_time = $3, end_time = $4, process_time = $5, travel_time = $6, buffer_time = $7, priority = $8, place = $9 \
-            WHERE set_id = $10 RETURNING *',
-            [title, context, startTime, endTime, processTime, travelTime, bufferTime, priority, place, setId]
+            'UPDATE recurring_plans SET title = $1, context = $2, start_time = $3, end_time = $4, travel_time = $5, buffer_time = $6, priority = $7, place = $8 \
+            WHERE set_id = $9 RETURNING *',
+            [title, context, startTime, endTime, travelTime, bufferTime, priority, place, setId]
         );
 
         client.query('COMMIT');
         return res.status(200).json({
             isError: false,
-            fixPlans: result.rows
+            recurringPlans: result.rows
         });
     } catch (e) {
         client.query('ROLLBACK');
@@ -173,19 +162,21 @@ router.post('/update', updateFixPlanValidators, async (req, res) => {
 });
 
 /**
- * 固定予定削除
+ * 繰り返し予定削除
  */
 
-router.post('/delete', deleteFixPlanValidators, async (req, res) => {
+router.post('/delete', deleteRecurringPlanValidators, async (req, res) => {
     const ids = req.body.ids;
 
     const client = await pool.connect();
     try {
         // TODO: バリデーションチェックを行う
         client.query('BEGIN');
-        const result = await dbHelper.query(client, 'SELECT * FROM fix_plans WHERE id = ANY($1::INTEGER[])', [ids]);
+        const result = await dbHelper.query(client, 'SELECT * FROM recurring_plans WHERE id = ANY($1::INTEGER[])', [
+            ids
+        ]);
         if (result.rows.length !== ids.length) {
-            throw new Error('There is some ids that is not existing in fix_plans. ids(' + ids.join(', ') + ')');
+            throw new Error('There is some ids that is not existing in recurring_plans. ids(' + ids.join(', ') + ')');
         } else if (result.rows.some((row) => result.rows[0].setId !== row.setId)) {
             throw new Error(
                 'There is some records that has another set_id. ids(' +
@@ -196,7 +187,7 @@ router.post('/delete', deleteFixPlanValidators, async (req, res) => {
             );
         }
 
-        await dbHelper.query(client, 'DELETE FROM fix_plans WHERE id = ANY($1::INTEGER[])', [ids]);
+        await dbHelper.query(client, 'DELETE FROM recurring_plans WHERE id = ANY($1::INTEGER[])', [ids]);
         client.query('COMMIT');
         return res.status(200).json({
             isError: false

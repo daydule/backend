@@ -172,8 +172,8 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
                     const dividedTodoCreateResult = await client.query(
                         'INSERT INTO plans (\
                             user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \
-                            priority, place, is_scheduled, is_required_plan, parent_plan_id, todo_start_time) \
-                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *',
+                            priority, place, is_scheduled, is_required_plan, parent_plan_id) \
+                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *',
                         [
                             userId,
                             todo.title,
@@ -189,8 +189,7 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
                             todo.place,
                             true,
                             todo.isRequiredPlan,
-                            todo.id,
-                            todo.todoStartTime
+                            todo.id
                         ]
                     );
 

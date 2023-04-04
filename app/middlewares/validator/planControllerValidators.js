@@ -16,7 +16,6 @@ const createPlanValidators = [
     plansValidators.priority,
     plansValidators.place,
     plansValidators.isRequiredPlan,
-    plansValidators.todoStartTime,
     plansValidators.checkWithPlanType
 ].concat(validationResultCheck);
 
@@ -36,7 +35,6 @@ const updatePlanValidators = [
     plansValidators.isRequiredPlan,
     plansValidators.parentPlanId,
     plansValidators.isParentPlan,
-    plansValidators.todoStartTime,
     plansValidators.checkWithPlanType
 ].concat(validationResultCheck);
 
@@ -54,7 +52,6 @@ const createTemporaryPlanValidators = [
     plansValidators.bufferTime,
     plansValidators.priority,
     plansValidators.place,
-    plansValidators.todoStartTime,
     plansValidators.checkWithPlanType
 ].concat(validationResultCheck);
 

@@ -43,8 +43,6 @@ INSERT INTO "schedules"
   "date",
   "start_time",
   "end_time",
-  "start_time_at_schedule",
-  "end_time_at_schedule",
   "is_created"
 )
 VALUES
@@ -54,8 +52,6 @@ VALUES
   '2022-12-12',
   '0900',
   '1800',
-  null,
-  null,
   false
 ),
 (
@@ -64,8 +60,6 @@ VALUES
   '2022-12-12',
   '0900',
   '1800',
-  null,
-  null,
   false
 ),
 (
@@ -74,8 +68,6 @@ VALUES
   '2022-12-12',
   '0900',
   '1800',
-  null,
-  null,
   false
 );
 
@@ -97,8 +89,7 @@ INSERT INTO "plans"
   "is_scheduled",
   "is_required_plan",
   "parent_plan_id",
-  "is_parent_plan",
-  "todo_start_time"
+  "is_parent_plan"
 )
 VALUES
 (
@@ -119,8 +110,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(dateがnull)
@@ -140,8 +130,7 @@ VALUES
   false,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(dateがnull)
@@ -161,8 +150,7 @@ VALUES
   false,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- 予定
@@ -182,8 +170,7 @@ VALUES
   true,
   true,
   null,
-  false,
-  null
+  false
 ),
 (
   -- TODO(dateがnull)
@@ -203,8 +190,7 @@ VALUES
   false,
   true,
   null,
-  false,
-  null
+  false
 );
 
 INSERT INTO "todo_orders" 

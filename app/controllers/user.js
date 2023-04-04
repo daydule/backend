@@ -156,14 +156,16 @@ router.get('/schedule/settings/read', guestCheck, async function (req, res) {
 
         const result = [];
         for (let i = 0; i < daySettingInfo.length; i++) {
-            const getFixPlansResult = await dbHelper.query(client, 'SELECT * FROM fix_plans WHERE day_id = $1', [
-                daySettingInfo[i].id
-            ]);
+            const getRecurringPlansResult = await dbHelper.query(
+                client,
+                'SELECT * FROM recurring_plans WHERE day_id = $1',
+                [daySettingInfo[i].id]
+            );
 
             result.push({
                 dayId: daySettingInfo[i].day,
                 daySetting: daySettingInfo[i],
-                fixPlans: getFixPlansResult.rows
+                recurringPlans: getRecurringPlansResult.rows
             });
         }
         await client.query('COMMIT');

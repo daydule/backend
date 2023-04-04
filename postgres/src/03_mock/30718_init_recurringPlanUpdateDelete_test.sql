@@ -85,7 +85,7 @@ INSERT INTO "day_settings" (
 );
 
 
-INSERT INTO "fix_plans" (
+INSERT INTO "recurring_plans" (
   "id",
   "day_id",
   "set_id",
@@ -93,66 +93,56 @@ INSERT INTO "fix_plans" (
   "context",
   "start_time",
   "end_time",
-  "process_time",
   "travel_time",
   "buffer_time",
-  "plan_type",
   "priority",
   "place"
 ) VALUES (
   307181,
   307181,
   307181,
-  '固定予定307181',
+  '繰り返し予定307181',
   null,
   '1000',
   '1200',
-  120,
   15,
   15,
-  1,
   5,
   null
 ),(
   307182,
   307182,
   307181,
-  '固定予定307182',
+  '繰り返し予定307182',
   null,
   '1000',
   '1200',
-  120,
   15,
   15,
-  1,
   5,
   null
 ), (
   307183,
   307186,
   307183,
-  '固定予定307183',
+  '繰り返し予定307183',
   null,
   '1000',
   '1200',
-  120,
   15,
   15,
-  1,
   5,
   null
 ),(
   307184,
   307187,
   307183,
-  '固定予定307184',
+  '繰り返し予定307184',
   null,
   '1000',
   '1200',
-  120,
   15,
   15,
-  1,
   5,
   null
 );

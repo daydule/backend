@@ -4,13 +4,13 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
 const constant = require('../config/const');
-const { transferSnakeCaseObjectToLowerCamelCaseObject } = require('../helpers/dbHelper');
 const dbHelper = require('../helpers/dbHelper');
 const scheduleHelper = require('../helpers/scheduleHelper');
 const {
     readScheduleValidators,
     updateScheduleValidators
 } = require('../middlewares/validator/scheduleControllerValidators');
+const { PLAN_TYPE } = require('../config/const');
 
 /**
  * スケジュール作成
@@ -95,7 +95,7 @@ router.post('/create', async (req, res) => {
 
         await dbHelper.query(
             client,
-            'UPDATE schedules SET start_time_at_schedule = $1, end_time_at_schedule = $2, is_created = $3 WHERE id = $4',
+            'UPDATE schedules SET start_time = $1, end_time = $2, is_created = $3 WHERE id = $4',
             [startTime, endTime, true, scheduleId]
         );
 
@@ -159,30 +159,31 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 startTime = getDaySettingsResult.rows[0].scheduleStartTime;
                 endTime = getDaySettingsResult.rows[0].scheduleEndTime;
 
-                const getFixPlansResult = await dbHelper.query(client, 'SELECT * FROM fix_plans WHERE day_id = $1', [
-                    getDaySettingsResult.rows[0].id
-                ]);
+                const getRecurringPlansResult = await dbHelper.query(
+                    client,
+                    'SELECT * FROM recurring_plans WHERE day_id = $1',
+                    [getDaySettingsResult.rows[0].id]
+                );
 
-                await getFixPlansResult.rows.forEach((plan) => {
+                await getRecurringPlansResult.rows.forEach((recurringPlan) => {
                     dbHelper.query(
                         client,
                         'INSERT INTO plans (\
-                                user_id, title, context, date, start_time, end_time, process_time, travel_time, buffer_time, plan_type, \
+                                user_id, title, context, date, start_time, end_time, travel_time, buffer_time, plan_type, \
                                 priority, place, is_required_plan) \
-                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *',
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
                         [
                             userId,
-                            plan.title,
-                            plan.context,
+                            recurringPlan.title,
+                            recurringPlan.context,
                             date,
-                            plan.start_time,
-                            plan.end_time,
-                            plan.process_time,
-                            plan.travel_time,
-                            plan.buffer_time,
-                            plan.plan_type,
-                            plan.priority,
-                            plan.place,
+                            recurringPlan.start_time,
+                            recurringPlan.end_time,
+                            recurringPlan.travel_time,
+                            recurringPlan.buffer_time,
+                            PLAN_TYPE.PLAN,
+                            recurringPlan.priority,
+                            recurringPlan.place,
                             true
                         ]
                     );
@@ -245,8 +246,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                         isScheduled: plan.isScheduled,
                         isRequiredPlan: plan.isRequiredPlan,
                         parentPlanId: plan.parentPlanId,
-                        isParentPlan: plan.isParentPlan,
-                        todoStartTime: temporaryPlan.todoStartTime
+                        isParentPlan: plan.isParentPlan
                     };
                 }
                 return plan;
@@ -257,9 +257,9 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 isError: false,
                 schedule: {
                     isScheduled: true,
-                    plans: mixedPlans.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
+                    plans: mixedPlans
                 },
-                todos: getTodosResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
+                todos: getTodosResult.rows
             });
         } else {
             const getPlansResult = await dbHelper.query(
@@ -276,9 +276,9 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 isError: false,
                 schedule: {
                     isScheduled: false,
-                    plans: getPlansResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
+                    plans: getPlansResult.rows
                 },
-                todos: getTodosResult.rows.map((plan) => transferSnakeCaseObjectToLowerCamelCaseObject(plan))
+                todos: getTodosResult.rows
             });
         }
     } catch (e) {

@@ -18,7 +18,7 @@ module.exports = {
     DAY_LIST: ['日', '月', '火', '水', '木', '金', '土'],
     PLAN_TYPE: {
         PLAN: 0,
-        FIX_PLAN: 1,
+        RECURRING_PLAN: 1,
         TODO: 2
     }
 };
