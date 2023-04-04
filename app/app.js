@@ -61,7 +61,7 @@ app.use('/recurringPlan', recurringPlan);
 app.use('/schedule', schedule);
 
 app.use((req, res) => {
-    res.status(404).json({ isError: true, errorId: 'errorId', errorMessage: 'Not Found' });
+    res.status(404).json({ isError: true, errorId: 'NotFound', errorMessage: 'ページが見つかりませんでした。' });
 });
 
 app.listen(port, () => {

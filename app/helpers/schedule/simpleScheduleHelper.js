@@ -43,8 +43,8 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
     if (todos.length === 0) {
         return {
             isError: true,
-            errorId: 'errorId',
-            errorMessage: 'システムエラー'
+            errorId: 'serverError',
+            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         };
     }
 
@@ -58,8 +58,8 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
     if (hasInvalidRequiredPlan) {
         return {
             isError: true,
-            errorId: 'errorId',
-            errorMessage: 'システムエラー'
+            errorId: 'serverError',
+            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         };
     }
 

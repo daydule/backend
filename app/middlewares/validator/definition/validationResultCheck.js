@@ -14,7 +14,7 @@ const validationResultCheck = (req, res, next) => {
     if (result.errors.length !== 0) {
         return res.status(400).json({
             isError: true,
-            errorId: 'errorId',
+            errorId: 'ClientError',
             errorMessage: errorMessageFormatter(result.errors)
         });
     }
