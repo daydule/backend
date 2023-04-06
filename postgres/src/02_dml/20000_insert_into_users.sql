@@ -5,8 +5,8 @@ INSERT INTO "users"
   "hashed_password",
   "salt",
   "is_guest",
-  "todo_orders_for_list",
-  "todo_orders_for_schedule"
+  "todo_list_order",
+  "scheduled_todo_order"
 )
 VALUES
 (

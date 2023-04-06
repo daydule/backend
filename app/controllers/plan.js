@@ -194,14 +194,14 @@ router.post('/updateTodoPriority', updateTodoPriorityValidators, async (req, res
 
         const updateResult = await dbHelper.query(
             client,
-            'UPDATE users SET todo_orders = $1 WHERE id = $2 RETURNING *',
+            'UPDATE users SET todo_list_order = $1 WHERE id = $2 RETURNING *',
             [idsCsv, userId]
         );
 
         await client.query('COMMIT');
         return res.status(200).json({
             isError: false,
-            todoOrders: updateResult.rows[0]
+            todoListOrder: updateResult.rows[0]
         });
     } catch (e) {
         await client.query('ROLLBACK');

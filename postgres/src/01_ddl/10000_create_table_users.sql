@@ -6,6 +6,6 @@ CREATE TABLE "users"
   "hashed_password"          VARCHAR(64) NOT NULL,
   "salt"                     VARCHAR(32) NOT NULL,
   "is_guest"                 BOOLEAN     NOT NULL,
-  "todo_orders_for_list"     TEXT        NOT NULL,
-  "todo_orders_for_schedule" TEXT        NOT NULL
+  "todo_list_order"     TEXT        NOT NULL,
+  "scheduled_todo_order" TEXT        NOT NULL
 );

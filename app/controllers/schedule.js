@@ -47,15 +47,15 @@ router.post('/create', async (req, res) => {
             [userId, dateStr, constant.PLAN_TYPE.TODO, false]
         );
 
-        const getTodoOrdersResult = await dbHelper.query(client, 'SELECT * FROM users WHERE user_id = $1', [userId]);
+        const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE user_id = $1', [userId]);
 
-        const todoOrders = getTodoOrdersResult.rows[0].todoOrdersForList.split(',');
+        const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder.split(',');
         const todos = getTodosResult.rows;
 
         const sortedTodos =
-            todoOrders.length === 0 || todos.length === 0
+            todoListOrder.length === 0 || todos.length === 0
                 ? todos
-                : todoOrders.map((id) => todos.find((todo) => todo.id === Number(id)));
+                : todoListOrder.map((id) => todos.find((todo) => todo.id === Number(id)));
 
         await client.query('BEGIN');
 
@@ -194,17 +194,17 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
 
-            const getTodoOrdersResult = await dbHelper.query(client, 'SELECT * FROM users WHERE user_id = $1', [
+            const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE user_id = $1', [
                 userId
             ]);
 
-            const todoOrders = getTodoOrdersResult.rows[0].todoOrdersForList.split(',');
+            const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder.split(',');
             const todos = getTodosResult.rows;
 
             const sortedTodos =
-                todoOrders.length === 0 || todos.length === 0
+                todoListOrder.length === 0 || todos.length === 0
                     ? todos
-                    : todoOrders.map((id) => todos.find((todo) => todo.id === Number(id)));
+                    : todoListOrder.map((id) => todos.find((todo) => todo.id === Number(id)));
 
             await client.query('COMMIT');
             return res.status(200).json({
@@ -226,17 +226,17 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3',
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
-            const getTodoOrdersResult = await dbHelper.query(client, 'SELECT * FROM users WHERE user_id = $1', [
+            const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE user_id = $1', [
                 userId
             ]);
 
-            const todoOrders = getTodoOrdersResult.rows[0].todoOrdersForList.split(',');
+            const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder.split(',');
             const todos = getTodosResult.rows;
 
             const sortedTodos =
-                todoOrders.length === 0 || todos.length === 0
+                todoListOrder.length === 0 || todos.length === 0
                     ? todos
-                    : todoOrders.map((id) => todos.find((todo) => todo.id === Number(id)));
+                    : todoListOrder.map((id) => todos.find((todo) => todo.id === Number(id)));
 
             return res.status(200).json({
                 isError: false,
