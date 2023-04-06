@@ -212,6 +212,18 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
 
+            const getTodoOrdersResult = await dbHelper.query(client, 'SELECT * FROM todo_orders WHERE user_id = $1', [
+                userId
+            ]);
+
+            const todoOrders = getTodoOrdersResult.rows[0].todoOrders.split(',');
+            const todos = getTodosResult.rows;
+
+            const sortedTodos =
+                todoOrders.length === 0 || todos.length === 0
+                    ? todos
+                    : todoOrders.map((id) => todos.find((todo) => todo.id === Number(id)));
+
             await client.query('COMMIT');
             return res.status(200).json({
                 isError: false,
@@ -219,7 +231,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                     isScheduled: true,
                     plans: getPlansResult.rows
                 },
-                todos: getTodosResult.rows
+                todos: sortedTodos
             });
         } else {
             const getPlansResult = await dbHelper.query(
@@ -232,13 +244,25 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3',
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
+            const getTodoOrdersResult = await dbHelper.query(client, 'SELECT * FROM todo_orders WHERE user_id = $1', [
+                userId
+            ]);
+
+            const todoOrders = getTodoOrdersResult.rows[0].todoOrders.split(',');
+            const todos = getTodosResult.rows;
+
+            const sortedTodos =
+                todoOrders.length === 0 || todos.length === 0
+                    ? todos
+                    : todoOrders.map((id) => todos.find((todo) => todo.id === Number(id)));
+
             return res.status(200).json({
                 isError: false,
                 schedule: {
                     isScheduled: false,
                     plans: getPlansResult.rows
                 },
-                todos: getTodosResult.rows
+                todos: sortedTodos
             });
         }
     } catch (e) {
@@ -270,7 +294,6 @@ router.post('/:date/update', updateScheduleValidators, async (req, res) => {
 
         // TODO バリデーションチェックを行う
 
-        // TODO並び順の取得（履歴用ではなく、ユーザーに一つだけ紐づく並び順を取得）
         const result = await dbHelper.query(
             client,
             'UPDATE schedules SET start_time = $1, end_time = $2 WHERE user_id = $3 AND date = $4 RETURNING *',

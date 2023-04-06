@@ -51,11 +51,6 @@ const recurringPlansValidators = {
     endTime: validationChainWrappers.checkTimeString4digitsWrapper(checkNotEmpty('endTime'))
 };
 
-const todoOrdersValidators = {
-    id: validationChainWrappers.checkIntegerWithMinWrapper(checkNotEmpty('id'), 1),
-    todoOrders: validationChainWrappers.checkIntegerCsvWrapper(checkNotEmpty('todoOrders'))
-};
-
 const userValidators = {
     id: validationChainWrappers.checkIntegerWithMinWrapper(checkNotEmpty('id'), 1),
     nickname: validationChainWrappers.checkLengthMinMaxWrapper(skipCheckIfFalsy('nickname'), 1, 20),
@@ -86,7 +81,6 @@ const daySettingsValidators = {
 module.exports = {
     plansValidators,
     recurringPlansValidators,
-    todoOrdersValidators,
     userValidators,
     daySettingsValidators,
     scheduleValidators

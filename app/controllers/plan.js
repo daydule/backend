@@ -181,35 +181,28 @@ router.post('/:id/delete', deletePlanValidators, async (req, res) => {
 });
 
 /**
- * TODO並び順の作成/更新処理
+ * TODOの優先度順の作成/更新処理
  */
 router.post('/upsertTodoPriority', upsertTodoPriorityValidators, async (req, res) => {
-    const todoOrders = req.body.todoOrders; // TODOのIDをカンマ区切りにした文字列
-    let upsertResult;
-
+    const ids = req.body.ids;
     const client = await pool.connect();
+    const idsCsv = ids.join(',');
 
     try {
-        // TODO並び順の取得（履歴用ではなく、ユーザーに一つだけ紐づく並び順を取得）
-        const getResult = await dbHelper.query(
+        const getTodoOrderResult = await dbHelper.query(
             client,
             'SELECT * FROM todo_orders WHERE user_id = $1 AND schedule_id IS NULL',
             [req.user.id]
         );
 
-        if (getResult.rows.length > 0) {
-            upsertResult = await dbHelper.query(
-                client,
-                'UPDATE todo_orders SET todo_orders = $1 WHERE id = $2 RETURNING *',
-                [todoOrders, getResult.rows[0].id]
-            );
-        } else {
-            upsertResult = await dbHelper.query(
-                client,
-                'INSERT INTO todo_orders (user_id, todo_orders) VALUES ($1, $2) RETURNING *',
-                [req.user.id, todoOrders]
-            );
-        }
+        const hasRecord = getTodoOrderResult.rows.length > 0;
+        const sql = hasRecord
+            ? 'UPDATE todo_orders SET todo_orders = $1 WHERE id = $2 RETURNING *'
+            : 'INSERT INTO todo_orders (user_id, todo_orders) VALUES ($1, $2) RETURNING *';
+        const values = hasRecord ? [idsCsv, getTodoOrderResult.rows[0].id] : [req.user.id, idsCsv];
+
+        const upsertResult = await dbHelper.query(client, sql, values);
+
         await client.query('COMMIT');
         return res.status(200).json({
             isError: false,
