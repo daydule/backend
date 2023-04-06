@@ -41,6 +41,7 @@ function findAvailableSectionStartIndex(freeSections, sectionNum) {
  */
 async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, plans, todos, date) {
     if (todos.length === 0) {
+        console.error('Cannot be executed because the TODO does not exist.');
         return {
             isError: true,
             errorId: 'serverError',
@@ -56,6 +57,7 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
         );
     });
     if (hasInvalidRequiredPlan) {
+        console.error('An Plan exists that is outside of the schedule coverage time.');
         return {
             isError: true,
             errorId: 'serverError',
