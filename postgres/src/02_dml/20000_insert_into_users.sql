@@ -15,8 +15,8 @@ VALUES
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
   false,
-  '',
-  ''
+  null,
+  null
 ),
 (
   '',
@@ -24,7 +24,7 @@ VALUES
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
   true,
-  '',
-  ''
+  null,
+  null
 );
 

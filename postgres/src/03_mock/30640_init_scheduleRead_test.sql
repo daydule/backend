@@ -18,8 +18,8 @@ VALUES
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
   false,
-  '',
-  ''
+  null,
+  null
 ),
 (
   -- スケジュールレコードあり＆スケジュール未作成
@@ -29,8 +29,8 @@ VALUES
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
   false,
-  '',
-  ''
+  null,
+  null
 ),
 (
   -- スケジュールレコードなし＆ゲスト
@@ -40,8 +40,8 @@ VALUES
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
   true,
-  '',
-  ''
+  null,
+  null
 ),
 (
   -- スケジュールレコードなし＆曜日設定レコードあり&繰り返し予定あり
@@ -51,8 +51,8 @@ VALUES
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
   false,
-  '',
-  ''
+  null,
+  null
 ),
 (
   -- スケジュールレコードなし＆曜日設定レコードなし＆予定・TODOあり
@@ -62,8 +62,8 @@ VALUES
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
   false,
-  '',
-  ''
+  null,
+  null
 );
 
 INSERT INTO "schedules" 
