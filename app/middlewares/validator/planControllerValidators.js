@@ -40,27 +40,11 @@ const updatePlanValidators = [
 
 const deletePlanValidators = [plansValidators.id].concat(validationResultCheck);
 
-const createTemporaryPlanValidators = [
-    plansValidators.title,
-    plansValidators.context,
-    plansValidators.date,
-    plansValidators.startTime,
-    plansValidators.endTime,
-    plansValidators.processTime,
-    plansValidators.planType,
-    plansValidators.travelTime,
-    plansValidators.bufferTime,
-    plansValidators.priority,
-    plansValidators.place,
-    plansValidators.checkWithPlanType
-].concat(validationResultCheck);
-
 const upsertTodoPriorityValidators = [plansValidators.ids].concat(validationResultCheck);
 
 module.exports = {
     createPlanValidators,
     updatePlanValidators,
     upsertTodoPriorityValidators,
-    deletePlanValidators,
-    createTemporaryPlanValidators
+    deletePlanValidators
 };

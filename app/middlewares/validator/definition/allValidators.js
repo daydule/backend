@@ -28,7 +28,7 @@ const plansValidators = {
     parentPlanId: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('parentPlanId'), 1),
     isParentPlan: validationChainWrappers.checkBooleanWrapper(skipCheckIfUndefined('isParentPlan')),
     checkWithPlanType: check('planType').custom((planType, { req }) => {
-        if (planType === PLAN_TYPE.PLAN || planType === PLAN_TYPE.RECURRING_PLAN) {
+        if (planType === PLAN_TYPE.PLAN) {
             if (req.body.startTime === undefined || req.body.endTime === undefined) {
                 throw new Error('should contain startTime and endTime');
             }

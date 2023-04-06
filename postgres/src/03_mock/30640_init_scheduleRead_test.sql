@@ -164,7 +164,7 @@ VALUES
   120,
   15,
   15,
-  2,
+  1,
   5,
   '会議室306401-2',
   true,
@@ -184,7 +184,7 @@ VALUES
   120,
   15,
   15,
-  2,
+  1,
   5,
   '会議室306401-3',
   true,
@@ -204,7 +204,7 @@ VALUES
   120,
   15,
   15,
-  2,
+  1,
   5,
   '会議室306401-4',
   true,
@@ -224,7 +224,7 @@ VALUES
   120,
   15,
   15,
-  2,
+  1,
   5,
   '会議室306401-5',
   true,
@@ -264,7 +264,7 @@ VALUES
   120,
   15,
   15,
-  2,
+  1,
   5,
   '会議室306405-2',
   true,
@@ -304,7 +304,7 @@ VALUES
   120,
   15,
   15,
-  2,
+  1,
   5,
   '会議室30645-4',
   true,
@@ -324,49 +324,13 @@ VALUES
   120,
   15,
   15,
-  2,
+  1,
   5,
   '会議室306405-5',
   true,
   true,
   null,
   false
-);
-
-INSERT INTO "temporary_plans" 
-(
-  "id",
-  "original_plan_id",
-  "user_id",
-  "title", 
-  "context",
-  "date",
-  "start_time",
-  "end_time",
-  "process_time",
-  "travel_time",
-  "buffer_time",
-  "plan_type",
-  "priority",
-  "place"
-)
-VALUES
-(
-  -- 予定の仮予定
-  306401,
-  3064011,
-  306401,
-  '予定(変更ずみ）',
-  null,
-  '2022-12-12',
-  '0900',
-  '1100',
-  120,
-  15,
-  15,
-  0,
-  5,
-  null
 );
 
 INSERT INTO "recurring_plans" 

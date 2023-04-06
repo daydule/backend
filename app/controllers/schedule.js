@@ -224,52 +224,12 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                     ? todos
                     : todoOrders.map((id) => todos.find((todo) => todo.id === Number(id)));
 
-            const getTemporaryPlansResult = await dbHelper.query(
-                client,
-                'SELECT * FROM temporary_plans WHERE user_id = $1',
-                [userId]
-            );
-
-            const getTemporaryPlans = (temporaryPlans, planId) => {
-                for (let i = 0; i < temporaryPlans.length; i++) {
-                    if (temporaryPlans[i].originalPlanId === planId) {
-                        return temporaryPlans[i];
-                    }
-                }
-                return null;
-            };
-            const mixedPlans = getPlansResult.rows.map((plan) => {
-                const temporaryPlan = getTemporaryPlans(getTemporaryPlansResult.rows, plan.id);
-                if (temporaryPlan) {
-                    return {
-                        id: plan.id,
-                        userId: temporaryPlan.userId,
-                        title: temporaryPlan.title,
-                        context: temporaryPlan.context,
-                        date: temporaryPlan.date,
-                        startTime: temporaryPlan.startTime,
-                        endTime: temporaryPlan.endTime,
-                        processTime: temporaryPlan.processTime,
-                        travelTime: temporaryPlan.travelTime,
-                        bufferTime: temporaryPlan.bufferTime,
-                        planType: temporaryPlan.planType,
-                        priority: temporaryPlan.priority,
-                        place: temporaryPlan.place,
-                        isScheduled: plan.isScheduled,
-                        isRequiredPlan: plan.isRequiredPlan,
-                        parentPlanId: plan.parentPlanId,
-                        isParentPlan: plan.isParentPlan
-                    };
-                }
-                return plan;
-            });
-
             await client.query('COMMIT');
             return res.status(200).json({
                 isError: false,
                 schedule: {
                     isScheduled: true,
-                    plans: mixedPlans
+                    plans: getPlansResult.rows
                 },
                 todos: sortedTodos
             });
