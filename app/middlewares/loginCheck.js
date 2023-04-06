@@ -6,7 +6,7 @@
  */
 function loginCheck(req, res, next) {
     if (!req.user) {
-        console.error('未ログインです。');
+        console.error('User is not logged in.');
         console.error('req.user = ', req.user);
         return res.status(400).json({
             isError: true,

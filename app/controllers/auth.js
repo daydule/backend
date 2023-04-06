@@ -28,7 +28,7 @@ router.post('/signup', signupValidators, async (req, res) => {
         const checkEmailExistenceResult = await dbHelper.query(client, 'SELECT * FROM users WHERE email = $1', [email]);
         if (checkEmailExistenceResult.rows.length > 0) {
             isClientError = true;
-            throw new Error('そのメールアドレスは既に使用されています。');
+            throw new Error('Email is already registered.');
         }
 
         const hashedPassword = await promisify(crypto.pbkdf2)(password, salt, 310000, 32, 'sha256');
@@ -105,6 +105,7 @@ router.get('/guestCheck', function (req, res) {
 router.post('/logout', loginCheck, function (req, res) {
     req.logout((err) => {
         if (err) {
+            console.error(err);
             return res.status(500).json({
                 isError: true,
                 errorId: 'errorId',
@@ -122,7 +123,7 @@ router.post('/logout', loginCheck, function (req, res) {
  * 認証エラー時のレスポンスを返却する
  */
 router.get('/authError', (req, res) => {
-    console.error('ログインに失敗しました。');
+    console.error('Error has occurred in passport.js');
     res.status(400).json({
         isError: true,
         errorId: 'errorId',

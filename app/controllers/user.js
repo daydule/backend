@@ -44,7 +44,7 @@ router.post('/update', [guestCheck].concat(updateUserValidators), async function
         // バリデーションチェック（パスワードが正しいかどうかのチェック）をする
         const hashedPassword = await promisify(crypto.pbkdf2)(password, req.user.salt, 310000, 32, 'sha256');
         if (hashedPassword.toString('base64') != req.user.hashed_password) {
-            console.error('パスワードが違います。');
+            console.error('Password is different from registered password.');
             return res.status(400).json({
                 isError: true,
                 errorId: 'errorId',
@@ -98,7 +98,7 @@ router.post('/password/update', [guestCheck].concat(updateUserPasswordValidators
             'sha256'
         );
         if (hashedCurrentPassword.toString('base64') != req.user.hashed_password) {
-            console.error('パスワードが違います。');
+            console.error('Password is different from registered password.');
             return res.status(400).json({
                 isError: true,
                 errorId: 'errorId',

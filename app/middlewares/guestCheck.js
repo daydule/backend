@@ -6,7 +6,7 @@
  */
 function guestCheck(req, res, next) {
     if (!req.user) {
-        console.error('未ログインです。');
+        console.error('User is not logged in.');
         console.error('req.user = ', req.user);
         return res.status(400).json({
             isError: true,
@@ -15,7 +15,7 @@ function guestCheck(req, res, next) {
         });
     }
     if (req.user.is_guest) {
-        console.error('ゲストユーザーログインです。');
+        console.error('User is not guest.');
         console.error('req.user = ', req.user);
         return res.status(400).json({
             isError: true,
