@@ -23,8 +23,6 @@ router.post('/signup', signupValidators, async (req, res) => {
     const client = await pool.connect();
 
     try {
-        // TODO バリデーションチェックを行う
-
         client.query('BEGIN');
 
         const checkEmailExistenceResult = await dbHelper.query(client, 'SELECT * FROM users WHERE email = $1', [email]);
