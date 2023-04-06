@@ -44,11 +44,11 @@ router.post('/update', [guestCheck].concat(updateUserValidators), async function
         // バリデーションチェック（パスワードが正しいかどうかのチェック）をする
         const hashedPassword = await promisify(crypto.pbkdf2)(password, req.user.salt, 310000, 32, 'sha256');
         if (hashedPassword.toString('base64') != req.user.hashed_password) {
-            console.error('パスワードが違います。');
+            console.error('Password is different from registered password.');
             return res.status(400).json({
                 isError: true,
-                errorId: 'errorId',
-                errorMessage: 'パスワードが違います。'
+                errorId: 'ClientError',
+                errorMessage: '正常に処理が実行できませんでした。入力値をもう一度お確かめください。'
             });
         }
 
@@ -69,8 +69,8 @@ router.post('/update', [guestCheck].concat(updateUserValidators), async function
         console.error(e);
         return res.status(500).json({
             isError: true,
-            errorId: 'errorId',
-            errorMessage: 'サーバーエラー'
+            errorId: 'ServerError',
+            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         });
     } finally {
         client.release();
@@ -98,11 +98,11 @@ router.post('/password/update', [guestCheck].concat(updateUserPasswordValidators
             'sha256'
         );
         if (hashedCurrentPassword.toString('base64') != req.user.hashed_password) {
-            console.error('パスワードが違います。');
+            console.error('Password is different from registered password.');
             return res.status(400).json({
                 isError: true,
-                errorId: 'errorId',
-                errorMessage: 'パスワードが違います。'
+                errorId: 'ClientError',
+                errorMessage: '正常に処理が実行できませんでした。入力値をもう一度お確かめください。'
             });
         }
 
@@ -125,8 +125,8 @@ router.post('/password/update', [guestCheck].concat(updateUserPasswordValidators
         console.error(e);
         return res.status(500).json({
             isError: true,
-            errorId: 'errorId',
-            errorMessage: 'サーバーエラー'
+            errorId: 'ServerError',
+            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         });
     } finally {
         client.release();
@@ -178,8 +178,8 @@ router.get('/schedule/settings/read', guestCheck, async function (req, res) {
         console.error(e);
         return res.status(500).json({
             isError: true,
-            errorId: 'errorId',
-            errorMessage: 'サーバーエラー'
+            errorId: 'ServerError',
+            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         });
     } finally {
         client.release();
@@ -223,8 +223,8 @@ router.post(
             console.error(e);
             return res.status(500).json({
                 isError: true,
-                errorId: 'errorId',
-                errorMessage: 'サーバーエラー'
+                errorId: 'ServerError',
+                errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
             });
         } finally {
             client.release();

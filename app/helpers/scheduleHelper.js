@@ -30,8 +30,8 @@ async function createSchedule(client, scheduleLogicId, userId, scheduleId, start
 
         return {
             isError: true,
-            errorId: 'errorId',
-            errorMessage: 'システムエラー'
+            errorId: 'ServerError',
+            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         };
     }
 }

@@ -41,10 +41,11 @@ function findAvailableSectionStartIndex(freeSections, sectionNum) {
  */
 async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, plans, todos, date) {
     if (todos.length === 0) {
+        console.error('Cannot be executed because the TODO does not exist.');
         return {
             isError: true,
-            errorId: 'errorId',
-            errorMessage: 'システムエラー'
+            errorId: 'ServerError',
+            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         };
     }
 
@@ -56,10 +57,11 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
         );
     });
     if (hasInvalidRequiredPlan) {
+        console.error('An Plan exists that is outside of the schedule coverage time.');
         return {
             isError: true,
-            errorId: 'errorId',
-            errorMessage: 'システムエラー'
+            errorId: 'ServerError',
+            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         };
     }
 

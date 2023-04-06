@@ -12,9 +12,10 @@ const { errorMessageFormatter } = require('../../../helpers/validationHelper');
 const validationResultCheck = (req, res, next) => {
     const result = validationResult(req);
     if (result.errors.length !== 0) {
+        console.error('Validation Error: ' + result.errors.reduce((acc, cur) => acc + ', ' + cur));
         return res.status(400).json({
             isError: true,
-            errorId: 'errorId',
+            errorId: 'ClientError',
             errorMessage: errorMessageFormatter(result.errors)
         });
     }
