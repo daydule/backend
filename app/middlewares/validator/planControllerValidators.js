@@ -40,11 +40,11 @@ const updatePlanValidators = [
 
 const deletePlanValidators = [plansValidators.id].concat(validationResultCheck);
 
-const upsertTodoPriorityValidators = [plansValidators.ids].concat(validationResultCheck);
+const updateTodoPriorityValidators = [plansValidators.ids].concat(validationResultCheck);
 
 module.exports = {
     createPlanValidators,
     updatePlanValidators,
-    upsertTodoPriorityValidators,
+    updateTodoPriorityValidators,
     deletePlanValidators
 };

@@ -5,7 +5,9 @@ INSERT INTO "users"
   "email",
   "hashed_password",
   "salt",
-  "is_guest"
+  "is_guest",
+  "todo_orders_for_list",
+  "todo_orders_for_schedule"
 )
 VALUES
 (
@@ -15,7 +17,9 @@ VALUES
   'test306861@example.com',
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
-  false
+  false,
+  '306862,306863',
+  ''
 ), 
 (
   -- 予定あり・TODOなし
@@ -24,7 +28,9 @@ VALUES
   'test306862@example.com',
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
-  false
+  false,
+  '',
+  ''
 ),
 (
   -- 予定なし・TODOあり
@@ -33,7 +39,9 @@ VALUES
   'test306863@example.com',
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
-  false
+  false,
+  '306865',
+  ''
 );
 
 INSERT INTO "schedules" 
@@ -191,25 +199,4 @@ VALUES
   true,
   null,
   false
-);
-
-INSERT INTO "todo_orders" 
-(
-  "id",
-  "user_id",
-  "schedule_id", 
-  "todo_orders"
-)
-VALUES
-(
-  306861,
-  306861,
-  null,
-  '306863,306862'
-),
-(
-  306863,
-  306863,
-  null,
-  '306865'
 );
