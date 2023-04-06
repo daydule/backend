@@ -41,8 +41,8 @@ describe('simpleScheduleHelper.js', function () {
         it('should return object with isError flag true when length of todos is 0.', async function () {
             const expect = {
                 isError: true,
-                errorId: 'errorId',
-                errorMessage: 'システムエラー'
+                errorId: 'ServerError',
+                errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
             };
 
             const result = await simpleScheduleHelper.execute('', '', '', '', '', '', '');
@@ -52,8 +52,8 @@ describe('simpleScheduleHelper.js', function () {
         it('should return object with isError flag true when there is an invalid start_time of required plan.', async function () {
             const expect = {
                 isError: true,
-                errorId: 'errorId',
-                errorMessage: 'システムエラー'
+                errorId: 'ServerError',
+                errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
             };
 
             const plans = [
@@ -71,8 +71,8 @@ describe('simpleScheduleHelper.js', function () {
         it('should return object with isError flag true when there is an invalid end_time of required plan.', async function () {
             const expect = {
                 isError: true,
-                errorId: 'errorId',
-                errorMessage: 'システムエラー'
+                errorId: 'ServerError',
+                errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
             };
 
             const plans = [
