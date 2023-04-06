@@ -62,7 +62,7 @@ router.post('/signup', signupValidators, async (req, res) => {
         } else {
             return res.status(500).json({
                 isError: true,
-                errorId: 'serverError',
+                errorId: 'ServerError',
                 errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
             });
         }
@@ -108,7 +108,7 @@ router.post('/logout', loginCheck, function (req, res) {
             console.error(err);
             return res.status(500).json({
                 isError: true,
-                errorId: 'serverError',
+                errorId: 'ServerError',
                 errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
             });
         } else {

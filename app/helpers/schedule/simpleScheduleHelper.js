@@ -44,7 +44,7 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
         console.error('Cannot be executed because the TODO does not exist.');
         return {
             isError: true,
-            errorId: 'serverError',
+            errorId: 'ServerError',
             errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         };
     }
@@ -60,7 +60,7 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
         console.error('An Plan exists that is outside of the schedule coverage time.');
         return {
             isError: true,
-            errorId: 'serverError',
+            errorId: 'ServerError',
             errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         };
     }

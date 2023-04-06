@@ -107,7 +107,7 @@ router.post('/create', async (req, res) => {
         console.error(e);
         return res.status(500).json({
             isError: true,
-            errorId: 'serverError',
+            errorId: 'ServerError',
             errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         });
     } finally {
@@ -286,7 +286,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
         console.error(e);
         return res.status(500).json({
             isError: true,
-            errorId: 'serverError',
+            errorId: 'ServerError',
             errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         });
     } finally {
@@ -327,7 +327,7 @@ router.post('/:date/update', updateScheduleValidators, async (req, res) => {
         console.error(e);
         return res.status(500).json({
             isError: true,
-            errorId: 'serverError',
+            errorId: 'ServerError',
             errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         });
     } finally {

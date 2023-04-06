@@ -32,7 +32,7 @@ describe('scheduleHelper.js', function () {
         it('should return object with isError flag false when scheduleLogicId is correct.', async function () {
             const expect = {
                 isError: true,
-                errorId: 'serverError',
+                errorId: 'ServerError',
                 errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
             };
 

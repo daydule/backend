@@ -65,7 +65,7 @@ router.post('/create', createPlanValidators, async (req, res) => {
         console.error(e);
         return res.status(500).json({
             isError: true,
-            errorId: 'serverError',
+            errorId: 'ServerError',
             errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         });
     } finally {
@@ -140,7 +140,7 @@ router.post('/:id/update', updatePlanValidators, async (req, res) => {
         console.error(e);
         return res.status(500).json({
             isError: true,
-            errorId: 'serverError',
+            errorId: 'ServerError',
             errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         });
     } finally {
@@ -172,7 +172,7 @@ router.post('/:id/delete', deletePlanValidators, async (req, res) => {
         console.error(e);
         return res.status(500).json({
             isError: true,
-            errorId: 'serverError',
+            errorId: 'ServerError',
             errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         });
     } finally {
@@ -220,7 +220,7 @@ router.post('/upsertTodoPriority', upsertTodoPriorityValidators, async (req, res
         console.error(e);
         return res.status(500).json({
             isError: true,
-            errorId: 'serverError',
+            errorId: 'ServerError',
             errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         });
     } finally {

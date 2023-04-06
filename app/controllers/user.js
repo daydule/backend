@@ -69,7 +69,7 @@ router.post('/update', [guestCheck].concat(updateUserValidators), async function
         console.error(e);
         return res.status(500).json({
             isError: true,
-            errorId: 'serverError',
+            errorId: 'ServerError',
             errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         });
     } finally {
@@ -125,7 +125,7 @@ router.post('/password/update', [guestCheck].concat(updateUserPasswordValidators
         console.error(e);
         return res.status(500).json({
             isError: true,
-            errorId: 'serverError',
+            errorId: 'ServerError',
             errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         });
     } finally {
@@ -178,7 +178,7 @@ router.get('/schedule/settings/read', guestCheck, async function (req, res) {
         console.error(e);
         return res.status(500).json({
             isError: true,
-            errorId: 'serverError',
+            errorId: 'ServerError',
             errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
         });
     } finally {
@@ -223,7 +223,7 @@ router.post(
             console.error(e);
             return res.status(500).json({
                 isError: true,
-                errorId: 'serverError',
+                errorId: 'ServerError',
                 errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
             });
         } finally {
