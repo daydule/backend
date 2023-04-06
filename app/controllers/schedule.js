@@ -47,7 +47,7 @@ router.post('/create', async (req, res) => {
             [userId, dateStr, constant.PLAN_TYPE.TODO, false]
         );
 
-        const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE user_id = $1', [userId]);
+        const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
         const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder.split(',');
         const todos = getTodosResult.rows;
@@ -194,9 +194,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
 
-            const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE user_id = $1', [
-                userId
-            ]);
+            const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
             const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder.split(',');
             const todos = getTodosResult.rows;
@@ -226,9 +224,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3',
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
-            const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE user_id = $1', [
-                userId
-            ]);
+            const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
             const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder.split(',');
             const todos = getTodosResult.rows;
