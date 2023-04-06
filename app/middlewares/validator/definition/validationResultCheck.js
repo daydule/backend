@@ -15,7 +15,7 @@ const validationResultCheck = (req, res, next) => {
         console.error('Validation Error: ' + result.errors.reduce((acc, cur) => acc + ', ' + cur));
         return res.status(400).json({
             isError: true,
-            errorId: 'errorId',
+            errorId: 'ClientError',
             errorMessage: errorMessageFormatter(result.errors)
         });
     }

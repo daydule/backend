@@ -56,14 +56,14 @@ router.post('/signup', signupValidators, async (req, res) => {
         if (isClientError) {
             return res.status(400).json({
                 isError: true,
-                errorId: 'errorId',
-                errorMessage: 'サインアップエラー'
+                errorId: 'ClientError',
+                errorMessage: '正常に処理が実行できませんでした。入力値をもう一度お確かめください。'
             });
         } else {
             return res.status(500).json({
                 isError: true,
-                errorId: 'errorId',
-                errorMessage: 'サインアップエラー'
+                errorId: 'ServerError',
+                errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
             });
         }
     } finally {
@@ -108,8 +108,8 @@ router.post('/logout', loginCheck, function (req, res) {
             console.error(err);
             return res.status(500).json({
                 isError: true,
-                errorId: 'errorId',
-                errorMessage: err
+                errorId: 'ServerError',
+                errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
             });
         } else {
             return res.status(200).json({
@@ -124,10 +124,10 @@ router.post('/logout', loginCheck, function (req, res) {
  */
 router.get('/authError', (req, res) => {
     console.error('Error has occurred in passport.js');
-    res.status(400).json({
+    return res.status(400).json({
         isError: true,
-        errorId: 'errorId',
-        errorMessage: 'ログインに失敗しました。'
+        errorId: 'ClientError',
+        errorMessage: '正常に処理が実行できませんでした。入力値をもう一度お確かめください。'
     });
 });
 
