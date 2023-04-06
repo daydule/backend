@@ -199,7 +199,7 @@ router.post('/upsertTodoPriority', upsertTodoPriorityValidators, async (req, res
         const sql = hasRecord
             ? 'UPDATE todo_orders SET todo_orders = $1 WHERE id = $2 RETURNING *'
             : 'INSERT INTO todo_orders (user_id, todo_orders) VALUES ($1, $2) RETURNING *';
-        const values = hasRecord ? [idsCsv, getTodoOrderResult?.rows[0]?.id] : [req.user.id, idsCsv];
+        const values = hasRecord ? [idsCsv, getTodoOrderResult.rows[0].id] : [req.user.id, idsCsv];
 
         const upsertResult = await dbHelper.query(client, sql, values);
 
