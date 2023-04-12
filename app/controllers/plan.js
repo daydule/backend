@@ -10,6 +10,7 @@ const {
     deletePlanValidators
 } = require('../middlewares/validator/planControllerValidators');
 const dbHelper = require('../helpers/dbHelper');
+const { PLAN_TYPE } = require('../config/const');
 
 /**
  * 予定作成
@@ -54,11 +55,20 @@ router.post('/create', createPlanValidators, async (req, res) => {
             place,
             isRequiredPlan
         ];
-        const result = await dbHelper.query(client, sql, values);
+        const insertResult = await dbHelper.query(client, sql, values);
+
+        if (planType === PLAN_TYPE.TODO) {
+            const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
+            const newTodoId = insertResult.rows[0].id;
+            const currentOrder = getUserResult.rows[0].todoListOrder?.split(',');
+            const newOrderCsv = currentOrder ? [newTodoId].concat(currentOrder).join(',') : newTodoId;
+            await dbHelper.query(client, 'UPDATE users SET todo_list_order = $1 WHERE id = $2', [newOrderCsv, userId]);
+        }
+
         await client.query('COMMIT');
         return res.status(200).json({
             isError: false,
-            plan: result.rows[0]
+            plan: insertResult.rows[0]
         });
     } catch (e) {
         client.query('ROLLBACK');
@@ -152,6 +162,7 @@ router.post('/:id/update', updatePlanValidators, async (req, res) => {
  * 予定削除
  */
 router.post('/:id/delete', deletePlanValidators, async (req, res) => {
+    const userId = req.user.id;
     const id = req.params.id;
 
     const client = await pool.connect();
@@ -162,7 +173,20 @@ router.post('/:id/delete', deletePlanValidators, async (req, res) => {
             throw new Error('There is no plan with id(' + id + ').');
         }
 
-        await dbHelper.query(client, 'DELETE from plans where id = $1', [id]);
+        const deleteResult = await dbHelper.query(client, 'DELETE from plans WHERE id = $1 RETURNING *', [id]);
+
+        if (deleteResult.rows[0].planType === PLAN_TYPE.TODO) {
+            const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
+            const newOrder = getUserResult.rows[0].todoListOrder
+                .split(',')
+                .filter((id) => Number(id) !== deleteResult.rows[0].id)
+                .join(',');
+            await dbHelper.query(client, 'UPDATE users SET todo_list_order = $1 WHERE id = $2', [
+                newOrder === '' ? null : newOrder,
+                userId
+            ]);
+        }
+
         await client.query('COMMIT');
         return res.status(200).json({
             isError: false
