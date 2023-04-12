@@ -5,7 +5,9 @@ INSERT INTO "users"
   "email",
   "hashed_password",
   "salt",
-  "is_guest"
+  "is_guest",
+  "todo_list_order",
+  "scheduled_todo_order"
 )
 VALUES
 (
@@ -14,7 +16,9 @@ VALUES
   'test306871@example.com',
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
-  false
+  false,
+  null,
+  null
 );
 
 INSERT INTO "day_settings" 

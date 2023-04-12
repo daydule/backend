@@ -5,7 +5,9 @@ INSERT INTO "users"
   "email",
   "hashed_password",
   "salt",
-  "is_guest"
+  "is_guest",
+  "todo_list_order",
+  "scheduled_todo_order"
 )
 VALUES
 (
@@ -15,7 +17,9 @@ VALUES
   'test306401@example.com',
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
-  false
+  false,
+  null,
+  null
 ),
 (
   -- スケジュールレコードあり＆スケジュール未作成
@@ -24,7 +28,9 @@ VALUES
   'test306402@example.com',
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
-  false
+  false,
+  null,
+  null
 ),
 (
   -- スケジュールレコードなし＆ゲスト
@@ -33,7 +39,9 @@ VALUES
   'test306403@example.com',
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
-  true
+  true,
+  null,
+  null
 ),
 (
   -- スケジュールレコードなし＆曜日設定レコードあり&繰り返し予定あり
@@ -42,7 +50,9 @@ VALUES
   'test306404@example.com',
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
-  false
+  false,
+  null,
+  null
 ),
 (
   -- スケジュールレコードなし＆曜日設定レコードなし＆予定・TODOあり
@@ -51,7 +61,9 @@ VALUES
   'test306405@example.com',
   '0CbgtrSs4aPbw083Ke8pUBWdMTln7XiTPo/v+n+4xDQ=',
   'iP15S6qSFqFnmPQ9ihQcHA==',
-  false
+  false,
+  null,
+  null
 );
 
 INSERT INTO "schedules" 

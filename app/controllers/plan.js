@@ -5,7 +5,7 @@ const router = express.Router();
 const pool = require('../db/pool');
 const {
     createPlanValidators,
-    upsertTodoPriorityValidators,
+    updateTodoPriorityValidators,
     updatePlanValidators,
     deletePlanValidators
 } = require('../middlewares/validator/planControllerValidators');
@@ -183,30 +183,25 @@ router.post('/:id/delete', deletePlanValidators, async (req, res) => {
 /**
  * TODOの優先度順の作成/更新処理
  */
-router.post('/upsertTodoPriority', upsertTodoPriorityValidators, async (req, res) => {
+router.post('/updateTodoPriority', updateTodoPriorityValidators, async (req, res) => {
+    const userId = req.user.id;
     const ids = req.body.ids;
     const client = await pool.connect();
     const idsCsv = ids.join(',');
 
     try {
-        const getTodoOrderResult = await dbHelper.query(
+        await client.query('BEGIN');
+
+        const updateResult = await dbHelper.query(
             client,
-            'SELECT * FROM todo_orders WHERE user_id = $1 AND schedule_id IS NULL',
-            [req.user.id]
+            'UPDATE users SET todo_list_order = $1 WHERE id = $2 RETURNING *',
+            [idsCsv, userId]
         );
-
-        const hasRecord = getTodoOrderResult.rows.length > 0;
-        const sql = hasRecord
-            ? 'UPDATE todo_orders SET todo_orders = $1 WHERE id = $2 RETURNING *'
-            : 'INSERT INTO todo_orders (user_id, todo_orders) VALUES ($1, $2) RETURNING *';
-        const values = hasRecord ? [idsCsv, getTodoOrderResult.rows[0].id] : [req.user.id, idsCsv];
-
-        const upsertResult = await dbHelper.query(client, sql, values);
 
         await client.query('COMMIT');
         return res.status(200).json({
             isError: false,
-            todoOrders: upsertResult.rows[0]
+            todoListOrder: updateResult.rows[0]
         });
     } catch (e) {
         await client.query('ROLLBACK');

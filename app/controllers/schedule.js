@@ -41,33 +41,21 @@ router.post('/create', async (req, res) => {
             [userId, dateStr, constant.PLAN_TYPE.TODO]
         );
 
-        const getTodoResult = await dbHelper.query(
+        const getTodosResult = await dbHelper.query(
             client,
             'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3 AND is_scheduled = $4',
             [userId, dateStr, constant.PLAN_TYPE.TODO, false]
         );
 
-        const getTodoOrdersResult = await dbHelper.query(
-            client,
-            'SELECT * FROM todo_orders WHERE user_id = $1 AND schedule_id IS NULL',
-            [userId]
-        );
+        const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
-        const sortedTodos = [];
-        if (getTodoResult.rows.length !== 0 && getTodoOrdersResult.rows.length !== 0) {
-            const todoOrders = getTodoOrdersResult.rows[0].todoOrders.split(',');
-            const todos = getTodoResult.rows;
+        const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder.split(',');
+        const todos = getTodosResult.rows;
 
-            todoOrders.map((todoId) => {
-                const targetTodo = todos.find((todo) => {
-                    return todo.id === Number(todoId);
-                });
-
-                if (targetTodo) {
-                    sortedTodos.push(targetTodo);
-                }
-            });
-        }
+        const sortedTodos =
+            todoListOrder.length === 0 || todos.length === 0
+                ? todos
+                : todoListOrder.map((id) => todos.find((todo) => todo.id === Number(id)));
 
         await client.query('BEGIN');
 
@@ -86,12 +74,6 @@ router.post('/create', async (req, res) => {
         if (createScheduleResult.isError) {
             throw new Error('Fail to create schedule.' + createScheduleResult.errorMessage);
         }
-
-        await dbHelper.query(client, 'INSERT INTO todo_orders(user_id, schedule_id, todo_orders) VALUES($1, $2, $3)', [
-            userId,
-            scheduleId,
-            getTodoOrdersResult.rows[0].todoOrders
-        ]);
 
         await dbHelper.query(
             client,
@@ -212,17 +194,15 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
 
-            const getTodoOrdersResult = await dbHelper.query(client, 'SELECT * FROM todo_orders WHERE user_id = $1', [
-                userId
-            ]);
+            const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
-            const todoOrders = getTodoOrdersResult.rows[0].todoOrders.split(',');
+            const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder.split(',');
             const todos = getTodosResult.rows;
 
             const sortedTodos =
-                todoOrders.length === 0 || todos.length === 0
+                todoListOrder.length === 0 || todos.length === 0
                     ? todos
-                    : todoOrders.map((id) => todos.find((todo) => todo.id === Number(id)));
+                    : todoListOrder.map((id) => todos.find((todo) => todo.id === Number(id)));
 
             await client.query('COMMIT');
             return res.status(200).json({
@@ -244,17 +224,15 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3',
                 [userId, dateStr, constant.PLAN_TYPE.TODO]
             );
-            const getTodoOrdersResult = await dbHelper.query(client, 'SELECT * FROM todo_orders WHERE user_id = $1', [
-                userId
-            ]);
+            const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
-            const todoOrders = getTodoOrdersResult.rows[0].todoOrders.split(',');
+            const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder.split(',');
             const todos = getTodosResult.rows;
 
             const sortedTodos =
-                todoOrders.length === 0 || todos.length === 0
+                todoListOrder.length === 0 || todos.length === 0
                     ? todos
-                    : todoOrders.map((id) => todos.find((todo) => todo.id === Number(id)));
+                    : todoListOrder.map((id) => todos.find((todo) => todo.id === Number(id)));
 
             return res.status(200).json({
                 isError: false,
