@@ -49,15 +49,17 @@ router.post('/create', async (req, res) => {
 
         const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
-        const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder?.split(',');
+        const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder?.split(',')?.map((id) => Number(id));
         const todos = getTodosResult.rows;
 
+        // NOTE: todoListOrderにないtodoがある場合は、後ろにそのtodoをつける
         const sortedTodos =
-            todoListOrder === null || todos.length === 0
+            todoListOrder == null
                 ? todos
                 : todoListOrder
-                      .map((id) => todos.find((todo) => todo.id === Number(id)))
-                      .filter((todo) => todo !== null);
+                      .map((id) => todos.find((todo) => todo.id === id))
+                      .filter((todo) => todo !== null)
+                      .concat(todos.filter((todo) => !todoListOrder.includes(todo.id)));
 
         await client.query('BEGIN');
 
@@ -198,16 +200,17 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
 
             const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
-            const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder?.split(',');
+            const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder?.split(',')?.map((id) => Number(id));
             const todos = getTodosResult.rows;
 
-            // TODO: orderにないが存在するtodoは最後にくっつける
+            // NOTE: todoListOrderにないtodoがある場合は、後ろにそのtodoをつける
             const sortedTodos =
-                todoListOrder === null || todos.length === 0
+                todoListOrder == null
                     ? todos
                     : todoListOrder
-                          .map((id) => todos.find((todo) => todo.id === Number(id)))
-                          .filter((todo) => todo !== null);
+                          .map((id) => todos.find((todo) => todo.id === id))
+                          .filter((todo) => todo !== null)
+                          .concat(todos.filter((todo) => !todoListOrder.includes(todo.id)));
 
             await client.query('COMMIT');
             return res.status(200).json({
@@ -231,15 +234,17 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
             );
             const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
-            const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder?.split(',');
+            const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder?.split(',')?.map((id) => Number(id));
             const todos = getTodosResult.rows;
 
+            // NOTE: todoListOrderにないtodoがある場合は、後ろにそのtodoをつける
             const sortedTodos =
-                todoListOrder === null || todos.length === 0
+                todoListOrder == null
                     ? todos
                     : todoListOrder
-                          .map((id) => todos.find((todo) => todo.id === Number(id)))
-                          .filter((todo) => todo !== null);
+                          .map((id) => todos.find((todo) => todo.id === id))
+                          .filter((todo) => todo !== null)
+                          .concat(todos.filter((todo) => !todoListOrder.includes(todo.id)));
 
             return res.status(200).json({
                 isError: false,
