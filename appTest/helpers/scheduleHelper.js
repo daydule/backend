@@ -18,6 +18,67 @@ const scheduleHelper = proxyquire('../../app/helpers/scheduleHelper', {
 });
 
 describe('scheduleHelper.js', function () {
+    describe('initScheduleIfFirstCallToday function', function () {
+        it('should call pool.query function once if exists schedule record.', async function () {
+            const stub = sinon.stub().returns({ rows: ['dummy'] });
+            const client = { query: stub };
+            const isGuest = false;
+            const userId = 'dummyUserId';
+            const date = new Date();
+            await scheduleHelper.initScheduleIfFirstCallToday(client, isGuest, userId, date);
+            assert.equal(stub.callCount, 1);
+        });
+        it('should call pool.query function twice if does not exist schedule record and is guest.', async function () {
+            const stub = sinon.stub().returns({ rows: [] });
+            const client = { query: stub };
+            const isGuest = true;
+            const userId = 'dummyUserId';
+            const date = new Date();
+            await scheduleHelper.initScheduleIfFirstCallToday(client, isGuest, userId, date);
+            assert.equal(stub.callCount, 2);
+        });
+        it('should call pool.query function 6 times if does not exist schedule record and is not guest.', async function () {
+            const stub = sinon.stub();
+            stub.callsFake(async (sql, values) => {
+                if (sql === 'SELECT * FROM recurring_plans WHERE day_id = $1') {
+                    return {
+                        rows: [
+                            {
+                                title: 'title1',
+                                context: 'context1',
+                                start_time: '0900',
+                                end_time: '1800',
+                                travel_time: 0,
+                                buffer_time: 0,
+                                priority: 0,
+                                place: 'place1'
+                            },
+                            {
+                                title: 'title2',
+                                context: 'context2',
+                                start_time: '0900',
+                                end_time: '1800',
+                                travel_time: 0,
+                                buffer_time: 0,
+                                priority: 0,
+                                place: 'place2'
+                            }
+                        ]
+                    };
+                } else if (sql === 'SELECT * FROM day_settings WHERE user_id = $1 AND day = $2') {
+                    return { rows: [{ start_time: '0900', end_time: '1800' }] };
+                } else {
+                    return { rows: [] };
+                }
+            });
+            const client = { query: stub };
+            const isGuest = false;
+            const userId = 'dummyUserId';
+            const date = new Date();
+            await scheduleHelper.initScheduleIfFirstCallToday(client, isGuest, userId, date);
+            assert.equal(stub.callCount, 6);
+        });
+    });
     describe('createSchedule function', function () {
         it('should return object with isError flag true when scheduleLogicId is NOT correct.', async function () {
             const expect = {
