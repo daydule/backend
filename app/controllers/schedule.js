@@ -8,14 +8,15 @@ const dbHelper = require('../helpers/dbHelper');
 const scheduleHelper = require('../helpers/scheduleHelper');
 const {
     readScheduleValidators,
-    updateScheduleValidators
+    updateScheduleValidators,
+    createScheduleValidators
 } = require('../middlewares/validator/scheduleControllerValidators');
 const { PLAN_TYPE } = require('../config/const');
 
 /**
  * スケジュール作成
  */
-router.post('/create', async (req, res) => {
+router.post('/create', createScheduleValidators, async (req, res) => {
     const client = await pool.connect();
 
     try {
