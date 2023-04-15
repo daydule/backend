@@ -40,7 +40,7 @@ async function initScheduleIfFirstCallToday(client, isGuest, userId, date) {
     await dbHelper.query(
         client,
         'INSERT INTO schedules (user_id, date, start_time, end_time) VALUES ($1, $2, $3, $4)',
-        [userId, date, getDaySettingsResult.rows[0].startTime, getDaySettingsResult.rows[0].endTime]
+        [userId, date, getDaySettingsResult.rows[0].scheduleStartTime, getDaySettingsResult.rows[0].scheduleEndTime]
     );
     const getRecurringPlansResult = await dbHelper.query(client, 'SELECT * FROM recurring_plans WHERE day_id = $1', [
         getDaySettingsResult.rows[0].id
