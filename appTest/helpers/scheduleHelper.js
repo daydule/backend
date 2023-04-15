@@ -44,24 +44,10 @@ describe('scheduleHelper.js', function () {
                     return {
                         rows: [
                             {
-                                title: 'title1',
-                                context: 'context1',
-                                start_time: '0900',
-                                end_time: '1800',
-                                travel_time: 0,
-                                buffer_time: 0,
-                                priority: 0,
-                                place: 'place1'
+                                title: 'title1'
                             },
                             {
-                                title: 'title2',
-                                context: 'context2',
-                                start_time: '0900',
-                                end_time: '1800',
-                                travel_time: 0,
-                                buffer_time: 0,
-                                priority: 0,
-                                place: 'place2'
+                                title: 'title2'
                             }
                         ]
                     };
