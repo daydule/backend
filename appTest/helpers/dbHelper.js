@@ -53,7 +53,6 @@ describe('dbHelper.js', function () {
                 }
             ];
             const result = await dbHelper.query(client, '', []);
-            console.log(result.rows);
             assert.deepStrictEqual(result.rows, expect);
         });
     });
