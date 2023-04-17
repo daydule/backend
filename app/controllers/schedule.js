@@ -16,16 +16,11 @@ const {
  * スケジュール作成
  */
 router.post('/create', createScheduleValidators, async (req, res) => {
+    const dateStr = req.body.date;
+    const userId = req.user.id;
+
     const client = await pool.connect();
-
     try {
-        // NOTE: req.body.dateはYYYY-MM-DDの形
-        const dateStr = req.body.date;
-        const userId = req.user.id;
-
-        // TODO: バリデーションチェック
-        // TODO: 日付はYYYY-MM-DDの書式でチェックするように修正
-
         const getScheduleResult = await dbHelper.query(
             client,
             'SELECT * FROM schedules WHERE user_id = $1 AND date = $2',
