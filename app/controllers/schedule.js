@@ -116,8 +116,8 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
         await scheduleHelper.initSchedule(client, req.user.is_guest, userId, date);
         const getScheduleResult = await dbHelper.query(
             client,
-            'SELECT * FROM schedules WHERE date = $1 and user_id = $2',
-            [date, userId]
+            'SELECT * FROM schedules WHERE user_id = $1 and date = $2',
+            [userId, date]
         );
 
         const getPlansResult = await dbHelper.query(client, 'SELECT * FROM plans WHERE user_id = $1 AND date = $2', [
