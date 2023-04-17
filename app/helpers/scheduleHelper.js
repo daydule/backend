@@ -13,7 +13,7 @@ const { Client } = require('pg');
  * @param {number} userId - ユーザーID
  * @param {Date} date - 日付
  */
-async function initScheduleIfFirstCallToday(client, isGuest, userId, date) {
+async function initSchedule(client, isGuest, userId, date) {
     const getSchedulesResult = await dbHelper.query(
         client,
         'SELECT * FROM schedules WHERE user_id = $1 AND date = $2',
@@ -107,6 +107,6 @@ async function createSchedule(client, scheduleLogicId, userId, scheduleId, start
 }
 
 module.exports = {
-    initScheduleIfFirstCallToday,
+    initSchedule,
     createSchedule
 };

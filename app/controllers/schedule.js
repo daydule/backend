@@ -113,7 +113,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        await scheduleHelper.initScheduleIfFirstCallToday(client, req.user.is_guest, userId, date);
+        await scheduleHelper.initSchedule(client, req.user.is_guest, userId, date);
         const getScheduleResult = await dbHelper.query(client, 'SELECT * FROM schedules WHERE date = $1', [date]);
 
         const getPlansResult = await dbHelper.query(client, 'SELECT * FROM plans WHERE user_id = $1 AND date = $2', [

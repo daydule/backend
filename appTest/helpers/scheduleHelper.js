@@ -18,14 +18,14 @@ const scheduleHelper = proxyquire('../../app/helpers/scheduleHelper', {
 });
 
 describe('scheduleHelper.js', function () {
-    describe('initScheduleIfFirstCallToday function', function () {
+    describe('initSchedule function', function () {
         it('should call pool.query function once if exists schedule record.', async function () {
             const stub = sinon.stub().returns({ rows: ['dummy'] });
             const client = { query: stub };
             const isGuest = false;
             const userId = 'dummyUserId';
             const date = new Date();
-            await scheduleHelper.initScheduleIfFirstCallToday(client, isGuest, userId, date);
+            await scheduleHelper.initSchedule(client, isGuest, userId, date);
             assert.equal(stub.callCount, 1);
         });
         it('should call pool.query function twice if does not exist schedule record and is guest.', async function () {
@@ -34,7 +34,7 @@ describe('scheduleHelper.js', function () {
             const isGuest = true;
             const userId = 'dummyUserId';
             const date = new Date();
-            await scheduleHelper.initScheduleIfFirstCallToday(client, isGuest, userId, date);
+            await scheduleHelper.initSchedule(client, isGuest, userId, date);
             assert.equal(stub.callCount, 2);
         });
         it('should call pool.query function 6 times if does not exist schedule record and is not guest.', async function () {
@@ -61,7 +61,7 @@ describe('scheduleHelper.js', function () {
             const isGuest = false;
             const userId = 'dummyUserId';
             const date = new Date();
-            await scheduleHelper.initScheduleIfFirstCallToday(client, isGuest, userId, date);
+            await scheduleHelper.initSchedule(client, isGuest, userId, date);
             assert.equal(stub.callCount, 6);
         });
     });
