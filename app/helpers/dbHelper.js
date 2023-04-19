@@ -42,10 +42,7 @@ function transferSnakeCaseObjectToLowerCamelCaseObject(object) {
  */
 async function query(client, sql, values) {
     const result = await client.query(sql, values);
-    const convertedResult = [];
-    result.rows.forEach((row) => {
-        convertedResult.push(transferSnakeCaseObjectToLowerCamelCaseObject(row));
-    });
+    const convertedResult = result.rows.map((row) => transferSnakeCaseObjectToLowerCamelCaseObject(row));
 
     result.rows = convertedResult;
     return result;

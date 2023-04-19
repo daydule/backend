@@ -10,10 +10,8 @@ const createRecurringPlanValidators = [
     plansValidators.context,
     recurringPlansValidators.startTime,
     recurringPlansValidators.endTime,
-    plansValidators.processTime,
     plansValidators.travelTime,
     plansValidators.bufferTime,
-    plansValidators.planType,
     plansValidators.priority,
     plansValidators.place
 ].concat(validationResultCheck);
@@ -23,10 +21,8 @@ const updateRecurringPlanValidators = [
     plansValidators.context,
     recurringPlansValidators.startTime,
     recurringPlansValidators.endTime,
-    plansValidators.processTime,
     plansValidators.travelTime,
     plansValidators.bufferTime,
-    plansValidators.planType,
     plansValidators.priority,
     plansValidators.place
 ].concat(validationResultCheck);
