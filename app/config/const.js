@@ -1,4 +1,6 @@
 'use strict';
+// eslint-disable-next-line node/no-unpublished-require
+const secret = require('./secret');
 
 module.exports = {
     DEFAULT: {
@@ -19,5 +21,11 @@ module.exports = {
     PLAN_TYPE: {
         PLAN: 0,
         TODO: 1
+    },
+    GUEST_INIT: {
+        AT_MARK: '@',
+        GUEST_PASSWORD: secret.guestPassword,
+        GUEST_USERNAME: secret.guestUsername,
+        GUEST_DOMAIN: secret.guestDomain
     }
 };
