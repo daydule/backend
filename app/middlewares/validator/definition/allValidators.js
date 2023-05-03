@@ -65,7 +65,8 @@ const userValidators = {
 const scheduleValidators = {
     date: validationChainWrappers.checkDateWithRegexWrapper(checkNotEmpty('date'), /^\d{4}-\d{2}-\d{2}$/),
     startTime: validationChainWrappers.checkTimeString4digitsWrapper(checkNotEmpty('startTime')),
-    endTime: validationChainWrappers.checkTimeString4digitsWrapper(checkNotEmpty('endTime'))
+    endTime: validationChainWrappers.checkTimeString4digitsWrapper(checkNotEmpty('endTime')),
+    currentTime: validationChainWrappers.checkTimeString4digitsWrapper(checkNotEmpty('currentTime'))
 };
 
 const daySettingsValidators = {

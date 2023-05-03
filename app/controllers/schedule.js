@@ -16,8 +16,11 @@ const {
  * スケジュール作成
  */
 router.post('/create', createScheduleValidators, async (req, res) => {
+    const timeUtils = require('../utils/time');
     const dateStr = req.body.date;
     const userId = req.user.id;
+
+    const currentTime = req.body.currentTime;
 
     const client = await pool.connect();
     try {
@@ -27,24 +30,36 @@ router.post('/create', createScheduleValidators, async (req, res) => {
             [userId, dateStr]
         );
         const scheduleId = getScheduleResult.rows[0].id;
-        const startTime = getScheduleResult.rows[0].start_time;
-        const endTime = getScheduleResult.rows[0].end_time;
+        // NOTE: 開始時刻より現在時刻が遅い場合は現在時刻を利用する
+        const startTime =
+            timeUtils.compareTimeStr(currentTime, getScheduleResult.rows[0].startTime) > 0
+                ? currentTime
+                : getScheduleResult.rows[0].startTime;
+
+        // NOTE: 終了時刻より現在時刻の方が遅い場合にはエラー
+        const endTime = getScheduleResult.rows[0].endTime;
+        if (timeUtils.compareTimeStr(currentTime, endTime) > 0) {
+            throw new Error('The end time has already passed.');
+        }
 
         const getPlansResult = await dbHelper.query(
             client,
-            'SELECT * FROM plans WHERE user_id = $1 AND date = $2 AND plan_type != $3',
-            [userId, dateStr, constant.PLAN_TYPE.TODO]
+            'SELECT * FROM plans WHERE user_id = $1 AND date = $2 AND plan_type = $3',
+            [userId, dateStr, constant.PLAN_TYPE.PLAN]
         );
 
         const getTodosResult = await dbHelper.query(
             client,
-            'SELECT * FROM plans WHERE user_id = $1 AND (date IS NULL OR date = $2) AND plan_type = $3 AND is_scheduled = $4',
-            [userId, dateStr, constant.PLAN_TYPE.TODO, false]
+            'SELECT * FROM plans WHERE user_id = $1 AND date IS NULL AND plan_type = $2',
+            [userId, constant.PLAN_TYPE.TODO]
         );
 
         const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
-        const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder?.split(',')?.map((id) => Number(id));
+        const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder
+            ?.split(',')
+            ?.filter((id) => id)
+            .map((id) => Number(id));
         const todos = getTodosResult.rows;
 
         // NOTE: todoListOrderにないtodoがある場合は、後ろにそのtodoをつける
@@ -100,10 +115,8 @@ router.post('/create', createScheduleValidators, async (req, res) => {
  * スケジュール参照
  */
 router.get('/read/:date', readScheduleValidators, async (req, res) => {
-    const dateStr = req.params.date;
     const userId = req.user.id;
-
-    const date = new Date(dateStr);
+    const date = new Date(req.params.date);
 
     const client = await pool.connect();
     try {
@@ -117,7 +130,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
 
         const getPlansResult = await dbHelper.query(client, 'SELECT * FROM plans WHERE user_id = $1 AND date = $2', [
             userId,
-            dateStr
+            date
         ]);
         const getTodosResult = await dbHelper.query(
             client,
@@ -125,7 +138,10 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
             [userId, constant.PLAN_TYPE.TODO]
         );
         const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
-        const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder?.split(',')?.map((id) => Number(id));
+        const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder
+            ?.split(',')
+            ?.filter((id) => id)
+            .map((id) => Number(id));
         const todos = getTodosResult.rows;
         // NOTE: todoListOrderにないtodoがある場合は、後ろにそのtodoをつける
         const sortedTodos =
