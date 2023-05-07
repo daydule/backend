@@ -178,7 +178,7 @@ router.post('/:id/delete', deletePlanValidators, async (req, res) => {
         if (deleteResult.rows[0].planType === PLAN_TYPE.TODO) {
             const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
             const newOrder = getUserResult.rows[0].todoListOrder
-                .split(',')
+                ?.split(',')
                 .filter((id) => Number(id) !== deleteResult.rows[0].id)
                 .join(',');
             await dbHelper.query(client, 'UPDATE users SET todo_list_order = $1 WHERE id = $2', [
@@ -226,6 +226,80 @@ router.post('/updateTodoPriority', updateTodoPriorityValidators, async (req, res
         return res.status(200).json({
             isError: false,
             todoListOrder: updateResult.rows[0]
+        });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'ServerError',
+            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
+        });
+    } finally {
+        client.release();
+    }
+});
+
+/**
+ * スケジュール表のTODOをリストに戻す
+ */
+router.post('/:id/backToList', async (req, res) => {
+    const planHelper = require('../helpers/planHelper');
+
+    const userId = req.user.id;
+    const id = req.params.id;
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        await planHelper.backToList(client, userId, id);
+
+        await client.query('COMMIT');
+        return res.status(200).json({
+            isError: false
+        });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'ServerError',
+            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
+        });
+    } finally {
+        client.release();
+    }
+});
+
+/**
+ * スケジュール表のTODOを全てリストに戻す
+ */
+router.post('/backToList', async (req, res) => {
+    const planHelper = require('../helpers/planHelper');
+    const constant = require('../config/const');
+
+    const userId = req.user.id;
+    const dateStr = req.body.date;
+
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        const getPlansResult = await dbHelper.query(
+            client,
+            'SELECT * FROM plans WHERE user_id = $1 AND date = $2 AND plan_type = $3',
+            [userId, dateStr, constant.PLAN_TYPE.TODO]
+        );
+
+        for (let i = 0; i < getPlansResult.rows.length; i++) {
+            await planHelper.backToList(client, userId, getPlansResult.rows[i].id);
+        }
+
+        await client.query('COMMIT');
+        return res.status(200).json({
+            isError: false
         });
     } catch (e) {
         await client.query('ROLLBACK');
