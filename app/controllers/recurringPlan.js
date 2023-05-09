@@ -32,7 +32,6 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
     const client = await pool.connect();
 
     try {
-        // TODO: バリデーションチェックを行う
         client.query('BEGIN');
 
         const tableName = 'recurring_plans';
@@ -133,7 +132,6 @@ router.post('/update', updateRecurringPlanValidators, async (req, res) => {
 
     const client = await pool.connect();
     try {
-        // TODO: バリデーションチェックを行う
         client.query('BEGIN');
 
         const result = await dbHelper.query(
@@ -170,7 +168,6 @@ router.post('/delete', deleteRecurringPlanValidators, async (req, res) => {
 
     const client = await pool.connect();
     try {
-        // TODO: バリデーションチェックを行う
         client.query('BEGIN');
         const result = await dbHelper.query(client, 'SELECT * FROM recurring_plans WHERE id = ANY($1::INTEGER[])', [
             ids
