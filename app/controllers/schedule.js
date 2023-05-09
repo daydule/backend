@@ -189,8 +189,6 @@ router.post('/:date/update', updateScheduleValidators, async (req, res) => {
     try {
         client.query('BEGIN');
 
-        // TODO バリデーションチェックを行う
-
         const result = await dbHelper.query(
             client,
             'UPDATE schedules SET start_time = $1, end_time = $2 WHERE user_id = $3 AND date = $4 RETURNING *',
