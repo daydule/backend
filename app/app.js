@@ -48,8 +48,8 @@ app.use(
             maxAge: 30 * 24 * 60 * 60 * 1000,
             domain: env.FRONTEND_DOMAIN,
             sameSite: 'none',
-            secure: env.COOKIE_SECURE === 'true'
-        }, // 30 days
+            secure: 'auto'
+        },
         // Insert express-session options here
         saveUninitialized: false
     })
