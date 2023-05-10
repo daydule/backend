@@ -30,6 +30,7 @@ services:
             DB_USER: ${DB_USER}
             DB_PASS: ${DB_PASS}
             DB_PORT: ${DB_PORT}
+            FRONTEND_HOST: ${FRONTEND_HOST}
         depends_on:
             - postgres
         volumes:
