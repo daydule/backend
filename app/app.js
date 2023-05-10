@@ -44,7 +44,12 @@ app.use(
         }),
         secret: secret.cookieSecret,
         resave: false,
-        cookie: { maxAge: 30 * 24 * 60 * 60 * 1000, domain: env.FRONTEND_DOMAIN, sameSite: 'none' }, // 30 days
+        cookie: {
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            domain: env.FRONTEND_DOMAIN,
+            sameSite: 'none',
+            secure: 'auto'
+        },
         // Insert express-session options here
         saveUninitialized: false
     })
