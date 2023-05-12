@@ -5,10 +5,13 @@ const morgan = require('morgan');
 const cors = require('cors');
 const app = express();
 app.use(morgan('combined'));
+// eslint-disable-next-line node/no-unpublished-require
+require('dotenv').config();
+const env = process.env;
 app.use(
     cors({
         // TODO: 開発環境と本番環境が自動で切り替わるようにする
-        origin: 'http://localhost:3001',
+        origin: env.FRONTEND_HOST,
         credentials: true
     })
 );
@@ -41,7 +44,12 @@ app.use(
         }),
         secret: secret.cookieSecret,
         resave: false,
-        cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }, // 30 days
+        cookie: {
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            sameSite: 'none',
+            secure: env.COOKIE_SECURE === 'true',
+            domain: env.FRONTEND_DOMAIN
+        },
         // Insert express-session options here
         saveUninitialized: false
     })
