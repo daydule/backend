@@ -47,7 +47,7 @@ app.use(
         cookie: {
             maxAge: 30 * 24 * 60 * 60 * 1000,
             sameSite: 'none',
-            secure: env.COOKIE_SECURE === 'true',
+            secure: 'auto',
             domain: env.FRONTEND_DOMAIN
         },
         // Insert express-session options here
