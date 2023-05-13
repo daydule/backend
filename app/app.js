@@ -48,8 +48,8 @@ app.use(
             maxAge: 30 * 24 * 60 * 60 * 1000,
             sameSite: 'none',
             secure: true,
-            httpOnly: true
-            // domain: env.FRONTEND_DOMAIN
+            httpOnly: true,
+            domain: env.FRONTEND_DOMAIN
         },
         // Insert express-session options here
         saveUninitialized: false
