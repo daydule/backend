@@ -10,7 +10,6 @@ require('dotenv').config();
 const env = process.env;
 app.use(
     cors({
-        // TODO: 開発環境と本番環境が自動で切り替わるようにする
         origin: env.FRONTEND_HOST,
         credentials: true
     })
@@ -40,17 +39,14 @@ app.use(
         store: new pgSession({
             pool: pool,
             tableName: 'session'
-            // Insert connect-pg-simple options here
         }),
         secret: secret.cookieSecret,
         resave: false,
         cookie: {
             maxAge: 30 * 24 * 60 * 60 * 1000,
-            sameSite: 'none',
-            secure: env.COOKIE_SECURE === 'true',
+            httpOnly: env.COOKIE_HTTP_ONLY === 'true',
             domain: env.FRONTEND_DOMAIN
         },
-        // Insert express-session options here
         saveUninitialized: false
     })
 );
