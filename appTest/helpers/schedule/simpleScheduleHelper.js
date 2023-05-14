@@ -49,44 +49,6 @@ describe('simpleScheduleHelper.js', function () {
             assert.equal(result.isError, true);
         });
 
-        it('should return object with isError flag true when there is an invalid start_time of required plan.', async function () {
-            const expect = {
-                isError: true,
-                errorId: 'ServerError',
-                errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
-            };
-
-            const plans = [
-                {
-                    startTime: '0800',
-                    endTime: '1000'
-                }
-            ];
-
-            const todos = ['sample'];
-            const result = await simpleScheduleHelper.execute('', '', '', '0900', '1800', plans, todos);
-            assert.deepEqual(result, expect);
-        });
-
-        it('should return object with isError flag true when there is an invalid end_time of required plan.', async function () {
-            const expect = {
-                isError: true,
-                errorId: 'ServerError',
-                errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
-            };
-
-            const plans = [
-                {
-                    startTime: '0900',
-                    endTime: '1900'
-                }
-            ];
-
-            const todos = ['sample'];
-            const result = await simpleScheduleHelper.execute('', '', '', '0900', '1800', plans, todos);
-            assert.deepEqual(result, expect);
-        });
-
         it('should register 35m 1st TODO to schedule and NOT register 60m 2nd TODO to schedule.', async function () {
             const plans = [
                 {

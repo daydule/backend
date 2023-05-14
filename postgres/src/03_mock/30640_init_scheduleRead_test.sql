@@ -373,21 +373,3 @@ VALUES
   5,
   null
 );
-
-INSERT INTO "schedule_plan_inclusion" 
-(
-  "id",
-  "plan_id",
-  "schedule_id"
-)
-VALUES
-(
-  306401,
-  3064011,
-  306401
-),
-(
-  306402,
-  3064012,
-  306401
-);

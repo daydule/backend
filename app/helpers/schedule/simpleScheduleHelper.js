@@ -49,28 +49,14 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
         };
     }
 
-    const hasInvalidRequiredPlan = plans.some((plan) => {
-        // 必須予定の開始時間がスケジュール開始時間より早い、または必須予定の終了時間がスケジュール終了時間より遅いか
-        return (
-            timeUtil.compareTimeStr(plan.startTime, startTimeStr) === -1 ||
-            timeUtil.compareTimeStr(plan.endTime, endTimeStr) === 1
-        );
-    });
-    if (hasInvalidRequiredPlan) {
-        console.error('An Plan exists that is outside of the schedule coverage time.');
-        return {
-            isError: true,
-            errorId: 'ServerError',
-            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
-        };
-    }
-
     // 空き時間配列
     // 開始時間から終了時間をセクションという単位で分割し、セクションごとに予定があれば1、予定がなければ0を設定する
     // 例) 開始時間：0900、終了時間：1800、1セクション：5分、かつ1000~1100に予定が入っている場合
     //     0900~1000（0セクション~11セクション）、1100~1800（24セクション~107セクション）の間は予定がないため、値は0
     //     1000~1100（12セクション~23セクション）の間は予定があるため、値は1
-    let freeSections = new Array(timeUtil.subtractTimeStr(endTimeStr, startTimeStr) / constant.SECTION_MINUTES_LENGTH);
+    let freeSections = new Array(
+        Math.ceil(timeUtil.subtractTimeStr(endTimeStr, startTimeStr) / constant.SECTION_MINUTES_LENGTH)
+    );
     freeSections.fill(0);
 
     let remainingFreeTimeMin = freeSections.length * constant.SECTION_MINUTES_LENGTH;
@@ -108,10 +94,6 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
                 freeSections.fill(1, availableTimeStartIndex, availableTimeStartIndex + needSectionNum);
                 remainingFreeTimeMin -= needSectionNum * constant.SECTION_MINUTES_LENGTH;
 
-                await client.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
-                    todo.id,
-                    scheduleId
-                ]);
                 const startAndEndTimeStr = timeUtil.getStartAndEndTimeStr(
                     startTimeStr,
                     availableTimeStartIndex * constant.SECTION_MINUTES_LENGTH,
@@ -194,11 +176,6 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
                             todo.id
                         ]
                     );
-
-                    await client.query('INSERT INTO schedule_plan_inclusion (plan_id, schedule_id) VALUES ($1, $2)', [
-                        dividedTodoCreateResult.rows[0].id,
-                        scheduleId
-                    ]);
 
                     scheduledTodos.push(dividedTodoCreateResult.rows[0]);
                 }
