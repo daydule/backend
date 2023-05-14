@@ -13,17 +13,17 @@ const { Client } = require('pg');
 async function backToList(client, userId, todoId) {
     const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
     const scheduledTodoIds = getUserResult.rows[0].scheduledTodoOrder
-        ? getUserResult.rows[0].scheduledTodoOrder.split(',')
+        ? getUserResult.rows[0].scheduledTodoOrder.split(',').map((id) => Number(id))
         : [];
-    const listTodoIds = getUserResult.rows[0].todoListOrder ? getUserResult.rows[0].todoListOrder.split(',') : [];
+    const todoListIds = getUserResult.rows[0].todoListOrder ? getUserResult.rows[0].todoListOrder.split(',') : [];
 
     const getTodoResult = await dbHelper.query(client, 'SELECT * FROM plans WHERE id = $1', [todoId]);
     const targetTodo = getTodoResult.rows[0];
 
     let newScheduledTodoIds;
-    let newListTodoIds;
+    let newTodoListIds;
 
-    // NOTE: 親予定はそのままスケジュールに入ることはないため、todoIdとして指定されう
+    // NOTE: 親予定はそのままスケジュールに入ることはないため、todoIdとして指定される
     if (targetTodo.parentPlanId) {
         // NOTE: 子予定だったら、兄弟を全て削除
         const deletePlansResult = await dbHelper.query(
@@ -33,9 +33,9 @@ async function backToList(client, userId, todoId) {
         );
 
         newScheduledTodoIds = scheduledTodoIds.filter(
-            (id) => !deletePlansResult.rows.map((plan) => plan.id).include(Number(id))
+            (id) => !deletePlansResult.rows.map((plan) => plan.id).include(id)
         );
-        newListTodoIds = listTodoIds.concat(targetTodo.parentPlanId);
+        newTodoListIds = todoListIds.concat(targetTodo.parentPlanId);
 
         await dbHelper.query(
             client,
@@ -43,8 +43,8 @@ async function backToList(client, userId, todoId) {
             [null, null, null, false, targetTodo.parentPlanId]
         );
     } else {
-        newScheduledTodoIds = scheduledTodoIds.filter((id) => Number(id) !== targetTodo.id);
-        newListTodoIds = listTodoIds.concat(targetTodo.id);
+        newScheduledTodoIds = scheduledTodoIds.filter((id) => id !== targetTodo.id);
+        newTodoListIds = todoListIds.concat(targetTodo.id);
 
         await dbHelper.query(
             client,
@@ -54,7 +54,7 @@ async function backToList(client, userId, todoId) {
     }
 
     const newScheduleTodoIdsCsv = newScheduledTodoIds.join(',');
-    const newListTodoIdsCsv = newListTodoIds.join(',');
+    const newListTodoIdsCsv = newTodoListIds.join(',');
     await dbHelper.query(client, 'UPDATE users SET scheduled_todo_order = $1 WHERE id = $2', [
         newScheduleTodoIdsCsv ? newScheduleTodoIdsCsv : null,
         userId
