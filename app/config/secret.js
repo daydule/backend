@@ -8,9 +8,9 @@ module.exports = {
     port: env.BACKEND_PORT,
     db: {
         // ローカル
-        // host: 'postgres',
+        host: 'postgres',
         // 本番
-        host: env.DB_HOST,
+        // host: env.DB_HOST,
         database: env.DB_NAME,
         port: env.DB_PORT,
         user: env.DB_USER,

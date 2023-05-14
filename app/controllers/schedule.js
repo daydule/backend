@@ -19,7 +19,6 @@ router.post('/create', createScheduleValidators, async (req, res) => {
     const timeUtils = require('../utils/time');
     const dateStr = req.body.date;
     const userId = req.user.id;
-
     const currentTime = req.body.currentTime;
 
     const client = await pool.connect();
@@ -61,15 +60,10 @@ router.post('/create', createScheduleValidators, async (req, res) => {
             ?.filter((id) => id)
             .map((id) => Number(id));
         const todos = getTodosResult.rows;
-
-        // NOTE: todoListOrderにないtodoがある場合は、後ろにそのtodoをつける
         const sortedTodos =
             todoListOrder == null
                 ? todos
-                : todoListOrder
-                      .map((id) => todos.find((todo) => todo.id === id))
-                      .filter((todo) => todo !== null)
-                      .concat(todos.filter((todo) => !todoListOrder.includes(todo.id)));
+                : todoListOrder.map((id) => todos.find((todo) => todo.id === id)).filter((todo) => todo !== null);
 
         await client.query('BEGIN');
 
@@ -92,8 +86,20 @@ router.post('/create', createScheduleValidators, async (req, res) => {
         await dbHelper.query(
             client,
             'UPDATE schedules SET start_time = $1, end_time = $2, is_created = $3 WHERE id = $4',
-            [startTime, endTime, true, scheduleId]
+            [getScheduleResult.rows[0].startTime, endTime, true, scheduleId]
         );
+
+        const scheduledTodoIds = createScheduleResult.result.schedule.todos.map((todo) => todo.id);
+        const listTodoIds = createScheduleResult.result.other.todos.map((todo) => todo.id);
+
+        const scheduledTodoIdsCsv = scheduledTodoIds.length > 0 ? scheduledTodoIds.join(',') : null;
+        const listTodoIdsCsv = listTodoIds.length > 0 ? listTodoIds.join(',') : null;
+
+        await dbHelper.query(client, 'UPDATE users SET scheduled_todo_order = $1 WHERE id = $2', [
+            scheduledTodoIdsCsv,
+            userId
+        ]);
+        await dbHelper.query(client, 'UPDATE users SET todo_list_order = $1 WHERE id = $2', [listTodoIdsCsv, userId]);
 
         await client.query('COMMIT');
 
@@ -128,10 +134,11 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
             [userId, date]
         );
 
-        const getPlansResult = await dbHelper.query(client, 'SELECT * FROM plans WHERE user_id = $1 AND date = $2', [
-            userId,
-            date
-        ]);
+        const getScheduledPlansResult = await dbHelper.query(
+            client,
+            'SELECT * FROM plans WHERE user_id = $1 AND date = $2',
+            [userId, date]
+        );
         const getTodosResult = await dbHelper.query(
             client,
             'SELECT * FROM plans WHERE user_id = $1 AND date IS NULL AND plan_type = $2',
@@ -143,14 +150,10 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
             ?.filter((id) => id)
             .map((id) => Number(id));
         const todos = getTodosResult.rows;
-        // NOTE: todoListOrderにないtodoがある場合は、後ろにそのtodoをつける
-        const sortedTodos =
+        const sortedListTodos =
             todoListOrder == null
                 ? todos
-                : todoListOrder
-                      .map((id) => todos.find((todo) => todo.id === id))
-                      .filter((todo) => todo !== null)
-                      .concat(todos.filter((todo) => !todoListOrder.includes(todo.id)));
+                : todoListOrder.map((id) => todos.find((todo) => todo.id === id)).filter((todo) => todo !== null);
 
         await client.query('COMMIT');
         return res.status(200).json({
@@ -158,9 +161,9 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
             schedule: {
                 startTime: getScheduleResult.rows[0].startTime,
                 endTime: getScheduleResult.rows[0].endTime,
-                plans: getPlansResult.rows
+                plans: getScheduledPlansResult.rows
             },
-            todos: sortedTodos
+            todos: sortedListTodos
         });
     } catch (e) {
         await client.query('ROLLBACK');
