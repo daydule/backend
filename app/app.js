@@ -45,7 +45,7 @@ app.use(
         cookie: {
             maxAge: 30 * 24 * 60 * 60 * 1000,
             // sameSite: env.COOKIE_SAME_SITE,
-            // secure: env.COOKIE_SECURE === 'true',
+            secure: env.COOKIE_SECURE === 'true',
             httpOnly: env.COOKIE_HTTP_ONLY === 'true',
             domain: env.FRONTEND_DOMAIN
         },
