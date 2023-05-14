@@ -9,11 +9,6 @@ module.exports = {
     db: {
         // ローカル
         // host: 'postgres',
-        // database: env.DB_NAME,
-        // port: env.DB_PORT,
-        // user: env.DB_USER,
-        // password: env.DB_PASS
-
         // 本番
         host: env.DB_HOST,
         database: env.DB_NAME,
