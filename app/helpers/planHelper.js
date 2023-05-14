@@ -15,7 +15,9 @@ async function backToList(client, userId, todoId) {
     const scheduledTodoIds = getUserResult.rows[0].scheduledTodoOrder
         ? getUserResult.rows[0].scheduledTodoOrder.split(',').map((id) => Number(id))
         : [];
-    const todoListIds = getUserResult.rows[0].todoListOrder ? getUserResult.rows[0].todoListOrder.split(',') : [];
+    const todoListIds = getUserResult.rows[0].todoListOrder
+        ? getUserResult.rows[0].todoListOrder.split(',').map((id) => Number(id))
+        : [];
 
     const getTodoResult = await dbHelper.query(client, 'SELECT * FROM plans WHERE id = $1', [todoId]);
     const targetTodo = getTodoResult.rows[0];
