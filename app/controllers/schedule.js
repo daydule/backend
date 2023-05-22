@@ -19,7 +19,27 @@ router.post('/create', createScheduleValidators, async (req, res) => {
     const timeUtils = require('../utils/time');
     const dateStr = req.body.date;
     const userId = req.user.id;
-    const currentTime = req.body.currentTime;
+    let currentTime = req.body.currentTime; // NOTE: HHmmの書式
+
+    const ceilCurrentTimeUpToDivisibleByFive = (currentTime) => {
+        const now = new Date();
+        now.setHours(Number(currentTime.substr(0, 2)));
+        now.setMinutes(Number(currentTime.substr(2, 2)));
+
+        const minutes = now.getMinutes();
+        const roundedMinutes = Math.ceil(minutes / 5) * 5;
+        if (roundedMinutes === 60) {
+            now.setHours(now.getHours() + 1);
+            now.setMinutes(0);
+        } else {
+            now.setMinutes(roundedMinutes);
+        }
+        return now;
+    };
+
+    const ceilCurrentTimeResult = ceilCurrentTimeUpToDivisibleByFive(currentTime);
+    currentTime =
+        ('00' + ceilCurrentTimeResult.getHours()).slice(-2) + ('00' + ceilCurrentTimeResult.getMinutes()).slice(-2);
 
     const client = await pool.connect();
     try {
