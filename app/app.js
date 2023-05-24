@@ -21,7 +21,7 @@ const pgSession = require('connect-pg-simple')(expressSession);
 // const csurf = require('csurf');
 
 // eslint-disable-next-line node/no-unpublished-require
-const secret = require('./config/secret');
+const constant = require('./config/const');
 const passport = require('./config/passport');
 const pool = require('./db/pool');
 const auth = require('./controllers/auth');
@@ -30,7 +30,7 @@ const plan = require('./controllers/plan');
 const recurringPlan = require('./controllers/recurringPlan');
 const schedule = require('./controllers/schedule');
 const loginCheck = require('./middlewares/loginCheck');
-const port = secret.port;
+const port = constant.PORT;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -40,7 +40,7 @@ app.use(
             pool: pool,
             tableName: 'session'
         }),
-        secret: secret.cookieSecret,
+        secret: constant.COOKIE_SECRET,
         resave: false,
         cookie: {
             maxAge: 30 * 24 * 60 * 60 * 1000,

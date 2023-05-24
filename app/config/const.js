@@ -1,6 +1,7 @@
 'use strict';
 // eslint-disable-next-line node/no-unpublished-require
-const secret = require('./secret');
+
+const env = process.env;
 
 module.exports = {
     DEFAULT: {
@@ -24,8 +25,20 @@ module.exports = {
     },
     GUEST_INIT: {
         AT_MARK: '@',
-        GUEST_PASSWORD: secret.guestPassword,
-        GUEST_USERNAME: secret.guestUsername,
-        GUEST_DOMAIN: secret.guestDomain
-    }
+        GUEST_PASSWORD: env.GUEST_PASSWORD,
+        GUEST_USERNAME: env.GUEST_USERNAME,
+        GUEST_DOMAIN: env.GUEST_DOMAIN
+    },
+    PORT: env.BACKEND_PORT,
+    DB: {
+        // ローカル
+        // HOST: 'postgres',
+        // 本番
+        host: env.DB_HOST,
+        DATABASE: env.DB_NAME,
+        PORT: env.DB_PORT,
+        USER: env.DB_USER,
+        PASSWORD: env.DB_PASS
+    },
+    COOKIE_SECRET: 'cookieSecret'
 };
