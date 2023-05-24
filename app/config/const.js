@@ -34,7 +34,7 @@ module.exports = {
         // ローカル
         // HOST: 'postgres',
         // 本番
-        host: env.DB_HOST,
+        HOST: env.DB_HOST,
         DATABASE: env.DB_NAME,
         PORT: env.DB_PORT,
         USER: env.DB_USER,
