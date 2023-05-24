@@ -2,14 +2,14 @@
 
 const { Pool } = require('pg');
 // eslint-disable-next-line node/no-unpublished-require
-const dbSecret = require('../config/secret').db;
+const dbConstant = require('../config/const').DB;
 
 const pool = new Pool({
-    host: dbSecret.host,
-    database: dbSecret.database,
-    port: dbSecret.port,
-    user: dbSecret.user,
-    password: dbSecret.password
+    host: dbConstant.HOST,
+    database: dbConstant.DATABASE,
+    port: dbConstant.PORT,
+    user: dbConstant.USER,
+    password: dbConstant.PASSWORD
 });
 
 module.exports = pool;
