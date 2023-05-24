@@ -2,19 +2,13 @@
 
 const { check } = require('express-validator');
 const { PLAN_TYPE, SCHEDULE_LOGIC_FILENAME } = require('../../../config/const');
-const {
-    validationChainWrappers,
-    checkNotEmpty,
-    skipCheckIfUndefined,
-    skipCheckIfNullable,
-    skipCheckIfFalsy
-} = require('./validationUtils');
+const { validationChainWrappers, checkNotEmpty, skipCheckIfUndefined, skipCheckIfFalsy } = require('./validationUtils');
 
 const plansValidators = {
     id: validationChainWrappers.checkIntegerWithMinWrapper(checkNotEmpty('id'), 1),
     ids: validationChainWrappers.checkIntegerArrayWrapper(checkNotEmpty('ids')),
     title: validationChainWrappers.checkLengthMinMaxWrapper(checkNotEmpty('title'), 1, 100),
-    context: validationChainWrappers.checkLengthMinMaxWrapper(skipCheckIfNullable('context'), 0, 500),
+    context: validationChainWrappers.checkLengthMinMaxWrapper(skipCheckIfUndefined('context'), 0, 500),
     date: validationChainWrappers.checkDateWithRegexWrapper(skipCheckIfUndefined('date'), /^\d{4}-\d{2}-\d{2}$/),
     startTime: validationChainWrappers.checkTimeString4digitsWrapper(skipCheckIfUndefined('startTime')),
     endTime: validationChainWrappers.checkTimeString4digitsWrapper(skipCheckIfUndefined('endTime')),
@@ -23,7 +17,7 @@ const plansValidators = {
     bufferTime: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('bufferTime'), 0),
     planType: validationChainWrappers.checkInWrapper(checkNotEmpty('planType'), Object.values(PLAN_TYPE)),
     priority: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('priority'), 0),
-    place: validationChainWrappers.checkLengthMinMaxWrapper(skipCheckIfUndefined('place'), 1, 100),
+    place: validationChainWrappers.checkLengthMinMaxWrapper(skipCheckIfUndefined('place'), 0, 100),
     isRequiredPlan: validationChainWrappers.checkBooleanWrapper(skipCheckIfUndefined('isRequiredPlan')),
     parentPlanId: validationChainWrappers.checkIntegerWithMinWrapper(skipCheckIfUndefined('parentPlanId'), 1),
     isParentPlan: validationChainWrappers.checkBooleanWrapper(skipCheckIfUndefined('isParentPlan')),
