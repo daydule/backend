@@ -120,7 +120,7 @@ router.post('/:id/update', updatePlanValidators, async (req, res) => {
                 process_time = $7, travel_time = $8, buffer_time = $9, plan_type = $10, \
                 priority = $11, place = $12, is_required_plan = $13, parent_plan_id = $14, \
                 is_parent_plan = $15 \
-                WHERE id = $17 RETURNING *';
+                WHERE id = $16 RETURNING *';
         const values = [
             userId,
             title,
