@@ -35,10 +35,10 @@ router.post('/signup', signupValidators, async (req, res) => {
 
         const isGuest = req.user && req.user.is_guest;
         const sql = isGuest
-            ? 'UPDATE users SET email = $1, hashed_password = $2, salt = $3, is_guest = $4 WHERE id = $5 RETURNING *'
+            ? 'UPDATE users SET nickname = $1, email = $2, hashed_password = $3, salt = $4, is_guest = $5 WHERE id = $6 RETURNING *'
             : 'INSERT INTO users (email, hashed_password, salt, is_guest) VALUES ($1, $2, $3, $4) RETURNING *';
         const values = isGuest
-            ? [email, hashedPassword.toString('base64'), salt, false, req.user.id]
+            ? [null, email, hashedPassword.toString('base64'), salt, false, req.user.id]
             : [email, hashedPassword.toString('base64'), salt, false];
 
         const signupUserResult = await dbHelper.query(client, sql, values);
@@ -160,8 +160,9 @@ router.post('/guest/signup', async (req, res) => {
 
         const hashedPassword = await promisify(crypto.pbkdf2)(password, salt, 310000, 32, 'sha256');
 
-        const sql = 'INSERT INTO users (email, hashed_password, salt, is_guest) VALUES ($1, $2, $3, $4) RETURNING *';
-        const values = [email, hashedPassword.toString('base64'), salt, isGuest];
+        const sql =
+            'INSERT INTO users (nickname, email, hashed_password, salt, is_guest) VALUES ($1, $2, $3, $4, $5) RETURNING *';
+        const values = ['ゲスト', email, hashedPassword.toString('base64'), salt, isGuest];
 
         const guestSignupResult = await dbHelper.query(client, sql, values);
         await client.query('COMMIT');

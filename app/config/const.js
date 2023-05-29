@@ -1,5 +1,6 @@
 'use strict';
 
+// eslint-disable-next-line node/no-unpublished-require
 require('dotenv').config();
 const env = process.env;
 
