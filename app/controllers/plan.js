@@ -13,7 +13,7 @@ const dbHelper = require('../helpers/dbHelper');
 const { PLAN_TYPE } = require('../config/const');
 
 /**
- * 予定作成
+ * 予定作成a
  */
 router.post('/create', createPlanValidators, async (req, res) => {
     const userId = req.user.id;
