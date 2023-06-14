@@ -38,8 +38,6 @@ router.post('/update', [guestCheck].concat(updateUserValidators), async function
 
     const client = await pool.connect();
     try {
-        // TODO: バリデーションチェック（書式チェック）をする
-
         // TODO: 以下のバリデーションチェック（パスワードが正しいかどうかのチェック）をヘルパーで実装する
         // バリデーションチェック（パスワードが正しいかどうかのチェック）をする
         const hashedPassword = await promisify(crypto.pbkdf2)(password, req.user.salt, 310000, 32, 'sha256');
@@ -86,8 +84,6 @@ router.post('/password/update', [guestCheck].concat(updateUserPasswordValidators
 
     const client = await pool.connect();
     try {
-        // TODO: バリデーションチェック（書式チェック）をする
-
         // TODO: 以下のバリデーションチェック（パスワードが正しいかどうかのチェック）をヘルパーで実装する
         // バリデーションチェック（パスワードが正しいかどうかのチェック）をする
         const hashedCurrentPassword = await promisify(crypto.pbkdf2)(
