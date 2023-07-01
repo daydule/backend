@@ -9,8 +9,8 @@ const updateUserValidators = [
     userValidators.password('password')
 ].concat(validationResultCheck);
 const updateUserPasswordValidators = [
-    userValidators.password(['currentPassword', 'newPassword']),
-    userValidators.checkDifferentPassword('newPassword', 'currentPassword')
+    userValidators.password('newPassword'),
+    userValidators.checkDifferentPassword('currentPassword', 'newPassword')
 ].concat(validationResultCheck);
 const updateScheduleSettingsValidators = [
     daySettingsValidators.scheduleStartTime,

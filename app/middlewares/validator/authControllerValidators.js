@@ -3,6 +3,8 @@
 const { userValidators } = require('./definition/allValidators');
 const validationResultCheck = require('./definition/validationResultCheck');
 
+const loginValidators = [userValidators.email, userValidators.password('password')].concat(validationResultCheck);
+
 const signupValidators = [
     userValidators.email,
     userValidators.password('password'),
@@ -10,5 +12,6 @@ const signupValidators = [
 ].concat(validationResultCheck);
 
 module.exports = {
+    loginValidators,
     signupValidators
 };

@@ -6,9 +6,7 @@
  */
 
 const errorMessageFormatter = function (errors) {
-    return errors.map((error) => {
-        return '(' + error.param + ' : ' + error.value + ') ' + error.msg;
-    });
+    return errors.map((error) => error.msg);
 };
 
 module.exports = {

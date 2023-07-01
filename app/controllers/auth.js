@@ -9,7 +9,7 @@ const pool = require('../db/pool');
 const loginCheck = require('../middlewares/loginCheck');
 const daySettingsHelper = require('../helpers/daySettingsHelper');
 const dbHelper = require('../helpers/dbHelper');
-const { signupValidators } = require('../middlewares/validator/authControllerValidators');
+const { signupValidators, loginValidators } = require('../middlewares/validator/authControllerValidators');
 
 /**
  * サインアップ
@@ -74,11 +74,15 @@ router.post('/signup', signupValidators, async (req, res) => {
 /**
  * ログイン
  */
-router.post('/login', passport.authenticate('local', { failureRedirect: '/authError' }), (req, res) => {
-    res.status(200).json({
-        isError: false
-    });
-});
+router.post(
+    '/login',
+    loginValidators.concat(passport.authenticate('local', { failureRedirect: '/authError' })),
+    (req, res) => {
+        res.status(200).json({
+            isError: false
+        });
+    }
+);
 
 /**
  * ゲストチェック
