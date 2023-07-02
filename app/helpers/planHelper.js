@@ -22,6 +22,8 @@ async function backToList(client, userId, todoId) {
     const getTodoResult = await dbHelper.query(client, 'SELECT * FROM plans WHERE id = $1', [todoId]);
     const targetTodo = getTodoResult.rows[0];
 
+    if (!targetTodo) return;
+
     let newScheduledTodoIds;
     let newTodoListIds;
 
@@ -34,10 +36,11 @@ async function backToList(client, userId, todoId) {
             [targetTodo.parentPlanId]
         );
 
-        newScheduledTodoIds = scheduledTodoIds.filter(
-            (id) => !deletePlansResult.rows.map((plan) => plan.id).include(id)
-        );
-        newTodoListIds = todoListIds.concat(targetTodo.parentPlanId);
+        const deletedTodoIds = deletePlansResult.rows.map((todo) => todo.id);
+
+        newScheduledTodoIds = scheduledTodoIds.filter((id) => !deletedTodoIds.includes(id));
+        // targetTodoの親予定が最優先になるように戻す
+        newTodoListIds = [targetTodo.parentPlanId].concat(todoListIds);
 
         await dbHelper.query(
             client,
@@ -46,7 +49,8 @@ async function backToList(client, userId, todoId) {
         );
     } else {
         newScheduledTodoIds = scheduledTodoIds.filter((id) => id !== targetTodo.id);
-        newTodoListIds = todoListIds.concat(targetTodo.id);
+        // targetTodoが最優先になるように戻す
+        newTodoListIds = [targetTodo.id].concat(todoListIds);
 
         await dbHelper.query(
             client,
@@ -69,7 +73,7 @@ async function backToList(client, userId, todoId) {
 
 /**
  * @param {string} todoListOrder - TODOのIDの並び順csv文字列
- * @returns {number[] | null} - TODOのIDの並び順配列
+ * @returns {number[]} - TODOのIDの並び順配列
  */
 function convertTodoListOrderToArray(todoListOrder) {
     return todoListOrder
