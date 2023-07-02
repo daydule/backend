@@ -12,12 +12,8 @@ const { Client } = require('pg');
  */
 async function backToList(client, userId, todoId) {
     const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
-    const scheduledTodoIds = getUserResult.rows[0].scheduledTodoOrder
-        ? convertTodoListOrderToArray(getUserResult.rows[0].scheduledTodoOrder)
-        : [];
-    const todoListIds = getUserResult.rows[0].todoListOrder
-        ? convertTodoListOrderToArray(getUserResult.rows[0].todoListOrder)
-        : [];
+    const scheduledTodoIds = convertTodoListOrderToArray(getUserResult.rows[0].scheduledTodoOrder);
+    const todoListIds = convertTodoListOrderToArray(getUserResult.rows[0].todoListOrder);
 
     const getTodoResult = await dbHelper.query(client, 'SELECT * FROM plans WHERE id = $1', [todoId]);
     const targetTodo = getTodoResult.rows[0];
@@ -76,9 +72,10 @@ async function backToList(client, userId, todoId) {
  * @returns {number[]} - TODOのIDの並び順配列
  */
 function convertTodoListOrderToArray(todoListOrder) {
+    if (!todoListOrder) return [];
     return todoListOrder
-        ?.split(',')
-        ?.filter((id) => id)
+        .split(',')
+        .filter((id) => id)
         .map((id) => Number(id));
 }
 
@@ -90,9 +87,7 @@ function convertTodoListOrderToArray(todoListOrder) {
  * @returns {object[]} - 並び替えられたtodoオブジェクト配列
  */
 function sortTodos(todos, order) {
-    return order == null
-        ? todos
-        : order.map((id) => todos.find((todo) => todo.id === id)).filter((todo) => todo !== null);
+    return order.map((id) => todos.find((todo) => todo.id === id)).filter((todo) => todo !== null);
 }
 
 module.exports = {
