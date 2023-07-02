@@ -8,7 +8,7 @@ const { Client } = require('pg');
  *
  * @param {Client} client - DB接続
  * @param {number} userId - ユーザーID
- * @param {number} todoId - TOODのID
+ * @param {number} todoId - TODOのID
  */
 async function backToList(client, userId, todoId) {
     const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
