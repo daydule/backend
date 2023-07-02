@@ -6,6 +6,7 @@ const pool = require('../db/pool');
 const constant = require('../config/const');
 const dbHelper = require('../helpers/dbHelper');
 const scheduleHelper = require('../helpers/scheduleHelper');
+const planHelper = require('../helpers/planHelper');
 const {
     readScheduleValidators,
     updateScheduleValidators,
@@ -75,15 +76,9 @@ router.post('/create', createScheduleValidators, async (req, res) => {
 
         const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
-        const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder
-            ?.split(',')
-            ?.filter((id) => id)
-            .map((id) => Number(id));
+        const todoListOrder = planHelper.convertTodoListOrderToArray(getTodoListOrderResult.rows[0].todoListOrder);
         const todos = getTodosResult.rows;
-        const sortedTodos =
-            todoListOrder == null
-                ? todos
-                : todoListOrder.map((id) => todos.find((todo) => todo.id === id)).filter((todo) => todo !== null);
+        const sortedTodos = planHelper.sortTodos(todos, todoListOrder);
 
         await client.query('BEGIN');
 
@@ -165,15 +160,9 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
             [userId, constant.PLAN_TYPE.TODO]
         );
         const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
-        const todoListOrder = getTodoListOrderResult.rows[0].todoListOrder
-            ?.split(',')
-            ?.filter((id) => id)
-            .map((id) => Number(id));
+        const todoListOrder = planHelper.convertTodoListOrderToArray(getTodoListOrderResult.rows[0].todoListOrder);
         const todos = getTodosResult.rows;
-        const sortedListTodos =
-            todoListOrder == null
-                ? todos
-                : todoListOrder.map((id) => todos.find((todo) => todo.id === id)).filter((todo) => todo !== null);
+        const sortedTodos = planHelper.sortTodos(todos, todoListOrder);
 
         await client.query('COMMIT');
         return res.status(200).json({
@@ -183,7 +172,7 @@ router.get('/read/:date', readScheduleValidators, async (req, res) => {
                 endTime: getScheduleResult.rows[0].endTime,
                 plans: getScheduledPlansResult.rows
             },
-            todos: sortedListTodos
+            todos: sortedTodos
         });
     } catch (e) {
         await client.query('ROLLBACK');
