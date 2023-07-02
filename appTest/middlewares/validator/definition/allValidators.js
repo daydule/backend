@@ -15,13 +15,13 @@ describe('generalValidators.js', function () {
             const expectedResultErrors = [
                 {
                     location: 'body',
-                    msg: 'not empty',
+                    msg: 'タイトルは必須です。',
                     param: 'title',
                     value: undefined
                 },
                 {
                     location: 'body',
-                    msg: 'should be between 1 and 100 characters.',
+                    msg: 'タイトルは1以上、100以下の文字列です。システム管理者に問い合わせてください。',
                     param: 'title',
                     value: undefined
                 }
