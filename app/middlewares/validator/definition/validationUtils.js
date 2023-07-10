@@ -1,12 +1,12 @@
 'use strict';
 
-const { body } = require('express-validator');
+const { check } = require('express-validator');
 
-const checkNotEmpty = (fields, name) => body(fields).notEmpty().withMessage(`${name}は必須です。`);
+const checkNotEmpty = (fields, name) => check(fields).notEmpty().withMessage(`${name}は必須です。`);
 
-const skipCheckIfUndefined = (fields) => body(fields).optional();
-const skipCheckIfNullable = (fields) => body(fields).optional({ nullable: true });
-const skipCheckIfFalsy = (fields) => body(fields).optional({ checkFalsy: true });
+const skipCheckIfUndefined = (fields) => check(fields).optional();
+const skipCheckIfNullable = (fields) => check(fields).optional({ nullable: true });
+const skipCheckIfFalsy = (fields) => check(fields).optional({ checkFalsy: true });
 /**
  * NOTE:
  * optional(defaultOptions) // undefinedの場合はcheckをスキップする

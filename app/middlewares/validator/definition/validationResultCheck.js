@@ -11,7 +11,8 @@ const { errorMessageFormatter } = require('../../../helpers/validationHelper');
  */
 const validationResultCheck = (req, res, next) => {
     const result = validationResult(req);
-    if (result.errors.length !== 0) {
+    const errorsExceptHeaders = result.errors.filter((e) => e.location !== 'headers');
+    if (errorsExceptHeaders.length > 0) {
         console.error('Validation Error: ' + JSON.stringify(result.errors));
         return res.status(400).json({
             isError: true,
