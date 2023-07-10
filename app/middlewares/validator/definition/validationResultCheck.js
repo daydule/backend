@@ -11,7 +11,8 @@ const { errorMessageFormatter } = require('../../../helpers/validationHelper');
  */
 const validationResultCheck = (req, res, next) => {
     const result = validationResult(req);
-    const errorsExceptHeaders = result.errors.filter((e) => e.location !== 'headers');
+    // NOTE: priorityがbodyだけでなく、headerに設定されることがある。その際にバリデーションエラーとなるため、除外
+    const errorsExceptHeaders = result.errors.filter((e) => e.param !== 'priority' || e.location !== 'headers');
     if (errorsExceptHeaders.length > 0) {
         console.error('Validation Error: ' + JSON.stringify(result.errors));
         return res.status(400).json({
