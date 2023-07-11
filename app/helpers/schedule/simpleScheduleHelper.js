@@ -73,6 +73,19 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
             let startIndex = timeUtil.subtractTimeStr(plan.startTime, startTimeStr) / constant.SECTION_MINUTES_LENGTH;
             let endIndex = startIndex + processTimeMin / constant.SECTION_MINUTES_LENGTH;
 
+            // NOTE: 終了時刻が過ぎている予定に関する調整
+            if (endIndex < 0) {
+                processTimeMin = 0;
+                startIndex = 0;
+                endIndex = 0;
+            }
+
+            // NOTE: 開始時刻と被っている予定に関する調整
+            if (startIndex < 0) {
+                processTimeMin -= startIndex * -1 * constant.SECTION_MINUTES_LENGTH;
+                startIndex = 0;
+            }
+
             freeSections.fill(1, startIndex, endIndex);
             remainingFreeTimeMin -= processTimeMin;
         } else {
