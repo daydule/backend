@@ -73,6 +73,17 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
             let startIndex = timeUtil.subtractTimeStr(plan.startTime, startTimeStr) / constant.SECTION_MINUTES_LENGTH;
             let endIndex = startIndex + processTimeMin / constant.SECTION_MINUTES_LENGTH;
 
+            if (endIndex < 0) {
+                // NOTE: 予定の終了時刻が、作業できる時間帯の開始時刻を過ぎている場合
+                processTimeMin = 0;
+                startIndex = 0;
+                endIndex = 0;
+            } else if (startIndex < 0) {
+                // NOTE: 予定の開始時刻が、作業できる時間帯の開始時刻より前の場合
+                processTimeMin += startIndex * constant.SECTION_MINUTES_LENGTH;
+                startIndex = 0;
+            }
+
             freeSections.fill(1, startIndex, endIndex);
             remainingFreeTimeMin -= processTimeMin;
         } else {
