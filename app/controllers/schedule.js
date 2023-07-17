@@ -50,6 +50,7 @@ router.post('/create', createScheduleValidators, async (req, res) => {
             [userId, dateStr]
         );
         const scheduleId = getScheduleResult.rows[0].id;
+
         // NOTE: 開始時刻より現在時刻が遅い場合は現在時刻を利用する
         const startTime =
             timeUtils.compareTimeStr(currentTime, getScheduleResult.rows[0].startTime) > 0
