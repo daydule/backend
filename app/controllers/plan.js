@@ -287,14 +287,19 @@ router.post('/backToList', async (req, res) => {
     try {
         await client.query('BEGIN');
 
-        const getPlansResult = await dbHelper.query(
+        const getTodosResult = await dbHelper.query(
             client,
             'SELECT * FROM plans WHERE user_id = $1 AND date = $2 AND plan_type = $3',
             [userId, dateStr, constant.PLAN_TYPE.TODO]
         );
 
-        for (let i = 0; i < getPlansResult.rows.length; i++) {
-            await planHelper.backToList(client, userId, getPlansResult.rows[i].id);
+        const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
+        const scheduledTodoOrder = planHelper.convertTodoListOrderToArray(getUserResult.rows[0].scheduledTodoOrder);
+        const todos = getTodosResult.rows;
+        const sortedTodos = planHelper.sortTodos(todos, scheduledTodoOrder);
+
+        for (let todo of sortedTodos.reverse()) {
+            await planHelper.backToList(client, userId, todo.id);
         }
 
         await client.query('COMMIT');
