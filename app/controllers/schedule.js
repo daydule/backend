@@ -75,9 +75,10 @@ router.post('/create', createScheduleValidators, async (req, res) => {
             [userId, constant.PLAN_TYPE.TODO]
         );
 
-        const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
+        const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
-        const todoListOrder = planHelper.convertTodoListOrderToArray(getTodoListOrderResult.rows[0].todoListOrder);
+        const todoListOrder = planHelper.convertTodoListOrderToArray(getUserResult.rows[0].todoListOrder);
+        const scheduledTodoOrder = planHelper.convertTodoListOrderToArray(getUserResult.rows[0].scheduledTodoOrder);
         const todos = getTodosResult.rows;
         const sortedTodos = planHelper.sortTodos(todos, todoListOrder);
 
@@ -105,7 +106,9 @@ router.post('/create', createScheduleValidators, async (req, res) => {
             [getScheduleResult.rows[0].startTime, endTime, true, scheduleId]
         );
 
-        const scheduledTodoIds = createScheduleResult.result.schedule.todos.map((todo) => todo.id);
+        const scheduledTodoIds = scheduledTodoOrder.concat(
+            createScheduleResult.result.schedule.todos.map((todo) => todo.id)
+        );
         const listTodoIds = createScheduleResult.result.other.todos.map((todo) => todo.id);
 
         const scheduledTodoIdsCsv = scheduledTodoIds.length > 0 ? scheduledTodoIds.join(',') : null;
