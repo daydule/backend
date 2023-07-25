@@ -63,11 +63,10 @@ router.post('/create', createScheduleValidators, async (req, res) => {
             throw new Error('The end time has already passed.');
         }
 
-        const getPlansResult = await dbHelper.query(
-            client,
-            'SELECT * FROM plans WHERE user_id = $1 AND date = $2 AND plan_type = $3',
-            [userId, dateStr, constant.PLAN_TYPE.PLAN]
-        );
+        const getPlansResult = await dbHelper.query(client, 'SELECT * FROM plans WHERE user_id = $1 AND date = $2', [
+            userId,
+            dateStr
+        ]);
 
         const getTodosResult = await dbHelper.query(
             client,
