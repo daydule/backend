@@ -42,6 +42,7 @@ router.post('/create', createScheduleValidators, async (req, res) => {
     currentTime =
         ('00' + ceilCurrentTimeResult.getHours()).slice(-2) + ('00' + ceilCurrentTimeResult.getMinutes()).slice(-2);
 
+    let errorMessageToClient = '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。';
     const client = await pool.connect();
     try {
         const getScheduleResult = await dbHelper.query(
@@ -63,11 +64,10 @@ router.post('/create', createScheduleValidators, async (req, res) => {
             throw new Error('The end time has already passed.');
         }
 
-        const getPlansResult = await dbHelper.query(
-            client,
-            'SELECT * FROM plans WHERE user_id = $1 AND date = $2 AND plan_type = $3',
-            [userId, dateStr, constant.PLAN_TYPE.PLAN]
-        );
+        const getPlansResult = await dbHelper.query(client, 'SELECT * FROM plans WHERE user_id = $1 AND date = $2', [
+            userId,
+            dateStr
+        ]);
 
         const getTodosResult = await dbHelper.query(
             client,
@@ -75,9 +75,10 @@ router.post('/create', createScheduleValidators, async (req, res) => {
             [userId, constant.PLAN_TYPE.TODO]
         );
 
-        const getTodoListOrderResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
+        const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
-        const todoListOrder = planHelper.convertTodoListOrderToArray(getTodoListOrderResult.rows[0].todoListOrder);
+        const todoListOrder = planHelper.convertTodoListOrderToArray(getUserResult.rows[0].todoListOrder);
+        const scheduledTodoOrder = planHelper.convertTodoListOrderToArray(getUserResult.rows[0].scheduledTodoOrder);
         const todos = getTodosResult.rows;
         const sortedTodos = planHelper.sortTodos(todos, todoListOrder);
 
@@ -99,13 +100,20 @@ router.post('/create', createScheduleValidators, async (req, res) => {
             throw new Error('Fail to create schedule.' + createScheduleResult.errorMessage);
         }
 
+        if (createScheduleResult.result.schedule.todos.length === 0) {
+            errorMessageToClient = '予定化できる時間がありませんでした。';
+            throw new Error('Can not insert todo into schedule.');
+        }
+
         await dbHelper.query(
             client,
             'UPDATE schedules SET start_time = $1, end_time = $2, is_created = $3 WHERE id = $4',
             [getScheduleResult.rows[0].startTime, endTime, true, scheduleId]
         );
 
-        const scheduledTodoIds = createScheduleResult.result.schedule.todos.map((todo) => todo.id);
+        const scheduledTodoIds = scheduledTodoOrder.concat(
+            createScheduleResult.result.schedule.todos.map((todo) => todo.id)
+        );
         const listTodoIds = createScheduleResult.result.other.todos.map((todo) => todo.id);
 
         const scheduledTodoIdsCsv = scheduledTodoIds.length > 0 ? scheduledTodoIds.join(',') : null;
@@ -126,7 +134,7 @@ router.post('/create', createScheduleValidators, async (req, res) => {
         return res.status(500).json({
             isError: true,
             errorId: 'ServerError',
-            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
+            errorMessage: errorMessageToClient
         });
     } finally {
         client.release();
