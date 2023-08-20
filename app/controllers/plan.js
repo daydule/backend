@@ -168,23 +168,35 @@ router.post('/:id/delete', deletePlanValidators, async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
+
+        // 該当予定の削除
         const getPlanResult = await dbHelper.query(client, 'SELECT * from plans where id = $1', [id]);
         if (getPlanResult.rows.length === 0) {
             throw new Error('There is no plan with id(' + id + ').');
         }
-
         const deleteResult = await dbHelper.query(client, 'DELETE from plans WHERE id = $1 RETURNING *', [id]);
 
         if (deleteResult.rows[0].planType === PLAN_TYPE.TODO) {
-            const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
-            const newOrder = getUserResult.rows[0].todoListOrder
-                ?.split(',')
-                .filter((id) => Number(id) !== deleteResult.rows[0].id)
-                .join(',');
-            await dbHelper.query(client, 'UPDATE users SET todo_list_order = $1 WHERE id = $2', [
-                newOrder === '' ? null : newOrder,
-                userId
-            ]);
+            // スケジュール化されている分割予定を削除する場合、親と兄弟のTODOも削除する
+            if (deleteResult.rows[0].date && deleteResult.rows[0].parentPlanId) {
+                await dbHelper.query(client, 'DELETE from plans WHERE parent_plan_id = $1', [
+                    deleteResult.rows[0].parentPlanId
+                ]);
+                await dbHelper.query(client, 'DELETE from plans WHERE id = $1', [deleteResult.rows[0].parentPlanId]);
+            }
+
+            // TODOリストにあるTODOを削除する場合、並び順を調整する
+            if (!deleteResult.rows[0].date) {
+                const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
+                const newOrder = getUserResult.rows[0].todoListOrder
+                    ?.split(',')
+                    .filter((id) => Number(id) !== deleteResult.rows[0].id)
+                    .join(',');
+                await dbHelper.query(client, 'UPDATE users SET todo_list_order = $1 WHERE id = $2', [
+                    newOrder === '' ? null : newOrder,
+                    userId
+                ]);
+            }
         }
 
         await client.query('COMMIT');
