@@ -10,6 +10,7 @@ const {
     deletePlanValidators
 } = require('../middlewares/validator/planControllerValidators');
 const dbHelper = require('../helpers/dbHelper');
+const planHelper = require('../helpers/planHelper');
 const { PLAN_TYPE } = require('../config/const');
 
 /**
@@ -177,17 +178,34 @@ router.post('/:id/delete', deletePlanValidators, async (req, res) => {
         const deleteResult = await dbHelper.query(client, 'DELETE from plans WHERE id = $1 RETURNING *', [id]);
 
         if (deleteResult.rows[0].planType === PLAN_TYPE.TODO) {
+            let deleteDividePlanIds;
+            let deleteDividedPlansResult;
             // スケジュール化されている分割予定を削除する場合、親と兄弟のTODOも削除する
             if (deleteResult.rows[0].date && deleteResult.rows[0].parentPlanId) {
-                await dbHelper.query(client, 'DELETE from plans WHERE parent_plan_id = $1', [
-                    deleteResult.rows[0].parentPlanId
-                ]);
+                deleteDividedPlansResult = await dbHelper.query(
+                    client,
+                    'DELETE from plans WHERE parent_plan_id = $1 RETURNING *',
+                    [deleteResult.rows[0].parentPlanId]
+                );
+                deleteDividePlanIds = deleteDividedPlansResult.rows.map((row) => row.id);
+                deleteDividePlanIds.push(deleteResult.rows[0].id);
                 await dbHelper.query(client, 'DELETE from plans WHERE id = $1', [deleteResult.rows[0].parentPlanId]);
             }
 
-            // TODOリストにあるTODOを削除する場合、並び順を調整する
-            if (!deleteResult.rows[0].date) {
-                const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
+            const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
+            if (deleteResult.rows[0].date) {
+                // スケジュールにあるTODOを削除する場合、スケジュールの並び順を調整する
+                const scheduledTodoIds = planHelper.convertTodoListOrderToArray(
+                    getUserResult.rows[0].scheduledTodoOrder
+                );
+                const newScheduledTodoIds = scheduledTodoIds.filter((id) => !deleteDividePlanIds.includes(id));
+                const newScheduleTodoIdsCsv = newScheduledTodoIds.join(',');
+                await dbHelper.query(client, 'UPDATE users SET scheduled_todo_order = $1 WHERE id = $2', [
+                    newScheduleTodoIdsCsv ? newScheduleTodoIdsCsv : null,
+                    userId
+                ]);
+            } else {
+                // TODOリストにあるTODOを削除する場合、TODOリストの並び順を調整する
                 const newOrder = getUserResult.rows[0].todoListOrder
                     ?.split(',')
                     .filter((id) => Number(id) !== deleteResult.rows[0].id)
