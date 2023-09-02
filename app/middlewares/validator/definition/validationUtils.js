@@ -18,12 +18,9 @@ const skipCheckIfFalsy = (fields) => check(fields).optional({ checkFalsy: true }
  */
 
 const validationChainWrappers = {
-    checkIntegerWrapper: (validationChain, name) =>
-        validationChain.isInt().withMessage(`${name}は整数です。システム管理者に問い合わせてください。`),
+    checkIntegerWrapper: (validationChain, name) => validationChain.isInt().withMessage(`${name}は整数です。`),
     checkIntegerWithMinWrapper: (validationChain, name, min) =>
-        validationChain
-            .isInt({ min })
-            .withMessage(`${name}は${min}以上の整数です。システム管理者に問い合わせてください。`),
+        validationChain.isInt({ min }).withMessage(`${name}は${min}以上の整数です。`),
     checkIntegerArrayWrapper: (validationChain, name) =>
         validationChain
             .isArray()
@@ -31,9 +28,7 @@ const validationChainWrappers = {
             .custom((ids) => ids.every((id) => Number.isInteger(Number(id))))
             .withMessage(`${name}は整数の配列です。システム管理者に問い合わせてください。`),
     checkLengthMinMaxWrapper: (validationChain, name, min, max) =>
-        validationChain
-            .isLength({ min, max })
-            .withMessage(`${name}は${min}以上、${max}以下の文字列です。システム管理者に問い合わせてください。`),
+        validationChain.isLength({ min, max }).withMessage(`${name}は${min}以上、${max}以下の文字列です。`),
     checkDateWrapper: (validationChain, name) =>
         validationChain
             .custom((date) => {
@@ -46,7 +41,7 @@ const validationChainWrappers = {
             .custom((date) => {
                 return regex.test(date);
             })
-            .withMessage(`${name}は${regex}のフォーマットです。システム管理者に問い合わせてください。`)
+            .withMessage(`${name}は${regex}のフォーマットです。`)
             .custom((date) => {
                 const dateObject = new Date(date);
                 return dateObject instanceof Date && !isNaN(dateObject.valueOf());
@@ -55,15 +50,15 @@ const validationChainWrappers = {
     checkTimeString4digitsWrapper: (validationChain, name) =>
         validationChain
             .custom((time) => time.length === 4)
-            .withMessage(`${name}は４桁の時間を表す数字の文字列です(1)。システム管理者に問い合わせてください。`)
+            .withMessage(`${name}は４桁の時間を表す数字の文字列です(1)。`)
             .custom((time) => time.split('').every((c) => Number.isInteger(parseInt(c, 10))))
-            .withMessage(`${name}は４桁の時間を表す数字の文字列です(2)。システム管理者に問い合わせてください。`)
+            .withMessage(`${name}は４桁の時間を表す数字の文字列です(2)。`)
             .custom((time) => {
                 const hour = parseInt(time.substring(0, 2), 10);
                 const minute = parseInt(time.substring(2), 10);
                 return 0 <= hour && hour <= 23 && 0 <= minute && minute <= 59;
             })
-            .withMessage(`${name}は４桁の時間を表す数字の文字列です(3)。システム管理者に問い合わせてください。`),
+            .withMessage(`${name}は４桁の時間を表す数字の文字列です(3)。`),
     checkDifferentStringWrapper: (validationChain, string2, name1, name2) =>
         validationChain
             .custom((string1, { req }) => string1 !== req.body[string2])
@@ -75,11 +70,7 @@ const validationChainWrappers = {
     checkBooleanWrapper: (validationChain, name) =>
         validationChain.isBoolean().withMessage(`${name}はboolean型です。システム管理者に問い合わせてください。`),
     checkInWrapper: (validationChain, name, array) =>
-        validationChain
-            .isIn(array)
-            .withMessage(
-                `${name}は「${array?.join('')}」の中のどれかの文字列です。システム管理者に問い合わせてください。`
-            ),
+        validationChain.isIn(array).withMessage(`${name}は「${array?.join('')}」の中のどれかの文字列です。`),
     checkEmailWrapper: (validationChain) =>
         validationChain.isEmail().withMessage('メールアドレスとして正しい文字列を入力してください。'),
     checkPasswordWrapper: (validationChain) =>
