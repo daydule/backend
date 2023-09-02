@@ -23,6 +23,9 @@ async function initSchedule(client, isGuest, userId, date) {
         return;
     }
 
+    // NOTE: 前日の予定化されたTODOの順番を初期化するため
+    await dbHelper.query(client, 'UPDATE users SET scheduled_todo_order = NULL WHERE id = $1', [userId]);
+
     if (isGuest) {
         await dbHelper.query(
             client,
