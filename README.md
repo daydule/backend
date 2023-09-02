@@ -1,4 +1,4 @@
-# backend
+# daydule-backend
 
 ## ファイル構成
 
