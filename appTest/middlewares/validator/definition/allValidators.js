@@ -21,7 +21,7 @@ describe('generalValidators.js', function () {
                 },
                 {
                     location: 'body',
-                    msg: 'タイトルは1以上、100以下の文字列です。システム管理者に問い合わせてください。',
+                    msg: 'タイトルは1文字以上100文字以下の文字列です。',
                     param: 'title',
                     value: undefined
                 }
