@@ -28,7 +28,7 @@ const validationChainWrappers = {
             .custom((ids) => ids.every((id) => Number.isInteger(Number(id))))
             .withMessage(`${name}は整数の配列です。システム管理者に問い合わせてください。`),
     checkLengthMinMaxWrapper: (validationChain, name, min, max) =>
-        validationChain.isLength({ min, max }).withMessage(`${name}は${min}以上、${max}以下の文字列です。`),
+        validationChain.isLength({ min, max }).withMessage(`${name}は${min}文字以上${max}文字以下の文字列です。`),
     checkDateWrapper: (validationChain, name) =>
         validationChain
             .custom((date) => {
