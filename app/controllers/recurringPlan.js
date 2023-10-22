@@ -211,4 +211,39 @@ router.post('/delete', deleteRecurringPlanValidators, async (req, res) => {
     }
 });
 
+/**
+ * 繰り返し予定参照
+ */
+router.get('/read', guestCheck, async function (req, res) {
+    const userId = req.user.id;
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const result = [];
+        const recurringPlansResult = await dbHelper.query(
+            client,
+            'SELECT rp.* FROM recurring_plans rp INNER JOIN day_settings ds ON rp.day_id = ds.id WHERE ds.user_id = $1;',
+            [userId]
+        );
+        result.push(...recurringPlansResult.rows);
+
+        await client.query('COMMIT');
+        return res.status(200).json({
+            isError: false,
+            recurringPlanInfo: result
+        });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'ServerError',
+            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
+        });
+    } finally {
+        client.release();
+    }
+});
+
 module.exports = router;
