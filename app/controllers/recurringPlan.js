@@ -18,6 +18,7 @@ router.use(guestCheck);
  * 繰り返し予定作成
  */
 router.post('/create', createRecurringPlanValidators, async (req, res) => {
+    const userId = req.user.id;
     const dayIds = req.body.dayIds;
     const setId = req.body.setId;
     const title = req.body.title;
@@ -33,6 +34,14 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
 
     try {
         client.query('BEGIN');
+        await client.query('BEGIN');
+        const daySettingsInfo = [];
+        const daySettingsResult = await dbHelper.query(
+            client,
+            'SELECT id FROM day_settings WHERE user_id = $1 AND day = ANY($2::INTEGER[]) ORDER BY id',
+            [userId, dayIds]
+        );
+        daySettingsInfo.push(...daySettingsResult.rows);
 
         const tableName = 'recurring_plans';
         let result;
@@ -50,8 +59,8 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
                 'priority',
                 'place'
             ];
-            const values = dayIds.map((dayId) => [
-                dayId,
+            const values = daySettingsInfo.map((daySetting) => [
+                daySetting.id,
                 setId,
                 title,
                 context,
@@ -75,8 +84,8 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
                 'priority',
                 'place'
             ];
-            const values = dayIds.map((dayId) => [
-                dayId,
+            const values = daySettingsInfo.map((daySetting) => [
+                daySetting.id,
                 title,
                 context,
                 startTime,
