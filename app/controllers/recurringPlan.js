@@ -34,7 +34,6 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
 
     try {
         client.query('BEGIN');
-        await client.query('BEGIN');
         const daySettingsInfo = [];
         const daySettingsResult = await dbHelper.query(
             client,
