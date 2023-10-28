@@ -34,13 +34,13 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
 
     try {
         client.query('BEGIN');
-        const daySettingsInfo = [];
+        const daySettings = [];
         const daySettingsResult = await dbHelper.query(
             client,
             'SELECT id FROM day_settings WHERE user_id = $1 AND day = ANY($2::INTEGER[]) ORDER BY id',
             [userId, dayIds]
         );
-        daySettingsInfo.push(...daySettingsResult.rows);
+        daySettings.push(...daySettingsResult.rows);
 
         const tableName = 'recurring_plans';
         let result;
@@ -58,7 +58,7 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
                 'priority',
                 'place'
             ];
-            const values = daySettingsInfo.map((daySetting) => [
+            const values = daySettings.map((daySetting) => [
                 daySetting.id,
                 setId,
                 title,
@@ -83,7 +83,7 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
                 'priority',
                 'place'
             ];
-            const values = daySettingsInfo.map((daySetting) => [
+            const values = daySettings.map((daySetting) => [
                 daySetting.id,
                 title,
                 context,
@@ -214,6 +214,7 @@ router.post('/delete', deleteRecurringPlanValidators, async (req, res) => {
  * 繰り返し予定参照
  */
 router.get('/read', guestCheck, async function (req, res) {
+    // TODO: バリデーションは後で追加
     const userId = req.user.id;
 
     const client = await pool.connect();
@@ -222,7 +223,7 @@ router.get('/read', guestCheck, async function (req, res) {
         const result = [];
         const recurringPlansResult = await dbHelper.query(
             client,
-            'SELECT rp.* FROM recurring_plans rp INNER JOIN day_settings ds ON rp.day_id = ds.id WHERE ds.user_id = $1;',
+            'SELECT rp.*, ds.day, ds.schedule_start_time, ds.schedule_end_time, ds.scheduling_logic FROM recurring_plans rp INNER JOIN day_settings ds ON rp.day_id = ds.id WHERE ds.user_id = $1;',
             [userId]
         );
         result.push(...recurringPlansResult.rows);
@@ -230,7 +231,7 @@ router.get('/read', guestCheck, async function (req, res) {
         await client.query('COMMIT');
         return res.status(200).json({
             isError: false,
-            recurringPlanInfo: result
+            recurringPlans: result
         });
     } catch (e) {
         await client.query('ROLLBACK');
