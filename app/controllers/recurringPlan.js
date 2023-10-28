@@ -191,9 +191,7 @@ router.post('/delete', deleteRecurringPlanValidators, async (req, res) => {
             [userId, ids]
         );
         if (result.rows.length !== ids.length) {
-            throw new Error(
-                "There is some ids that is not existing in current user's recurring_plans. ids(" + ids.join(', ') + ')'
-            );
+            throw new Error('There is some ids that is not existing in recurring_plans. ids(' + ids.join(', ') + ')');
         } else if (result.rows.some((row) => result.rows[0].setId !== row.setId)) {
             throw new Error(
                 'There is some records that has another set_id. ids(' +
