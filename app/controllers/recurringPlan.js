@@ -142,11 +142,10 @@ router.post('/update', updateRecurringPlanValidators, async (req, res) => {
     const client = await pool.connect();
     try {
         client.query('BEGIN');
-        const daySettings = [];
         const daySettingsResult = await dbHelper.query(client, 'SELECT id FROM day_settings WHERE user_id = $1', [
             userId
         ]);
-        daySettings.push(...daySettingsResult.rows);
+        const daySettings = daySettingsResult.rows;
         const dayIds = daySettings.map((daySetting) => daySetting.id);
 
         const result = await dbHelper.query(
