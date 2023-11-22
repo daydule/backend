@@ -213,25 +213,46 @@ router.post('/delete', deleteRecurringPlanValidators, async (req, res) => {
 /**
  * 繰り返し予定参照
  */
-router.get('/read', guestCheck, async function (req, res) {
-    // TODO: バリデーションは後で追加
+router.get('/read', async function (req, res) {
+    const formatUtils = require('../utils/formatApiResponse');
     const userId = req.user.id;
 
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        const result = [];
-        const recurringPlansResult = await dbHelper.query(
+        const recurringPlansAndDaySettingsResult = await dbHelper.query(
             client,
-            'SELECT rp.*, ds.day, ds.schedule_start_time, ds.schedule_end_time, ds.scheduling_logic FROM recurring_plans rp INNER JOIN day_settings ds ON rp.day_id = ds.id WHERE ds.user_id = $1;',
+            'SELECT rp.*, rp.id as recurring_plans_id, ds.id as day_settings_id, ds.day, ds.schedule_start_time, ds.schedule_end_time, ds.scheduling_logic FROM recurring_plans rp RIGHT OUTER JOIN day_settings ds ON rp.day_id = ds.id WHERE ds.user_id = $1;',
             [userId]
         );
-        result.push(...recurringPlansResult.rows);
+        const result = recurringPlansAndDaySettingsResult.rows;
+        const recurringPlansResult = formatUtils.sliceObjectStEd(result, 0, -6).filter((obj) => obj.id != null);
+        const daySettingsResult = formatUtils.sliceObjectSt(result, -6);
+
+        //曜日毎の繰り返し予定テーブルのidを配列で保持するオブジェクトを作成
+        const recurringPlansIdsForEachDayId = Array.from({ length: 7 }, () => []);
+
+        daySettingsResult.forEach((daySetting) => {
+            const day = daySetting.day;
+            const recurringPlansId = daySetting.recurringPlansId;
+            recurringPlansIdsForEachDayId[day].push(recurringPlansId);
+            // recurringPlansIds プロパティを追加
+            daySetting.recurringPlansIds = recurringPlansIdsForEachDayId[day];
+        });
+
+        daySettingsResult.forEach((daySetting) => {
+            daySetting.id = daySetting.daySettingsId;
+            delete daySetting.daySettingsId;
+            delete daySetting.recurringPlansId;
+        });
+        //オブジェクトの重複を削除
+        const uniqueDaySettingsResult = Array.from(new Set(daySettingsResult.map(JSON.stringify)), JSON.parse);
 
         await client.query('COMMIT');
         return res.status(200).json({
             isError: false,
-            recurringPlans: result
+            recurringPlans: recurringPlansResult,
+            daySettings: uniqueDaySettingsResult
         });
     } catch (e) {
         await client.query('ROLLBACK');
