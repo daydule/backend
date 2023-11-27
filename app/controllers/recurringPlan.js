@@ -128,6 +128,7 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
  * 繰り返し予定更新
  */
 router.post('/update', updateRecurringPlanValidators, async (req, res) => {
+    const userId = req.user.id;
     const setId = req.body.setId;
     const title = req.body.title;
     const context = req.body.context;
@@ -141,12 +142,17 @@ router.post('/update', updateRecurringPlanValidators, async (req, res) => {
     const client = await pool.connect();
     try {
         client.query('BEGIN');
+        const daySettingsResult = await dbHelper.query(client, 'SELECT id FROM day_settings WHERE user_id = $1', [
+            userId
+        ]);
+        const daySettings = daySettingsResult.rows;
+        const dayIds = daySettings.map((daySetting) => daySetting.id);
 
         const result = await dbHelper.query(
             client,
             'UPDATE recurring_plans SET title = $1, context = $2, start_time = $3, end_time = $4, travel_time = $5, buffer_time = $6, priority = $7, place = $8 \
-            WHERE set_id = $9 RETURNING *',
-            [title, context, startTime, endTime, travelTime, bufferTime, priority, place, setId]
+            WHERE set_id = $9 AND day_id = ANY($10::INTEGER[]) RETURNING *',
+            [title, context, startTime, endTime, travelTime, bufferTime, priority, place, setId, dayIds]
         );
 
         client.query('COMMIT');
@@ -172,14 +178,17 @@ router.post('/update', updateRecurringPlanValidators, async (req, res) => {
  */
 
 router.post('/delete', deleteRecurringPlanValidators, async (req, res) => {
+    const userId = req.user.id;
     const ids = req.body.ids;
 
     const client = await pool.connect();
     try {
         client.query('BEGIN');
-        const result = await dbHelper.query(client, 'SELECT * FROM recurring_plans WHERE id = ANY($1::INTEGER[])', [
-            ids
-        ]);
+        const result = await dbHelper.query(
+            client,
+            'SELECT rp.* FROM recurring_plans rp INNER JOIN day_settings ds ON rp.day_id = ds.id WHERE ds.user_id = $1 AND rp.id = ANY($2::INTEGER[])',
+            [userId, ids]
+        );
         if (result.rows.length !== ids.length) {
             throw new Error('There is some ids that is not existing in recurring_plans. ids(' + ids.join(', ') + ')');
         } else if (result.rows.some((row) => result.rows[0].setId !== row.setId)) {
