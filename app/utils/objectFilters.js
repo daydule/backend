@@ -10,7 +10,7 @@
  */
 function filterObjectByKey(obj, keys) {
     return keys.reduce((filteredObj, key) => {
-        if (obj.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
             filteredObj[key] = obj[key];
         }
         return filteredObj;
