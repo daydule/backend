@@ -223,7 +223,7 @@ router.post('/delete', deleteRecurringPlanValidators, async (req, res) => {
  * 繰り返し予定参照
  */
 router.get('/read', async function (req, res) {
-    const formatUtils = require('../utils/formatApiResponse');
+    const objectUtils = require('../utils/objectFilters');
     const userId = req.user.id;
 
     const client = await pool.connect();
@@ -231,37 +231,59 @@ router.get('/read', async function (req, res) {
         await client.query('BEGIN');
         const recurringPlansAndDaySettingsResult = await dbHelper.query(
             client,
-            'SELECT rp.*, rp.id as recurring_plans_id, ds.id as day_settings_id, ds.day, ds.schedule_start_time, ds.schedule_end_time, ds.scheduling_logic FROM recurring_plans rp RIGHT OUTER JOIN day_settings ds ON rp.day_id = ds.id WHERE ds.user_id = $1;',
+            'SELECT rp.*, ds.id as day_settings_id, ds.day, ds.schedule_start_time, ds.schedule_end_time, ds.scheduling_logic FROM recurring_plans rp RIGHT OUTER JOIN day_settings ds ON rp.day_id = ds.id WHERE ds.user_id = $1;',
             [userId]
         );
-        const result = recurringPlansAndDaySettingsResult.rows;
-        const recurringPlansResult = formatUtils.sliceObjectStEd(result, 0, -6).filter((obj) => obj.id != null);
-        const daySettingsResult = formatUtils.sliceObjectSt(result, -6);
+        const results = recurringPlansAndDaySettingsResult.rows;
+        const recurringPlansKeys = [
+            'id',
+            'dayId',
+            'setId',
+            'title',
+            'context',
+            'startTime',
+            'endTime',
+            'travelTime',
+            'bufferTime',
+            'priority',
+            'place'
+        ];
+        const daySettingsKeys = [
+            'id',
+            'daySettingsId',
+            'day',
+            'scheduleStartTime',
+            'scheduleEndTime',
+            'schedulingLogic'
+        ];
+        const recurringPlansResult = results
+            .map((result) => objectUtils.filterObjectByKey(result, recurringPlansKeys))
+            .filter((obj) => obj.id != null);
+        const daySettingsResult = results.map((result) => objectUtils.filterObjectByKey(result, daySettingsKeys));
 
-        //曜日毎の繰り返し予定テーブルのidを配列で保持するオブジェクトを作成
-        const recurringPlansIdsForEachDayId = Array.from({ length: 7 }, () => []);
-
-        daySettingsResult.forEach((daySetting) => {
-            const day = daySetting.day;
-            const recurringPlansId = daySetting.recurringPlansId;
-            recurringPlansIdsForEachDayId[day].push(recurringPlansId);
-            // recurringPlansIds プロパティを追加
-            daySetting.recurringPlansIds = recurringPlansIdsForEachDayId[day];
-        });
-
-        daySettingsResult.forEach((daySetting) => {
-            daySetting.id = daySetting.daySettingsId;
-            delete daySetting.daySettingsId;
-            delete daySetting.recurringPlansId;
-        });
-        //オブジェクトの重複を削除
-        const uniqueDaySettingsResult = Array.from(new Set(daySettingsResult.map(JSON.stringify)), JSON.parse);
+        // NOTE: 曜日ごとに繰り返し予定のidを集計して大きさ7の配列に変換する
+        const groupedDaySettings = daySettingsResult.reduce((acc, daySetting) => {
+            const daySettingIndex = acc.findIndex((obj) => obj.day === daySetting.day);
+            if (daySettingIndex === -1) {
+                acc.push({
+                    id: daySetting.daySettingsId,
+                    day: daySetting.day,
+                    scheduleStartTime: daySetting.scheduleStartTime,
+                    scheduleEndTime: daySetting.scheduleEndTime,
+                    schedulingLogic: daySetting.schedulingLogic,
+                    recurringPlanIds: [daySetting.id]
+                });
+            } else {
+                acc[daySettingIndex].recurringPlanIds.push(daySetting.id);
+            }
+            return acc;
+        }, []);
 
         await client.query('COMMIT');
         return res.status(200).json({
             isError: false,
             recurringPlans: recurringPlansResult,
-            daySettings: uniqueDaySettingsResult
+            daySettings: groupedDaySettings
         });
     } catch (e) {
         await client.query('ROLLBACK');
