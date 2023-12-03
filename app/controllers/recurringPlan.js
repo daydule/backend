@@ -18,6 +18,7 @@ router.use(guestCheck);
  * 繰り返し予定作成
  */
 router.post('/create', createRecurringPlanValidators, async (req, res) => {
+    const userId = req.user.id;
     const dayIds = req.body.dayIds;
     const setId = req.body.setId;
     const title = req.body.title;
@@ -33,6 +34,13 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
 
     try {
         client.query('BEGIN');
+        const daySettings = [];
+        const daySettingsResult = await dbHelper.query(
+            client,
+            'SELECT id FROM day_settings WHERE user_id = $1 AND day = ANY($2::INTEGER[]) ORDER BY id',
+            [userId, dayIds]
+        );
+        daySettings.push(...daySettingsResult.rows);
 
         const tableName = 'recurring_plans';
         let result;
@@ -50,8 +58,8 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
                 'priority',
                 'place'
             ];
-            const values = dayIds.map((dayId) => [
-                dayId,
+            const values = daySettings.map((daySetting) => [
+                daySetting.id,
                 setId,
                 title,
                 context,
@@ -75,8 +83,8 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
                 'priority',
                 'place'
             ];
-            const values = dayIds.map((dayId) => [
-                dayId,
+            const values = daySettings.map((daySetting) => [
+                daySetting.id,
                 title,
                 context,
                 startTime,
@@ -120,6 +128,7 @@ router.post('/create', createRecurringPlanValidators, async (req, res) => {
  * 繰り返し予定更新
  */
 router.post('/update', updateRecurringPlanValidators, async (req, res) => {
+    const userId = req.user.id;
     const setId = req.body.setId;
     const title = req.body.title;
     const context = req.body.context;
@@ -133,12 +142,17 @@ router.post('/update', updateRecurringPlanValidators, async (req, res) => {
     const client = await pool.connect();
     try {
         client.query('BEGIN');
+        const daySettingsResult = await dbHelper.query(client, 'SELECT id FROM day_settings WHERE user_id = $1', [
+            userId
+        ]);
+        const daySettings = daySettingsResult.rows;
+        const dayIds = daySettings.map((daySetting) => daySetting.id);
 
         const result = await dbHelper.query(
             client,
             'UPDATE recurring_plans SET title = $1, context = $2, start_time = $3, end_time = $4, travel_time = $5, buffer_time = $6, priority = $7, place = $8 \
-            WHERE set_id = $9 RETURNING *',
-            [title, context, startTime, endTime, travelTime, bufferTime, priority, place, setId]
+            WHERE set_id = $9 AND day_id = ANY($10::INTEGER[]) RETURNING *',
+            [title, context, startTime, endTime, travelTime, bufferTime, priority, place, setId, dayIds]
         );
 
         client.query('COMMIT');
@@ -164,14 +178,17 @@ router.post('/update', updateRecurringPlanValidators, async (req, res) => {
  */
 
 router.post('/delete', deleteRecurringPlanValidators, async (req, res) => {
+    const userId = req.user.id;
     const ids = req.body.ids;
 
     const client = await pool.connect();
     try {
         client.query('BEGIN');
-        const result = await dbHelper.query(client, 'SELECT * FROM recurring_plans WHERE id = ANY($1::INTEGER[])', [
-            ids
-        ]);
+        const result = await dbHelper.query(
+            client,
+            'SELECT rp.* FROM recurring_plans rp INNER JOIN day_settings ds ON rp.day_id = ds.id WHERE ds.user_id = $1 AND rp.id = ANY($2::INTEGER[])',
+            [userId, ids]
+        );
         if (result.rows.length !== ids.length) {
             throw new Error('There is some ids that is not existing in recurring_plans. ids(' + ids.join(', ') + ')');
         } else if (result.rows.some((row) => result.rows[0].setId !== row.setId)) {
@@ -191,6 +208,88 @@ router.post('/delete', deleteRecurringPlanValidators, async (req, res) => {
         });
     } catch (e) {
         client.query('ROLLBACK');
+        console.error(e);
+        return res.status(500).json({
+            isError: true,
+            errorId: 'ServerError',
+            errorMessage: '予期せぬエラーが発生しました。時間を置いて、もう一度お試しください。'
+        });
+    } finally {
+        client.release();
+    }
+});
+
+/**
+ * 繰り返し予定参照
+ */
+router.get('/read', async function (req, res) {
+    const objectUtils = require('../utils/objectFilters');
+    const userId = req.user.id;
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const recurringPlansAndDaySettingsResult = await dbHelper.query(
+            client,
+            'SELECT rp.*, ds.id as day_settings_id, ds.day, ds.schedule_start_time, ds.schedule_end_time, ds.scheduling_logic FROM recurring_plans rp RIGHT OUTER JOIN day_settings ds ON rp.day_id = ds.id WHERE ds.user_id = $1;',
+            [userId]
+        );
+        const results = recurringPlansAndDaySettingsResult.rows;
+        const recurringPlansKeys = [
+            'id',
+            'dayId',
+            'setId',
+            'title',
+            'context',
+            'startTime',
+            'endTime',
+            'travelTime',
+            'bufferTime',
+            'priority',
+            'place'
+        ];
+        const daySettingsKeys = [
+            'id',
+            'daySettingsId',
+            'day',
+            'scheduleStartTime',
+            'scheduleEndTime',
+            'schedulingLogic'
+        ];
+        const recurringPlansResult = results
+            .map((result) => objectUtils.filterObjectByKey(result, recurringPlansKeys))
+            .filter((obj) => obj.id != null);
+        const daySettingsResult = results.map((result) => objectUtils.filterObjectByKey(result, daySettingsKeys));
+
+        // NOTE: 曜日ごとに繰り返し予定のidを集計して大きさ7の配列に変換する
+        const groupedDaySettings = daySettingsResult
+            .reduce((acc, daySetting) => {
+                const daySettingIndex = acc.findIndex((obj) => obj.day === daySetting.day);
+                if (daySettingIndex === -1) {
+                    acc.push({
+                        id: daySetting.daySettingsId,
+                        day: daySetting.day,
+                        scheduleStartTime: daySetting.scheduleStartTime,
+                        scheduleEndTime: daySetting.scheduleEndTime,
+                        schedulingLogic: daySetting.schedulingLogic,
+                        recurringPlanIds: daySetting.id ? [daySetting.id] : null
+                    });
+                } else {
+                    // NOTE: daySetting.idがnullの要素は配列の中に最大1つなので、ここではrecurringPlansIdsがnullの場合は考慮しなくてよい
+                    acc[daySettingIndex].recurringPlanIds.push(daySetting.id);
+                }
+                return acc;
+            }, [])
+            .sort((a, b) => a.day - b.day);
+
+        await client.query('COMMIT');
+        return res.status(200).json({
+            isError: false,
+            recurringPlans: recurringPlansResult,
+            daySettings: groupedDaySettings
+        });
+    } catch (e) {
+        await client.query('ROLLBACK');
         console.error(e);
         return res.status(500).json({
             isError: true,
