@@ -262,22 +262,25 @@ router.get('/read', async function (req, res) {
         const daySettingsResult = results.map((result) => objectUtils.filterObjectByKey(result, daySettingsKeys));
 
         // NOTE: 曜日ごとに繰り返し予定のidを集計して大きさ7の配列に変換する
-        const groupedDaySettings = daySettingsResult.reduce((acc, daySetting) => {
-            const daySettingIndex = acc.findIndex((obj) => obj.day === daySetting.day);
-            if (daySettingIndex === -1) {
-                acc.push({
-                    id: daySetting.daySettingsId,
-                    day: daySetting.day,
-                    scheduleStartTime: daySetting.scheduleStartTime,
-                    scheduleEndTime: daySetting.scheduleEndTime,
-                    schedulingLogic: daySetting.schedulingLogic,
-                    recurringPlanIds: [daySetting.id]
-                });
-            } else {
-                acc[daySettingIndex].recurringPlanIds.push(daySetting.id);
-            }
-            return acc;
-        }, []);
+        const groupedDaySettings = daySettingsResult
+            .reduce((acc, daySetting) => {
+                const daySettingIndex = acc.findIndex((obj) => obj.day === daySetting.day);
+                if (daySettingIndex === -1) {
+                    acc.push({
+                        id: daySetting.daySettingsId,
+                        day: daySetting.day,
+                        scheduleStartTime: daySetting.scheduleStartTime,
+                        scheduleEndTime: daySetting.scheduleEndTime,
+                        schedulingLogic: daySetting.schedulingLogic,
+                        recurringPlanIds: daySetting.id ? [daySetting.id] : null
+                    });
+                } else {
+                    // NOTE: daySetting.idがnullの要素は配列の中に最大1つなので、ここではrecurringPlansIdsがnullの場合は考慮しなくてよい
+                    acc[daySettingIndex].recurringPlanIds.push(daySetting.id);
+                }
+                return acc;
+            }, [])
+            .sort((a, b) => a.day - b.day);
 
         await client.query('COMMIT');
         return res.status(200).json({
