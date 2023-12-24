@@ -70,8 +70,13 @@ async function execute(client, userId, scheduleId, startTimeStr, endTimeStr, pla
 
             // 空き時間のうち予定が入っている箇所を1で埋める
             let processTimeMin = timeUtil.subtractTimeStr(plan.endTime, plan.startTime);
-            let startIndex = timeUtil.subtractTimeStr(plan.startTime, startTimeStr) / constant.SECTION_MINUTES_LENGTH;
-            let endIndex = startIndex + processTimeMin / constant.SECTION_MINUTES_LENGTH;
+
+            // NOTE: 予定の開始が半端な数の場合は切り捨て
+            let startIndex = Math.floor(
+                timeUtil.subtractTimeStr(plan.startTime, startTimeStr) / constant.SECTION_MINUTES_LENGTH
+            );
+            // NOTE: 予定の終了時間が半端な数の場合は切り上げ
+            let endIndex = Math.ceil(startIndex + processTimeMin / constant.SECTION_MINUTES_LENGTH);
 
             if (endIndex < 0) {
                 // NOTE: 予定の終了時刻が、作業できる時間帯の開始時刻を過ぎている場合
