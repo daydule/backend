@@ -2,6 +2,7 @@
 
 const constant = require('../config/const');
 const dbHelper = require('../helpers/dbHelper');
+const timeUtil = require('../utils/time');
 const { PLAN_TYPE } = require('../config/const');
 const { Client } = require('pg');
 
@@ -22,9 +23,6 @@ async function initSchedule(client, isGuest, userId, date) {
     if (getSchedulesResult.rows.length > 0) {
         return;
     }
-
-    // NOTE: 前日の予定化されたTODOの順番を初期化するため
-    await dbHelper.query(client, 'UPDATE users SET scheduled_todo_order = NULL WHERE id = $1', [userId]);
 
     if (isGuest) {
         await dbHelper.query(
@@ -109,7 +107,28 @@ async function createSchedule(client, scheduleLogicId, userId, scheduleId, start
     }
 }
 
+/**
+ * 今日のスケジュールを返す
+ *
+ * @param {Client} client - DB接続
+ * @param {number} userId - ユーザーID
+ * @returns {object | null} - スケジュール作成結果
+ */
+async function getTodaySchedule(client, userId) {
+    const now = new Date();
+    const today = timeUtil.convertToYYYY_MM_DD(now);
+
+    const getSchedulesResult = await dbHelper.query(
+        client,
+        'SELECT * FROM schedules WHERE user_id = $1 AND date = $2',
+        [userId, today]
+    );
+
+    return getSchedulesResult.rows.length > 0 ? getSchedulesResult.rows[0] : null;
+}
+
 module.exports = {
     initSchedule,
-    createSchedule
+    createSchedule,
+    getTodaySchedule
 };

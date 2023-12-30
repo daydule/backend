@@ -4,7 +4,8 @@ INSERT INTO "schedules"
   "date",
   "start_time",
   "end_time",
-  "is_created"
+  "is_created",
+  "todo_order"
 )
 VALUES
 (
@@ -12,6 +13,7 @@ VALUES
   '2022-12-30',
   '0900',
   '1800',
-  false
+  false,
+  null
 );
 

@@ -78,7 +78,8 @@ router.post('/create', createScheduleValidators, async (req, res) => {
         const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
 
         const todoListOrder = planHelper.convertTodoListOrderToArray(getUserResult.rows[0].todoListOrder);
-        const scheduledTodoOrder = planHelper.convertTodoListOrderToArray(getUserResult.rows[0].scheduledTodoOrder);
+        const todaySchedule = await scheduleHelper.getTodaySchedule(client, userId);
+        const scheduledTodoOrder = planHelper.convertTodoListOrderToArray(todaySchedule.todoOrder);
         const todos = getTodosResult.rows;
         const sortedTodos = planHelper.sortTodos(todos, todoListOrder);
 
@@ -119,9 +120,9 @@ router.post('/create', createScheduleValidators, async (req, res) => {
         const scheduledTodoIdsCsv = scheduledTodoIds.length > 0 ? scheduledTodoIds.join(',') : null;
         const listTodoIdsCsv = listTodoIds.length > 0 ? listTodoIds.join(',') : null;
 
-        await dbHelper.query(client, 'UPDATE users SET scheduled_todo_order = $1 WHERE id = $2', [
-            scheduledTodoIdsCsv,
-            userId
+        await dbHelper.query(client, 'UPDATE schedules SET todo_order = $1 WHERE id = $2', [
+            scheduledTodoIdsCsv ? scheduledTodoIdsCsv : null,
+            todaySchedule.id
         ]);
         await dbHelper.query(client, 'UPDATE users SET todo_list_order = $1 WHERE id = $2', [listTodoIdsCsv, userId]);
 
