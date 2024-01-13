@@ -84,8 +84,17 @@ function getStartAndEndTimeStr(scheduleStartTime, startTimeDiffBetweenScheduleAn
     };
 }
 
+/**
+ * 日付を「YYYY-MM-DD」形式の文字列に変換します
+ * @param {Date} date - 変換する日付
+ * @returns {string} - 「YYYY-MM-DD」形式の日付文字列
+ */
+function convertToYYYY_MM_DD(date) {
+    return date.getFullYear() + '-' + ('0' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + date.getDate()).slice(-2);
+}
 module.exports = {
     compareTimeStr: compareTimeStr,
     subtractTimeStr: subtractTimeStr,
-    getStartAndEndTimeStr: getStartAndEndTimeStr
+    getStartAndEndTimeStr: getStartAndEndTimeStr,
+    convertToYYYY_MM_DD: convertToYYYY_MM_DD
 };

@@ -12,6 +12,7 @@ const {
 const dbHelper = require('../helpers/dbHelper');
 const planHelper = require('../helpers/planHelper');
 const { PLAN_TYPE } = require('../config/const');
+const scheduleHelper = require('../helpers/scheduleHelper');
 
 /**
  * 予定作成
@@ -196,14 +197,13 @@ router.post('/:id/delete', deletePlanValidators, async (req, res) => {
             const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
             if (deleteResult.rows[0].date) {
                 // スケジュールにあるTODOを削除する場合、スケジュールの並び順を調整する
-                const scheduledTodoIds = planHelper.convertTodoListOrderToArray(
-                    getUserResult.rows[0].scheduledTodoOrder
-                );
+                const todaySchedule = await scheduleHelper.getTodaySchedule(client, userId);
+                const scheduledTodoIds = planHelper.convertTodoListOrderToArray(todaySchedule.todoOrder);
                 const newScheduledTodoIds = scheduledTodoIds.filter((id) => !deletePlanIds.includes(id));
                 const newScheduleTodoIdsCsv = newScheduledTodoIds.join(',');
-                await dbHelper.query(client, 'UPDATE users SET scheduled_todo_order = $1 WHERE id = $2', [
+                await dbHelper.query(client, 'UPDATE schedules SET todo_order = $1 WHERE id = $2', [
                     newScheduleTodoIdsCsv ? newScheduleTodoIdsCsv : null,
-                    userId
+                    todaySchedule.id
                 ]);
             } else {
                 // TODOリストにあるTODOを削除する場合、TODOリストの並び順を調整する
@@ -324,8 +324,8 @@ router.post('/backToList', async (req, res) => {
             [userId, dateStr, constant.PLAN_TYPE.TODO]
         );
 
-        const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
-        const scheduledTodoOrder = planHelper.convertTodoListOrderToArray(getUserResult.rows[0].scheduledTodoOrder);
+        const todaySchedule = await scheduleHelper.getTodaySchedule(client, userId);
+        const scheduledTodoOrder = planHelper.convertTodoListOrderToArray(todaySchedule.todoOrder);
         const todos = getTodosResult.rows;
         const sortedTodos = planHelper.sortTodos(todos, scheduledTodoOrder);
 

@@ -5,5 +5,6 @@ CREATE TABLE "schedules"
   "date"                    DATE               NOT NULL,
   "start_time"              VARCHAR(4)         NOT NULL DEFAULT '0900',
   "end_time"                VARCHAR(4)         NOT NULL DEFAULT '1800',
-  "is_created"              BOOLEAN            NOT NULL DEFAULT FALSE
+  "is_created"              BOOLEAN            NOT NULL DEFAULT FALSE,
+  "todo_order"              TEXT
 );

@@ -35,7 +35,7 @@ describe('scheduleHelper.js', function () {
             const userId = 'dummyUserId';
             const date = new Date();
             await scheduleHelper.initSchedule(client, isGuest, userId, date);
-            assert.equal(stub.callCount, 3);
+            assert.equal(stub.callCount, 2);
         });
         it('should call pool.query function 6 times if does not exist schedule record and is not guest.', async function () {
             const stub = sinon.stub();
@@ -62,7 +62,7 @@ describe('scheduleHelper.js', function () {
             const userId = 'dummyUserId';
             const date = new Date();
             await scheduleHelper.initSchedule(client, isGuest, userId, date);
-            assert.equal(stub.callCount, 7);
+            assert.equal(stub.callCount, 6);
         });
     });
     describe('createSchedule function', function () {

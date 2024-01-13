@@ -2,6 +2,7 @@
 
 const dbHelper = require('../helpers/dbHelper');
 const { Client } = require('pg');
+const scheduleHelper = require('../helpers/scheduleHelper');
 
 /**
  * スケジュールからリストにTODOを戻す
@@ -12,7 +13,8 @@ const { Client } = require('pg');
  */
 async function backToList(client, userId, todoId) {
     const getUserResult = await dbHelper.query(client, 'SELECT * FROM users WHERE id = $1', [userId]);
-    const scheduledTodoIds = convertTodoListOrderToArray(getUserResult.rows[0].scheduledTodoOrder);
+    const todaySchedule = await scheduleHelper.getTodaySchedule(client, userId);
+    const scheduledTodoIds = convertTodoListOrderToArray(todaySchedule.todoOrder);
     const todoListIds = convertTodoListOrderToArray(getUserResult.rows[0].todoListOrder);
 
     const getTodoResult = await dbHelper.query(client, 'SELECT * FROM plans WHERE id = $1', [todoId]);
@@ -57,9 +59,9 @@ async function backToList(client, userId, todoId) {
 
     const newScheduleTodoIdsCsv = newScheduledTodoIds.join(',');
     const newListTodoIdsCsv = newTodoListIds.join(',');
-    await dbHelper.query(client, 'UPDATE users SET scheduled_todo_order = $1 WHERE id = $2', [
+    await dbHelper.query(client, 'UPDATE schedules SET todo_order = $1 WHERE id = $2', [
         newScheduleTodoIdsCsv ? newScheduleTodoIdsCsv : null,
-        userId
+        todaySchedule.id
     ]);
     await dbHelper.query(client, 'UPDATE users SET todo_list_order = $1 WHERE id = $2', [
         newListTodoIdsCsv ? newListTodoIdsCsv : null,

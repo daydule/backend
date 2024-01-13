@@ -37,4 +37,27 @@ describe('time.js', function () {
             assert.equal(result.endTime, '1100');
         });
     });
+
+    describe('convertToYYYY_MM_DD function', function () {
+        // Test case 1: Convert a date to YYYY-MM-DD format
+        it('Converts date', function () {
+            const date = new Date('2022-01-01');
+            const result = timeUtil.convertToYYYY_MM_DD(date);
+            assert.strictEqual(result, '2022-01-01');
+        });
+
+        // Test case 2: Convert a date with single-digit month and day to YYYY-MM-DD format
+        it('Converts date with single-digit month and day to YYYY-MM-DD format', function () {
+            const date = new Date('2022-02-03');
+            const result = timeUtil.convertToYYYY_MM_DD(date);
+            assert.strictEqual(result, '2022-02-03');
+        });
+
+        // Test case 3: Convert a date with double-digit month and day to YYYY-MM-DD format
+        it('Converts date with double-digit month and day to YYYY-MM-DD format', function () {
+            const date = new Date('2022-12-31');
+            const result = timeUtil.convertToYYYY_MM_DD(date);
+            assert.strictEqual(result, '2022-12-31');
+        });
+    });
 });
