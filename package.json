@@ -2,6 +2,9 @@
   "name": "backend",
   "private": true,
   "version": "1.0.0",
+  "engines": {
+    "node": "<15.0.0"
+  }
   "scripts": {
     "start": "node app.js;",
     "start:nodemon": "nodemon ./app/app.js",
